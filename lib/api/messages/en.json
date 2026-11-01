@@ -1,0 +1,12 @@
+{
+  "common": {
+    "INVALID_PARAMS": "Invalid request parameters.",
+    "UNAUTHORIZED": "Please sign in.",
+    "FORBIDDEN": "This operation is forbidden.",
+    "NOT_FOUND": "Resource not found.",
+    "TOO_MANY_REQUESTS": "Too many requests. Please try again later.",
+    "INTERNAL_ERROR": "The service is temporarily unavailable.",
+    "BAD_GATEWAY": "The upstream service is unavailable.",
+    "REQUEST_FAILED": "The request failed."
+  }
+}

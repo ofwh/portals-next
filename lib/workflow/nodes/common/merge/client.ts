@@ -1,0 +1,1 @@
+export { mergeNodeView } from './pages';

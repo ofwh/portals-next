@@ -1,0 +1,1 @@
+export { textareaNodeView } from './pages';

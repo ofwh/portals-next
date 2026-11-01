@@ -1,0 +1,1 @@
+export { renameNodeView } from './pages';

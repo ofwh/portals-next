@@ -1,0 +1,1 @@
+export { filterNodeView } from './pages';

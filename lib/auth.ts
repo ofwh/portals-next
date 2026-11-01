@@ -12,6 +12,14 @@ export const auth = betterAuth({
   }),
   emailAndPassword: {
     enabled: true,
+    minPasswordLength: 3,
+    maxPasswordLength: 24,
+  },
+  user: {
+    changeEmail: {
+      enabled: true,
+      updateEmailWithoutVerification: true,
+    },
   },
   plugins: [username()],
 });

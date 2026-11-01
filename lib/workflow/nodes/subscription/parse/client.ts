@@ -1,0 +1,1 @@
+export { parseNodeView } from './pages';
