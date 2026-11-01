@@ -1,1 +1,1 @@
-export { filterNodeView } from './pages';
+export { filterNodeView } from './ui';

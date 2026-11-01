@@ -1,0 +1,42 @@
+{
+  "group": "公共节点",
+  "base64": {
+    "name": "Base64",
+    "mode": "操作模式",
+    "encode": "编码",
+    "decode": "解码",
+    "help": "将上游文本以 UTF-8 编码为 Base64，或将 Base64 解码为 UTF-8 文本；无效的 Base64 或 UTF-8 输入会报错"
+  },
+  "httpRequest": {
+    "name": "HTTP请求",
+    "method": "请求模式",
+    "url": "请求 URL",
+    "urlPlaceholder": "设置请求 URL",
+    "headers": "自定义请求头",
+    "headerName": "请求头名称",
+    "headerValue": "请求头值",
+    "addHeader": "添加请求头",
+    "removeHeader": "删除请求头",
+    "body": "请求体",
+    "bodyHelp": "按输入的原始文本发送，需要时在请求头中设置 Content-Type",
+    "outputFormat": "输出格式"
+  },
+  "merge": {
+    "name": "数据合并",
+    "help": "连接多个输入，按连线顺序合并为数组；数组仅展开一层，对象保持完整，无需额外配置",
+    "summary": "将多个输入合并为一个数组"
+  },
+  "fieldInput": {
+    "name": "字段输入",
+    "outputFormat": "输出类型",
+    "text": "输入内容",
+    "help": "文本模式原样输出；JSON对象模式将内容解析为 JSON 对象",
+    "summary": "{count} 个字符"
+  },
+  "shared": {
+    "formats": {
+      "text": "文本",
+      "json": "JSON对象"
+    }
+  }
+}

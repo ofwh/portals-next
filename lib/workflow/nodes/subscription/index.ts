@@ -9,7 +9,7 @@ const nodes = [parseNode, renameNode, filterNode] as const;
 
 export const group = {
   id: 'subscription',
-  ...nodeLabel('subscriptionNodes.group'),
+  ...nodeLabel('workflowNodes.subscription.group'),
   nodes,
   types: [subscriptionNodesSchema],
 } satisfies NodeModuleGroup;

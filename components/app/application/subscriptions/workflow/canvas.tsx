@@ -88,9 +88,9 @@ const CanvasNode = memo(function CanvasNode({
                     runState.status === 'running'
                       ? 'text-primary rounded-full border-0 shadow-none'
                       : runState.status === 'failed'
-                        ? 'text-destructive border-0 shadow-none'
+                        ? 'border-0 text-[#e11d48] shadow-none'
                         : runState.status === 'success'
-                          ? 'text-primary border-0 shadow-none'
+                          ? 'border-0 text-[#2dc653] shadow-none'
                           : 'text-muted-foreground border-0 shadow-none'
                   }
                   onClick={(event) => {

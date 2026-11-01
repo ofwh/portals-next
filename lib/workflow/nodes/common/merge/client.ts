@@ -1,1 +1,1 @@
-export { mergeNodeView } from './pages';
+export { mergeNodeView } from './ui';

@@ -1,9 +1,9 @@
 import { filterNodeView } from './filter/client';
-import { isConfig as isFilterConfig } from './filter/schema';
+import { isConfig as isFilterConfig } from './filter/model/schema';
 import { parseNodeView } from './parse/client';
-import { isConfig as isParseConfig } from './parse/schema';
+import { isConfig as isParseConfig } from './parse/model/schema';
 import { renameNodeView } from './rename/client';
-import { isConfig as isRenameConfig } from './rename/schema';
+import { isConfig as isRenameConfig } from './rename/model/schema';
 import { subscriptionNodesSchema } from './schema';
 import type { TypeRegistry } from '../core/type-registry';
 import type { NodeViewRegistry } from '../core/views';

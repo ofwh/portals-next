@@ -1,15 +1,16 @@
+import { base64Node } from './base64';
+import { fieldInputNode } from './field-input';
 import { httpRequestNode } from './http-request';
-import { outputSchema } from './http-request/schema';
+import { outputSchema } from './http-request/model/schema';
 import { mergeNode } from './merge';
-import { textareaNode } from './textarea';
 import type { NodeModuleGroup } from '../types';
 import { nodeLabel } from '../utils';
 
-const nodes = [textareaNode, mergeNode, httpRequestNode] as const;
+const nodes = [fieldInputNode, mergeNode, httpRequestNode, base64Node] as const;
 
 export const group = {
   id: 'common',
-  ...nodeLabel('commonNodes.group'),
+  ...nodeLabel('workflowNodes.common.group'),
   nodes,
   types: [outputSchema],
 } satisfies NodeModuleGroup;

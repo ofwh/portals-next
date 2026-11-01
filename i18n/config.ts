@@ -1,7 +1,11 @@
+import { nodeMessages } from '@/lib/workflow/nodes/messages';
 import en from '@/messages/en.json';
 import zhCN from '@/messages/zh-CN.json';
 
-export const languageMessages = { en, 'zh-CN': zhCN };
+export const languageMessages = {
+  en: { ...en, ...nodeMessages.en },
+  'zh-CN': { ...zhCN, ...nodeMessages['zh-CN'] },
+};
 export type Locale = keyof typeof languageMessages;
 export const locales = Object.keys(languageMessages) as Locale[];
 export const defaultLocale: Locale = 'en';

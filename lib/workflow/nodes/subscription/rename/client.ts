@@ -1,1 +1,1 @@
-export { renameNodeView } from './pages';
+export { renameNodeView } from './ui';

@@ -1,9 +1,8 @@
-import type { Locale } from './config';
-import type messages from '../messages/en.json';
+import type { languageMessages, Locale } from './config';
 
 declare module 'next-intl' {
   interface AppConfig {
     Locale: Locale;
-    Messages: typeof messages;
+    Messages: typeof languageMessages.en;
   }
 }

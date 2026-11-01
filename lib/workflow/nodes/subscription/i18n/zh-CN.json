@@ -1,0 +1,45 @@
+{
+  "formats": {
+    "auto": "自动识别",
+    "base64": "Base64／已解码的分享链接",
+    "links": "分享链接",
+    "clash": "Clash / Mihomo YAML 或 JSON",
+    "singBox": "sing-box JSON"
+  },
+  "parse": {
+    "name": "订阅解析",
+    "format": "输入格式",
+    "help": "从文本、JSON 对象或 HTTP 请求节点的响应体提取实际节点，统一输出节点列表。自动识别支持 Base64、分享链接、Clash/Mihomo 和 sing-box"
+  },
+  "rename": {
+    "name": "节点重命名",
+    "help": "从上到下依次替换节点名称。左侧填写正则，右侧填写替换内容；留空表示删除匹配文字",
+    "rule": "规则 {index}",
+    "pattern": "匹配正则",
+    "replacement": "替换内容",
+    "add": "添加规则",
+    "remove": "删除",
+    "moveUp": "上移",
+    "moveDown": "下移",
+    "summary": "{count} 条重命名规则",
+    "rules": "重命名规则"
+  },
+  "filter": {
+    "name": "节点过滤",
+    "protocols": "节点协议",
+    "namePattern": "名称过滤规则",
+    "exclude": "排除匹配节点",
+    "excludeHelp": "查看过滤方式说明",
+    "excludeOffHelp": "默认关闭：保留匹配规则的节点",
+    "excludeOnHelp": "开启开关：排除匹配规则的节点",
+    "help": "名称匹配任意一条正则即可。选择协议后，还须满足协议条件；开启排除则删除匹配节点",
+    "excludeSummary": "排除匹配 · {count} 种协议",
+    "keepSummary": "保留匹配 · {count} 种协议",
+    "protocolsPlaceholder": "选择协议，留空不限",
+    "noProtocols": "没有匹配的协议",
+    "pattern": "输入名称正则",
+    "add": "添加规则",
+    "remove": "删除规则"
+  },
+  "group": "订阅节点"
+}

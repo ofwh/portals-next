@@ -1,8 +1,8 @@
-import { defaultConfig, definition } from './definition';
-import { execute } from './executor';
-import { parseConfig, parseInput } from './parser';
-import { configSchema, inputSchema, outputSchema } from './schema';
-import type { MergeConfig, MergeInput, MergeOutput, MergeRunInput } from './types';
+import { defaultConfig, definition } from './model/definition';
+import { configSchema, inputSchema, outputSchema } from './model/schema';
+import type { MergeConfig, MergeInput, MergeOutput, MergeRunInput } from './model/types';
+import { execute } from './runtime/executor';
+import { parseConfig, parseInput } from './runtime/input';
 import { defineNode } from '../../core/registry';
 
 export const mergeNode = defineNode<MergeInput, MergeConfig, MergeOutput, MergeRunInput>({

@@ -1,3 +1,6 @@
+import { errorMessages as commonMessages } from '@/lib/workflow/nodes/common/i18n/errors';
+import { errorMessages as subscriptionMessages } from '@/lib/workflow/nodes/subscription/i18n/errors';
+
 export const codes = {
   DUPLICATE_TYPE: 1301000,
   TYPE_NOT_FOUND: 1301001,
@@ -23,6 +26,8 @@ export const codes = {
 } as const;
 export const messages = {
   'zh-CN': {
+    ...subscriptionMessages['zh-CN'],
+    ...commonMessages['zh-CN'],
     DUPLICATE_TYPE: '工作流数据类型已注册',
     TYPE_NOT_FOUND: '工作流数据类型未注册',
     DUPLICATE_NODE: '工作流节点类型已注册',
@@ -39,13 +44,11 @@ export const messages = {
     CANCELLED: '工作流运行已取消',
     RUN_EXISTS: '工作流运行标识已存在',
     RUN_NOT_FOUND: '工作流运行不存在',
-    HTTP_REQUEST_FAILED: 'HTTP 请求或响应读取失败',
-    HTTP_INVALID_JSON: 'HTTP 响应体不是有效的 JSON',
-    SUBSCRIPTION_PARSE_FAILED: '订阅解析失败，未发现有效的受支持节点，请检查格式、协议及必填字段',
-    SUBSCRIPTION_EMPTY_NAME: '重命名后的节点名称不能为空',
     DRAFT_NOT_FOUND: '尚未保存可运行的流程草稿',
   },
   en: {
+    ...subscriptionMessages.en,
+    ...commonMessages.en,
     DUPLICATE_TYPE: 'The workflow data type is already registered.',
     TYPE_NOT_FOUND: 'The workflow data type is not registered.',
     DUPLICATE_NODE: 'The workflow node type is already registered.',
@@ -62,11 +65,6 @@ export const messages = {
     CANCELLED: 'The workflow run was cancelled.',
     RUN_EXISTS: 'The workflow run ID already exists.',
     RUN_NOT_FOUND: 'The workflow run does not exist.',
-    HTTP_REQUEST_FAILED: 'The HTTP request or response read failed.',
-    HTTP_INVALID_JSON: 'The HTTP response body is not valid JSON.',
-    SUBSCRIPTION_PARSE_FAILED:
-      'Subscription parsing failed. No valid supported nodes were found. Check the format, protocols, and required fields.',
-    SUBSCRIPTION_EMPTY_NAME: 'Renamed subscription nodes must have a non-empty name.',
     DRAFT_NOT_FOUND: 'No workflow draft has been saved for execution.',
   },
 } satisfies Record<'zh-CN' | 'en', Record<keyof typeof codes, string>>;

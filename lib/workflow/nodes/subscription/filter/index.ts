@@ -1,8 +1,8 @@
-import { defaultConfig, definition } from './definition';
-import { execute } from './executor';
-import { parseConfig, parseInput } from './parser';
-import { configSchema, inputSchema, outputSchema } from './schema';
-import type { FilterConfig, FilterInput, FilterOutput, FilterRunInput } from './types';
+import { defaultConfig, definition } from './model/definition';
+import { configSchema, inputSchema, outputSchema } from './model/schema';
+import type { FilterConfig, FilterInput, FilterOutput, FilterRunInput } from './model/types';
+import { execute } from './runtime/executor';
+import { parseConfig, parseInput } from './runtime/input';
 import { defineNode } from '../../core/registry';
 
 export const filterNode = defineNode<FilterInput, FilterConfig, FilterOutput, FilterRunInput>({

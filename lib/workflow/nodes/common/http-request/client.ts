@@ -1,1 +1,1 @@
-export { httpRequestNodeView } from './pages';
+export { httpRequestNodeView } from './ui';

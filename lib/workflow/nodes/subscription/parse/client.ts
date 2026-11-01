@@ -1,1 +1,1 @@
-export { parseNodeView } from './pages';
+export { parseNodeView } from './ui';
