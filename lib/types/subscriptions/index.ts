@@ -1,5 +1,5 @@
 import type { subscriptions } from '@/lib/db/schema';
-import type { PaginationParams } from './pagination';
+import type { PaginationParams } from '../pagination';
 
 type SubscriptionRow = typeof subscriptions.$inferSelect;
 export interface SubscriptionListParams extends PaginationParams {

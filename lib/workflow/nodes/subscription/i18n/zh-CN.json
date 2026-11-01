@@ -41,5 +41,10 @@
     "add": "添加规则",
     "remove": "删除规则"
   },
-  "group": "订阅节点"
+  "group": "订阅节点",
+  "contentExtract": {
+    "name": "content-extract",
+    "format": "订阅类型",
+    "help": "从上游文本中提取代理节点，输出 Extended 参数结构的节点列表"
+  }
 }

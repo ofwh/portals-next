@@ -41,5 +41,10 @@
     "add": "Add rule",
     "remove": "Remove rule"
   },
-  "group": "Subscription nodes"
+  "group": "Subscription nodes",
+  "contentExtract": {
+    "name": "content-extract",
+    "format": "Subscription type",
+    "help": "Extract proxy nodes from upstream text into Extended node parameters"
+  }
 }
