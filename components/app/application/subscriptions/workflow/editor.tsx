@@ -1,16 +1,19 @@
 'use client';
 
+import { ReactFlowProvider } from '@xyflow/react';
 import { ArrowLeft, Play, Square } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import type { ReactNode } from 'react';
+import { createPortal } from 'react-dom';
 import { toast } from 'sonner';
 import { PageHeader } from '@/components/business/page-header';
 import { Button } from '@/components/ui/button';
 import { useWorkflow, WorkflowContext } from '@/hooks/use-workflow';
+import { useWorkflowCanvas } from '@/hooks/use-workflow-canvas';
 import { createWorkflowStore } from '@/stores/workflow';
-import { Canvas } from './canvas';
+import { Canvas, NodeCard } from './canvas';
 import { NodeList } from './node-list';
 
 function Header({ name, description }: { name: string; description: string | null }) {
@@ -92,6 +95,37 @@ function WorkflowProvider({ id, children }: { id: string; children: ReactNode })
   return <WorkflowContext.Provider value={store}>{children}</WorkflowContext.Provider>;
 }
 
+function Workspace() {
+  const canvas = useWorkflowCanvas();
+  const preview = canvas.dragPreview;
+
+  return (
+    <>
+      <div className="bg-background flex min-h-0 flex-1 overflow-hidden rounded-md border">
+        <NodeList drag={canvas} />
+        <Canvas canvas={canvas} />
+      </div>
+      {preview &&
+        createPortal(
+          <div
+            aria-hidden="true"
+            className="pointer-events-none fixed z-50 origin-top-left"
+            style={{
+              left: preview.screen.x,
+              top: preview.screen.y,
+              width: preview.node.width,
+              height: preview.node.height,
+              transform: `scale(${preview.zoom})`,
+            }}
+          >
+            <NodeCard preview data={preview.node.data} selected={false} isConnectable={false} />
+          </div>,
+          document.body,
+        )}
+    </>
+  );
+}
+
 function EditorContent() {
   const t = useTranslations();
   const { subscription, flow, loading, error, refresh } = useWorkflow((state) => ({
@@ -117,10 +151,9 @@ function EditorContent() {
       ) : subscription && flow ? (
         <>
           <Header name={subscription.name} description={subscription.description} />
-          <div className="bg-background flex min-h-0 flex-1 overflow-hidden rounded-md border">
-            <NodeList />
-            <Canvas />
-          </div>
+          <ReactFlowProvider>
+            <Workspace />
+          </ReactFlowProvider>
         </>
       ) : (
         <div className="bg-muted h-full animate-pulse" aria-busy="true" />

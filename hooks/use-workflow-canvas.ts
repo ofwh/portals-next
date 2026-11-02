@@ -2,15 +2,25 @@
 
 import { useReactFlow } from '@xyflow/react';
 import type { Connection, Edge, EdgeChange, NodeChange, Viewport } from '@xyflow/react';
-import type { DragEvent } from 'react';
-import { useCallback, useMemo, useState } from 'react';
+import type { ClipboardEvent, PointerEvent } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { appError } from '@/lib/api';
 import type { WorkflowCanvasNode } from '@/lib/types/workflow-canvas';
 import { NODE_PREVIEW_SIZE } from '@/lib/types/workflow-canvas';
-import { NODE_TYPE_MIME, toWorkflow } from '@/lib/workflow/model/canvas';
+import { toWorkflow } from '@/lib/workflow/model/canvas';
+import { parseNode } from '@/lib/workflow/model/validation';
 import { nodeViewRegistry, typeRegistry } from '@/lib/workflow/nodes/client';
 import { validateConnection } from '@/lib/workflow/nodes/core/connections';
 import { useWorkflow } from './use-workflow';
+
+const NODE_CLIPBOARD_MIME = 'application/x-workflow-node';
+
+function isEditingText(target: EventTarget) {
+  return (
+    target instanceof HTMLElement &&
+    Boolean(target.isContentEditable || target.closest('input, textarea, select, [role="textbox"]'))
+  );
+}
 
 export function useWorkflowCanvas() {
   const state = useWorkflow();
@@ -199,22 +209,207 @@ export function useWorkflowCanvas() {
     [store, perform],
   );
 
-  function drop(event: DragEvent<HTMLDivElement>) {
-    if (!event.dataTransfer.types.includes(NODE_TYPE_MIME)) {
+  const canvasRef = useRef<HTMLDivElement>(null);
+  const setCanvasElement = useCallback((element: HTMLDivElement | null) => {
+    canvasRef.current = element;
+  }, []);
+
+  function onCopy(event: ClipboardEvent<HTMLDivElement>) {
+    if (event.defaultPrevented || isEditingText(event.target) || window.getSelection()?.isCollapsed === false) {
+      return;
+    }
+
+    const selected = nodes.filter((node) => node.selected);
+
+    if (selected.length !== 1) {
+      return;
+    }
+
+    perform(() => {
+      const value = JSON.stringify(selected[0].data.instance);
+
+      event.clipboardData.setData(NODE_CLIPBOARD_MIME, value);
+      event.clipboardData.setData('text/plain', value);
+      event.preventDefault();
+    });
+  }
+
+  function onPaste(event: ClipboardEvent<HTMLDivElement>) {
+    const current = store.getState();
+    const flow = current.flow;
+    const bounds = canvasRef.current?.getBoundingClientRect();
+    const value = event.clipboardData.getData(NODE_CLIPBOARD_MIME);
+
+    if (
+      event.defaultPrevented ||
+      isEditingText(event.target) ||
+      !flow ||
+      current.saving ||
+      current.running ||
+      !bounds ||
+      !value
+    ) {
       return;
     }
 
     event.preventDefault();
+    perform(() => {
+      const raw: unknown = JSON.parse(value);
+      const source = parseNode(raw);
+      const manifest = current.catalog.nodes.find((node) => node.type === source.type);
+      const available = manifest?.version === source.definitionVersion;
+      const display = available ? nodeViewRegistry.getNodeView(source.type)?.display : undefined;
+      const size =
+        showNodeDetails && display ? display.size : { ...NODE_PREVIEW_SIZE, ...(!available ? { height: 96 } : {}) };
+      const center = reactFlow.screenToFlowPosition(
+        { x: bounds.left + bounds.width / 2, y: bounds.top + bounds.height / 2 },
+        { snapToGrid: false },
+      );
+      const node = {
+        ...source,
+        id: crypto.randomUUID(),
+        position: { x: center.x - size.width / 2, y: center.y - size.height / 2 },
+      };
+
+      current.setFlow({ ...flow, nodes: [...flow.nodes, node] });
+      setSelectedNodes(new Set([node.id]));
+      setSelectedEdges(new Set());
+    });
+  }
+
+  const drag = useRef<{
+    type: string;
+    pointerId: number;
+    start: { x: number; y: number };
+    offset: { x: number; y: number };
+    moved: boolean;
+  } | null>(null);
+  const [dragPreview, setDragPreview] = useState<{
+    node: WorkflowCanvasNode;
+    screen: { x: number; y: number };
+    zoom: number;
+  } | null>(null);
+
+  const clearDrag = useCallback(() => {
+    drag.current = null;
+    setDragPreview(null);
+  }, []);
+
+  useEffect(() => {
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        clearDrag();
+      }
+    };
+
+    window.addEventListener('blur', clearDrag);
+    window.addEventListener('keydown', onKeyDown);
+
+    return () => {
+      window.removeEventListener('blur', clearDrag);
+      window.removeEventListener('keydown', onKeyDown);
+    };
+  }, [clearDrag]);
+
+  function projectDrag(event: PointerEvent<HTMLButtonElement>) {
+    const current = drag.current;
+    const manifest = state.catalog.nodes.find((node) => node.type === current?.type);
+
+    if (!current || !manifest) {
+      return null;
+    }
+
+    const display = nodeViewRegistry.getNodeView(current.type)?.display;
+    const expanded = Boolean(showNodeDetails && display);
+    const size = expanded && display ? display.size : NODE_PREVIEW_SIZE;
+    const zoom = reactFlow.getZoom();
+    const screen = {
+      x: event.clientX - current.offset.x * size.width * zoom,
+      y: event.clientY - current.offset.y * size.height * zoom,
+    };
+    const position = reactFlow.screenToFlowPosition(screen, { snapToGrid: false });
+    const target = document.elementFromPoint(event.clientX, event.clientY);
+    const overCanvas = Boolean(
+      target && canvasRef.current?.contains(target) && !target.closest('[data-workflow-canvas-controls]'),
+    );
+    const node: WorkflowCanvasNode = {
+      id: 'drag-preview',
+      type: 'workflow',
+      position,
+      width: size.width,
+      height: size.height,
+      data: {
+        instance: {
+          id: 'drag-preview',
+          type: manifest.type,
+          name: manifest.name,
+          definitionVersion: manifest.version,
+          config: state.catalog.defaults[manifest.type],
+          position,
+        },
+        manifest,
+        available: true,
+        expanded,
+      },
+    };
+
+    return { node, screen, zoom, overCanvas };
+  }
+
+  function startDrag(event: PointerEvent<HTMLButtonElement>, type: string) {
     const current = store.getState();
 
-    if (current.saving || current.running) {
+    if (!current.flow || current.saving || current.running || !event.isPrimary || event.button !== 0) {
       return;
     }
 
-    const type = event.dataTransfer.getData(NODE_TYPE_MIME);
-    const position = reactFlow.screenToFlowPosition({ x: event.clientX, y: event.clientY });
+    event.preventDefault();
+    const bounds = event.currentTarget.getBoundingClientRect();
 
-    perform(() => current.addNode(type, position));
+    drag.current = {
+      type,
+      pointerId: event.pointerId,
+      start: { x: event.clientX, y: event.clientY },
+      offset: { x: (event.clientX - bounds.left) / bounds.width, y: (event.clientY - bounds.top) / bounds.height },
+      moved: false,
+    };
+    event.currentTarget.setPointerCapture(event.pointerId);
+  }
+
+  function moveDrag(event: PointerEvent<HTMLButtonElement>) {
+    const current = drag.current;
+
+    if (!current || current.pointerId !== event.pointerId) {
+      return;
+    }
+
+    if (Math.hypot(event.clientX - current.start.x, event.clientY - current.start.y) > 4) {
+      current.moved = true;
+    }
+
+    if (current.moved) {
+      setDragPreview(projectDrag(event));
+    }
+  }
+
+  function dropDrag(event: PointerEvent<HTMLButtonElement>) {
+    const current = drag.current;
+
+    if (!current || current.pointerId !== event.pointerId) {
+      return;
+    }
+
+    const placement = projectDrag(event);
+    const state = store.getState();
+
+    clearDrag();
+    if (event.currentTarget.hasPointerCapture(event.pointerId)) {
+      event.currentTarget.releasePointerCapture(event.pointerId);
+    }
+
+    if (current.moved && placement?.overCanvas && state.flow && !state.saving && !state.running) {
+      perform(() => state.addNode(current.type, placement.node.position));
+    }
   }
 
   return {
@@ -226,7 +421,14 @@ export function useWorkflowCanvas() {
     setShowNodeDetails,
     editingId,
     setEditingId,
-    drop,
+    setCanvasElement,
+    onCopy,
+    onPaste,
+    dragPreview,
+    startDrag,
+    moveDrag,
+    dropDrag,
+    clearDrag,
     onNodesChange,
     onEdgesChange,
     onViewportChange,

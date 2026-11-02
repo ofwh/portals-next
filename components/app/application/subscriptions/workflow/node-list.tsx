@@ -4,8 +4,8 @@ import { Blocks } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { Button } from '@/components/ui/button';
 import { useWorkflow } from '@/hooks/use-workflow';
+import type { useWorkflowCanvas } from '@/hooks/use-workflow-canvas';
 import { NODE_PREVIEW_SIZE } from '@/lib/types/workflow-canvas';
-import { NODE_TYPE_MIME } from '@/lib/workflow/model/canvas';
 import { nodeViewRegistry } from '@/lib/workflow/nodes/client';
 import type { NodeGroup } from '@/lib/workflow/nodes/types';
 
@@ -22,7 +22,9 @@ export function NodePreview({ type, name }: { type: string; name: string }) {
   );
 }
 
-function NodePalette({ groups }: { groups: readonly NodeGroup[] }) {
+type DragHandlers = Pick<ReturnType<typeof useWorkflowCanvas>, 'startDrag' | 'moveDrag' | 'dropDrag' | 'clearDrag'>;
+
+function NodePalette({ groups, drag }: { groups: readonly NodeGroup[]; drag: DragHandlers }) {
   const saving = useWorkflow((state) => state.saving || state.running);
 
   return (
@@ -37,12 +39,13 @@ function NodePalette({ groups }: { groups: readonly NodeGroup[] }) {
                   type="button"
                   disabled={saving}
                   style={NODE_PREVIEW_SIZE}
-                  draggable={!saving}
-                  onDragStart={(event) => {
-                    event.dataTransfer.setData(NODE_TYPE_MIME, node.type);
-                    event.dataTransfer.effectAllowed = 'copy';
-                  }}
-                  className="bg-background hover:bg-accent focus-visible:ring-ring block w-full min-w-0 cursor-grab rounded-md border text-left outline-none focus-visible:ring-2 active:cursor-grabbing disabled:opacity-50"
+                  onPointerDown={(event) => drag.startDrag(event, node.type)}
+                  onPointerMove={drag.moveDrag}
+                  onPointerUp={drag.dropDrag}
+                  onPointerCancel={drag.clearDrag}
+                  onLostPointerCapture={drag.clearDrag}
+                  onDragStart={(event) => event.preventDefault()}
+                  className="bg-background hover:bg-accent focus-visible:ring-ring block w-full min-w-0 cursor-grab touch-none rounded-md border text-left outline-none select-none focus-visible:ring-2 active:cursor-grabbing disabled:opacity-50"
                 >
                   <NodePreview type={node.type} name={node.name} />
                 </button>
@@ -55,7 +58,7 @@ function NodePalette({ groups }: { groups: readonly NodeGroup[] }) {
   );
 }
 
-export function NodeList() {
+export function NodeList({ drag }: { drag: DragHandlers }) {
   const t = useTranslations();
   const { groups, loading, loaded, error, refresh } = useWorkflow((state) => ({
     groups: state.catalog.groups,
@@ -85,7 +88,7 @@ export function NodeList() {
       {!loaded && loading ? (
         <div className="bg-muted mt-4 h-32 animate-pulse rounded-md" />
       ) : groups.length > 0 ? (
-        <NodePalette groups={groups} />
+        <NodePalette groups={groups} drag={drag} />
       ) : (
         error === null && (
           <p role="status" className="text-muted-foreground mt-4 text-sm leading-6">
