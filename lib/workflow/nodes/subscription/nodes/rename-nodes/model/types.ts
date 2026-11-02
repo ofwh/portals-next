@@ -1,5 +1,5 @@
-import type { WorkflowArray, WorkflowDataTypes } from '@/lib/workflow/nodes/types';
-import type { SubscriptionNode } from '../../../types';
+import type { ProxyNodeFields } from '@/lib/subconverter/types';
+import type { WorkflowArray } from '@/lib/workflow/nodes/types';
 
 export interface RenameRule {
   id: string;
@@ -9,6 +9,6 @@ export interface RenameRule {
 export interface RenameConfig {
   rules: RenameRule[];
 }
-export type RenameInput = WorkflowDataTypes['Array'];
-export type RenameRunInput = WorkflowArray<SubscriptionNode>;
-export type RenameOutput = WorkflowArray<SubscriptionNode>;
+export type RenameInput = WorkflowArray<ProxyNodeFields>;
+export type RenameRunInput = WorkflowArray<ProxyNodeFields>;
+export type RenameOutput = WorkflowArray<ProxyNodeFields>;

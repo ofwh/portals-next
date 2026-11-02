@@ -52,6 +52,5 @@ export type ProxyNodeFields =
   | ZerotierNodeFields
   | HTTPSNodeFields
   | NaiveNodeFields;
-export type ProxyNode = ProxyNodeFields;
 
 export type { ProxyType } from '../common';

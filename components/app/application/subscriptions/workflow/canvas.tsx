@@ -139,7 +139,9 @@ export function NodeCard({
           <p className="text-destructive mt-2 text-xs">{t('nodeUnavailable')}</p>
         </div>
       )}
-      {details && <NodeRunDetails name={instance.name} state={details} onClose={() => setDetails(null)} />}
+      {details && (
+        <NodeRunDetails name={instance.name} input={manifest?.input} state={details} onClose={() => setDetails(null)} />
+      )}
       {hasInput &&
         (preview ? (
           <span className="bg-background border-primary absolute top-1/2 left-0 size-3 -translate-x-1/2 -translate-y-1/2 rounded-full border-2" />

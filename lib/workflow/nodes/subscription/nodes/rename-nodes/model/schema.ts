@@ -1,13 +1,10 @@
 import { appError } from '@/lib/api';
-import { arrayOf, unknownValue } from '@/lib/workflow/nodes/core/schemas';
 import type { Parser } from '@/lib/workflow/nodes/types';
 import { isRecord } from '@/lib/workflow/utils';
 import type { RenameConfig, RenameRule } from './types';
 import { compilePattern } from '../../../utils';
 
-export { subscriptionNodesSchema as outputSchema } from '../../../schema';
-
-export const inputSchema = arrayOf(unknownValue);
+export { proxyNodesSchema as inputSchema, proxyNodesSchema as outputSchema } from '../../../proxy-node-schema';
 
 function isRule(value: unknown): value is RenameRule {
   return (

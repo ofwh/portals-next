@@ -1,6 +1,6 @@
+import type { ProxyType } from '@/lib/subconverter/types';
 import { nodeLabel } from '@/lib/workflow/nodes/utils';
 import type { FilterConfig } from './types';
-import type { SubscriptionProtocol } from '../../../types';
 
 export const definition = {
   type: 'subscription.filter',
@@ -17,4 +17,23 @@ export const protocolOptions = {
   hysteria: 'Hysteria',
   hysteria2: 'Hysteria2',
   anytls: 'AnyTLS',
-} satisfies Record<SubscriptionProtocol, string>;
+  ssr: 'ShadowsocksR',
+  http: 'HTTP',
+  https: 'HTTPS',
+  socks5: 'SOCKS5',
+  tuic: 'TUIC',
+  wireguard: 'WireGuard',
+  ssh: 'SSH',
+  snell: 'Snell',
+  naive: 'Naive',
+  mieru: 'Mieru',
+  masque: 'MASQUE',
+  openvpn: 'OpenVPN',
+  shadowquic: 'ShadowQUIC',
+  sudoku: 'Sudoku',
+  tailscale: 'Tailscale',
+  trusttunnel: 'TrustTunnel',
+  zerotier: 'ZeroTier',
+  easytier: 'EasyTier',
+  'gost-relay': 'GOST Relay',
+} satisfies Record<ProxyType, string>;

@@ -3,9 +3,21 @@
 import { useTranslations } from 'next-intl';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import type { NodeRunState } from '@/lib/workflow/model';
+import type { NodeManifest } from '@/lib/workflow/nodes/types';
 
-export function NodeRunDetails({ name, state, onClose }: { name: string; state: NodeRunState; onClose(): void }) {
+export function NodeRunDetails({
+  name,
+  input,
+  state,
+  onClose,
+}: {
+  name: string;
+  input: NodeManifest['input'] | undefined;
+  state: NodeRunState;
+  onClose(): void;
+}) {
   const t = useTranslations('admin.application.subscriptions.flowEditor');
+  const inputValue = input?.multiple === false ? state.input?.[0] : state.input;
 
   return (
     <Dialog
@@ -27,7 +39,7 @@ export function NodeRunDetails({ name, state, onClose }: { name: string; state: 
         </DialogHeader>
         <div className="min-h-0 space-y-4 overflow-y-auto">
           {(['input', 'output'] as const).map((key) => {
-            const value = key === 'output' && state.status === 'failed' ? state.error : state[key];
+            const value = key === 'input' ? inputValue : state.status === 'failed' ? state.error : state.output;
 
             return (
               <section key={key} className="space-y-2">

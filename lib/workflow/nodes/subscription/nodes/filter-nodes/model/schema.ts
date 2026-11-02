@@ -1,17 +1,14 @@
 import { appError } from '@/lib/api';
-import { arrayOf, unknownValue } from '@/lib/workflow/nodes/core/schemas';
+import type { ProxyType } from '@/lib/subconverter/types';
 import type { Parser } from '@/lib/workflow/nodes/types';
 import { isRecord } from '@/lib/workflow/utils';
 import { protocolOptions } from './definition';
 import type { FilterConfig, FilterRule } from './types';
-import type { SubscriptionProtocol } from '../../../types';
 import { compilePattern } from '../../../utils';
 
-export { subscriptionNodesSchema as outputSchema } from '../../../schema';
+export { proxyNodesSchema as inputSchema, proxyNodesSchema as outputSchema } from '../../../proxy-node-schema';
 
-export const inputSchema = arrayOf(unknownValue);
-
-export function isProtocol(value: unknown): value is SubscriptionProtocol {
+export function isProtocol(value: unknown): value is ProxyType {
   return typeof value === 'string' && Object.hasOwn(protocolOptions, value);
 }
 

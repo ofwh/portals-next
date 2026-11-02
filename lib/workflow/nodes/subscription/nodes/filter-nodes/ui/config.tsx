@@ -21,8 +21,8 @@ import { Field, FieldContent, FieldGroup, FieldLabel } from '@/components/ui/fie
 import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
+import type { ProxyType } from '@/lib/subconverter/types';
 import type { NodeFormProps } from '@/lib/workflow/nodes/types';
-import type { SubscriptionProtocol } from '../../../types';
 import { protocolOptions } from '../model/definition';
 import { getNameRules, isProtocol } from '../model/schema';
 import type { FilterConfig } from '../model/types';
@@ -67,7 +67,7 @@ export function FilterForm({ value, onChange, disabled, issues }: NodeFormProps<
               <ComboboxContent side="bottom" anchor={anchor}>
                 <ComboboxEmpty>{t('noProtocols')}</ComboboxEmpty>
                 <ComboboxList>
-                  {(protocol: SubscriptionProtocol) => (
+                  {(protocol: ProxyType) => (
                     <ComboboxItem key={protocol} value={protocol}>
                       {protocolOptions[protocol]}
                     </ComboboxItem>

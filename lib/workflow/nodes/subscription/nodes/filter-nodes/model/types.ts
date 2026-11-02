@@ -1,5 +1,5 @@
-import type { WorkflowArray, WorkflowDataTypes } from '@/lib/workflow/nodes/types';
-import type { SubscriptionNode, SubscriptionProtocol } from '../../../types';
+import type { ProxyNodeFields, ProxyType } from '@/lib/subconverter/types';
+import type { WorkflowArray } from '@/lib/workflow/nodes/types';
 
 export interface FilterRule {
   id: string;
@@ -7,10 +7,10 @@ export interface FilterRule {
 }
 
 export interface FilterConfig {
-  protocols: SubscriptionProtocol[];
+  protocols: ProxyType[];
   namePattern: string | FilterRule[];
   exclude: boolean;
 }
-export type FilterInput = WorkflowDataTypes['Array'];
-export type FilterRunInput = WorkflowArray<SubscriptionNode>;
-export type FilterOutput = WorkflowArray<SubscriptionNode>;
+export type FilterInput = WorkflowArray<ProxyNodeFields>;
+export type FilterRunInput = WorkflowArray<ProxyNodeFields>;
+export type FilterOutput = WorkflowArray<ProxyNodeFields>;
