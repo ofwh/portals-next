@@ -1,0 +1,41 @@
+import type { NodeFieldsBase } from '../common';
+
+export interface EasytierNodeFields extends NodeFieldsBase {
+  type: 'easytier';
+  acceptDns?: boolean;
+  dhcp?: boolean;
+  underlyingProxy?: string;
+  disableKcpInput?: boolean;
+  disableP2p?: boolean;
+  disableQuicInput?: boolean;
+  enableEncryption?: boolean;
+  enableExitNode?: boolean;
+  enableKcpProxy?: boolean;
+  enableQuicProxy?: boolean;
+  encryptionAlgorithm?: string;
+  exitNodes?: Array<string>;
+  hostname?: string;
+  instanceName?: string;
+  interfaceName?: string;
+  ipVersion?: string;
+  ipv4?: string;
+  latencyFirst?: boolean;
+  listeners?: Array<string>;
+  localPrivateKey?: string;
+  localPublicKey?: string;
+  mappedListeners?: Array<string>;
+  mptcp?: boolean;
+  mtu?: number;
+  networkName?: string;
+  networkSecret?: string;
+  noListener?: boolean;
+  peers?: Array<string>;
+  privateMode?: boolean;
+  proxyNetworks?: Array<string>;
+  routingMark?: number;
+  secureMode?: boolean;
+  stateDir?: string;
+  tcpFastOpen?: boolean;
+  tldDnsZone?: string;
+  udp?: boolean;
+}

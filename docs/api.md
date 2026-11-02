@@ -9,7 +9,7 @@
 - **api**：解析请求、调用 service、构造响应。不处理业务规则或逐字段校验，不直接访问 repositories 或 db。
 - **services**：负责业务规则与参数校验。不写 SQL，数据库读写交给 repository。
 - **repositories**：只负责数据库操作，不做业务判断，只被 services 调用。
-- **db**：Drizzle 实例与 schema；schema 组织遵守[数据库规范](../AGENTS.md#数据库)规范。
+- **db**：Drizzle 实例与 schema；schema 组织遵守[数据库规范](coding.md#数据库)。
 
 ## Service 约定
 

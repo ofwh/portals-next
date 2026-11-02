@@ -1,16 +1,4 @@
 {
-  "formats": {
-    "auto": "Auto detect",
-    "base64": "Base64 / decoded share links",
-    "links": "Share links",
-    "clash": "Clash / Mihomo YAML or JSON",
-    "singBox": "sing-box JSON"
-  },
-  "parse": {
-    "name": "Parse subscription",
-    "format": "Input format",
-    "help": "Extract server nodes from text, a JSON object, or an HTTP request response body into a common node list. Auto detection supports Base64, share links, Clash/Mihomo, and sing-box."
-  },
   "rename": {
     "name": "Rename nodes",
     "help": "Apply rules from top to bottom. Enter a pattern on the left and replacement text on the right. Leave the replacement empty to remove matched text.",
@@ -41,5 +29,24 @@
     "add": "Add rule",
     "remove": "Remove rule"
   },
-  "group": "Subscription nodes"
+  "group": "Subscription nodes",
+  "extractNodes": {
+    "name": "Extract subscription nodes",
+    "format": "Subscription type",
+    "help": "Accept text and parse it using the selected subscription format into a node list. Connect any text output, including HTTP request and Field input nodes.",
+    "formats": {
+      "clash": "Clash / Mihomo",
+      "singBox": "sing-box",
+      "uri": "URI share links",
+      "base64": "Base64",
+      "ss": "Shadowsocks JSON",
+      "ssr": "ShadowsocksR JSON",
+      "v2ray": "V2Ray JSON",
+      "ini": "INI",
+      "surge": "Surge",
+      "surfboard": "Surfboard",
+      "loon": "Loon",
+      "quanx": "Quantumult X"
+    }
+  }
 }

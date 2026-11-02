@@ -1,8 +1,8 @@
 import { appError } from '@/lib/api';
 import { assertJson, isRecord } from '../../utils';
-import type { ValueSchema } from '../types';
+import type { ValueSchema, WorkflowArray, WorkflowDataTypes, WorkflowObject } from '../types';
 
-export const unknownValue: ValueSchema<unknown> = {
+export const unknownValue: ValueSchema<WorkflowDataTypes['any']> = {
   descriptor: { kind: 'any' },
   parse(value) {
     assertJson(value);
@@ -10,7 +10,7 @@ export const unknownValue: ValueSchema<unknown> = {
     return value;
   },
 };
-export const stringValue: ValueSchema<string> = {
+export const stringValue: ValueSchema<WorkflowDataTypes['String']> = {
   descriptor: { kind: 'string' },
   parse(value) {
     if (typeof value !== 'string') {
@@ -20,7 +20,7 @@ export const stringValue: ValueSchema<string> = {
     return value;
   },
 };
-export const numberValue: ValueSchema<number> = {
+export const numberValue: ValueSchema<WorkflowDataTypes['Number']> = {
   descriptor: { kind: 'number' },
   parse(value) {
     if (typeof value !== 'number' || !Number.isFinite(value)) {
@@ -30,7 +30,7 @@ export const numberValue: ValueSchema<number> = {
     return value;
   },
 };
-export const booleanValue: ValueSchema<boolean> = {
+export const booleanValue: ValueSchema<WorkflowDataTypes['Boolean']> = {
   descriptor: { kind: 'boolean' },
   parse(value) {
     if (typeof value !== 'boolean') {
@@ -40,7 +40,7 @@ export const booleanValue: ValueSchema<boolean> = {
     return value;
   },
 };
-export const nullValue: ValueSchema<null> = {
+export const nullValue: ValueSchema<WorkflowDataTypes['null']> = {
   descriptor: { kind: 'null' },
   parse(value) {
     if (value !== null) {
@@ -51,7 +51,7 @@ export const nullValue: ValueSchema<null> = {
   },
 };
 
-export function arrayOf<T>(item: ValueSchema<T>): ValueSchema<T[]> {
+export function arrayOf<T>(item: ValueSchema<T>): ValueSchema<WorkflowArray<T>> {
   return {
     descriptor: { kind: 'array', items: item.descriptor },
     parse(value) {
@@ -65,7 +65,7 @@ export function arrayOf<T>(item: ValueSchema<T>): ValueSchema<T[]> {
   };
 }
 
-export function recordOf<T>(schema: ValueSchema<T>): ValueSchema<Record<string, T>> {
+export function recordOf<T>(schema: ValueSchema<T>): ValueSchema<WorkflowObject<T>> {
   return {
     descriptor: { kind: 'record', values: schema.descriptor },
     parse(value) {

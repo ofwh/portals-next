@@ -1,6 +1,19 @@
 import type { ComponentType } from 'react';
 import type { NodeInstance, NodeStatus } from '../model';
 
+export type WorkflowArray<T = unknown> = T[];
+export type WorkflowObject<T = unknown> = Record<string, T>;
+
+export interface WorkflowDataTypes {
+  String: string;
+  Number: number;
+  Boolean: boolean;
+  null: null;
+  Array: WorkflowArray;
+  Object: WorkflowObject;
+  any: unknown;
+}
+
 export type TypeDescriptor =
   | { kind: 'any' }
   | { kind: 'string' | 'number' | 'boolean' | 'null' }
@@ -23,9 +36,14 @@ export interface InputPort<T> {
   required: boolean;
   multiple: boolean;
 }
+export interface ConfiguredType {
+  field: string;
+  types: Record<string, TypeDescriptor>;
+}
 export interface OutputPort<T> {
   schema: ValueSchema<T>;
   multiple: boolean;
+  typeByConfig?: ConfiguredType;
 }
 export interface ExecutionContext {
   runId: string;
@@ -51,7 +69,7 @@ export interface NodeManifest extends NodeLabel {
   type: string;
   version: number;
   input: { type: TypeDescriptor; required: boolean; multiple: boolean } | null;
-  output: { type: TypeDescriptor; multiple: boolean } | null;
+  output: { type: TypeDescriptor; multiple: boolean; typeByConfig?: ConfiguredType } | null;
 }
 export interface NodeGroup extends NodeLabel {
   id: string;

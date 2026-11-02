@@ -8,18 +8,7 @@
     "help": "Encode upstream text as Base64 using UTF-8, or decode Base64 into UTF-8 text. Invalid Base64 or UTF-8 input is rejected."
   },
   "httpRequest": {
-    "name": "HTTP request",
-    "method": "Request method",
-    "url": "Request URL",
-    "urlPlaceholder": "Set a request URL",
-    "headers": "Request headers",
-    "headerName": "Header name",
-    "headerValue": "Header value",
-    "addHeader": "Add header",
-    "removeHeader": "Remove header",
-    "body": "Request body",
-    "bodyHelp": "Send the text as entered. Set Content-Type in the headers when needed.",
-    "outputFormat": "Response format"
+    "name": "HTTP request"
   },
   "merge": {
     "name": "Merge data",
@@ -36,7 +25,22 @@
   "shared": {
     "formats": {
       "text": "Text",
-      "json": "JSON object"
+      "json": "Object (JSON)"
     }
+  },
+  "http": {
+    "method": "Request method",
+    "url": "Request URL",
+    "urlPlaceholder": "Set a request URL",
+    "headers": "Request headers",
+    "headerName": "Header name",
+    "headerValue": "Header value",
+    "addHeader": "Add header",
+    "removeHeader": "Remove header",
+    "body": "Request body",
+    "bodyHelp": "Send the text as entered. Set Content-Type in the headers when needed."
+  },
+  "httpResponseHeaders": {
+    "name": "HTTP response headers"
   }
 }

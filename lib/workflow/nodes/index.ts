@@ -1,9 +1,15 @@
 import 'server-only';
-import { group as commonGroup } from './common';
-import { registerNodeGroup } from './core/registry';
-import { group as subscriptionGroup } from './subscription';
+import commonGroups from './common';
+import { registerNodeGroups } from './core/registry';
+import subscriptionGroups from './subscription';
 
-registerNodeGroup(subscriptionGroup);
-registerNodeGroup(commonGroup);
+registerNodeGroups([...subscriptionGroups, ...commonGroups]);
 
-export { defineNode, getNode, nodeRegistry, registerNode, registerNodeGroup } from './core/registry';
+export {
+  defineNode,
+  getNode,
+  nodeRegistry,
+  registerNode,
+  registerNodeGroup,
+  registerNodeGroups,
+} from './core/registry';

@@ -1,4 +1,5 @@
 import { appError } from '@/lib/api';
+import { resolveOutputType } from './ports';
 import type { TypeRegistry } from './type-registry';
 import { typeRegistry } from './type-registry';
 import type { FlowEdge, WorkflowDefinition } from '../../model';
@@ -6,8 +7,17 @@ import type { NodeManifest } from '../types';
 
 export type ManifestResolver = (type: string) => NodeManifest;
 
-export function canConnect(source: NodeManifest, target: NodeManifest, types: TypeRegistry = typeRegistry): boolean {
-  return source.output !== null && target.input !== null && types.isAssignable(source.output.type, target.input.type);
+export function canConnect(
+  source: NodeManifest,
+  target: NodeManifest,
+  types: TypeRegistry = typeRegistry,
+  sourceConfig?: unknown,
+): boolean {
+  return (
+    source.output !== null &&
+    target.input !== null &&
+    types.isAssignable(resolveOutputType(source.output, sourceConfig), target.input.type)
+  );
 }
 
 export function validateConnection(
@@ -37,7 +47,7 @@ export function validateConnection(
     throw appError('workflow.INVALID_CONNECTION');
   }
 
-  if (!canConnect(from, to, types)) {
+  if (!canConnect(from, to, types, source.config)) {
     throw appError('workflow.INCOMPATIBLE_TYPE');
   }
 

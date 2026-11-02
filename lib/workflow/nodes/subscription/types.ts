@@ -1,3 +1,6 @@
+export type SubscriptionFormat =
+  'clash' | 'sing-box' | 'uri' | 'base64' | 'ss' | 'ssr' | 'v2ray' | 'ini' | 'surge' | 'surfboard' | 'loon' | 'quanx';
+
 export type Json = null | boolean | number | string | Json[] | { [key: string]: Json };
 
 export type SubscriptionNodeBase = {

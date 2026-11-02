@@ -1,5 +1,6 @@
 import 'server-only';
 import { appError } from '@/lib/api';
+import { resolveOutputType } from './ports';
 import { TypeRegistry } from './type-registry';
 import type { CanvasNode } from '../../model';
 import { createNodeInstance } from '../../model/canvas';
@@ -41,7 +42,13 @@ export class NodeRegistry {
         ...(node.nameKey ? { nameKey: node.nameKey } : {}),
         version: node.version,
         input: input ? { type: input.schema.descriptor, required: input.required, multiple: input.multiple } : null,
-        output: output ? { type: output.schema.descriptor, multiple: output.multiple } : null,
+        output: output
+          ? {
+              type: output.schema.descriptor,
+              multiple: output.multiple,
+              ...(output.typeByConfig ? { typeByConfig: output.typeByConfig } : {}),
+            }
+          : null,
       }),
     );
     const parse = <T>(schema: ValueSchema<T>, raw: unknown): T => {
@@ -57,6 +64,22 @@ export class NodeRegistry {
       return cloneJson(config);
     };
     const defaultConfig = freezeDeep(cloneJson(node.defaultConfig));
+
+    if (manifest.output?.typeByConfig) {
+      const selection = manifest.output.typeByConfig;
+
+      if (!nonempty(selection.field) || !Object.keys(selection.types).length) {
+        throw appError('common.INVALID_PARAMS');
+      }
+
+      for (const descriptor of Object.values(selection.types)) {
+        if (!this.types.isAssignable(descriptor, manifest.output.type)) {
+          throw appError('common.INVALID_PARAMS');
+        }
+      }
+
+      resolveOutputType(manifest.output, defaultConfig);
+    }
 
     this.nodes.set(
       node.type,
@@ -82,7 +105,15 @@ export class NodeRegistry {
 
           context.signal.throwIfAborted();
 
-          return output ? cloneJson(parse(output.schema, result)) : undefined;
+          if (!output || !manifest.output) {
+            return undefined;
+          }
+
+          const value = parse(output.schema, result);
+
+          this.types.parse(resolveOutputType(manifest.output, config), value);
+
+          return cloneJson(value);
         },
       }),
     );
@@ -119,17 +150,47 @@ export class NodeRegistry {
   }
 
   registerNodeGroup(group: NodeModuleGroup): void {
-    const types = group.nodes.map((node) => node.type);
+    this.registerNodeGroups([group]);
+  }
 
-    this.validateGroup(group, types);
-    group.types?.forEach((type) => this.types.registerType(type));
-    if (process.env.NODE_ENV === 'development') {
-      this.groups.get(group.id)?.types.forEach((type) => this.nodes.delete(type));
-      this.groups.delete(group.id);
+  registerNodeGroups(groups: readonly NodeModuleGroup[]): void {
+    const ids = new Set<string>();
+    const nodeTypes = new Set<string>();
+
+    for (const group of groups) {
+      this.validateGroup(
+        group,
+        group.nodes.map((node) => node.type),
+      );
+      if (ids.has(group.id)) {
+        throw appError('workflow.DUPLICATE_GROUP');
+      }
+
+      ids.add(group.id);
+      for (const node of group.nodes) {
+        if (nodeTypes.has(node.type)) {
+          throw appError('workflow.DUPLICATE_NODE');
+        }
+
+        nodeTypes.add(node.type);
+      }
     }
 
-    group.nodes.forEach((node) => this.registerNode(node));
-    this.registerGroup(group, types);
+    groups.forEach((group) => group.types?.forEach((type) => this.types.registerType(type)));
+    if (process.env.NODE_ENV === 'development') {
+      for (const group of groups) {
+        this.groups.get(group.id)?.types.forEach((type) => this.nodes.delete(type));
+        this.groups.delete(group.id);
+      }
+    }
+
+    for (const group of groups) {
+      group.nodes.forEach((node) => this.registerNode(node));
+      this.registerGroup(
+        group,
+        group.nodes.map((node) => node.type),
+      );
+    }
   }
 
   registerGroup(group: Pick<NodeGroup, 'id' | 'name' | 'nameKey'>, types: readonly string[]): void {
@@ -174,4 +235,5 @@ export class NodeRegistry {
 export const nodeRegistry = new NodeRegistry();
 export const registerNode = <I, C, O, R>(node: NodeModule<I, C, O, R>): void => nodeRegistry.registerNode(node);
 export const registerNodeGroup = (group: NodeModuleGroup): void => nodeRegistry.registerNodeGroup(group);
+export const registerNodeGroups = (groups: readonly NodeModuleGroup[]): void => nodeRegistry.registerNodeGroups(groups);
 export const getNode = (type: string): RegisteredNode => nodeRegistry.getNode(type);

@@ -6,7 +6,7 @@ import { validateConnection } from '../nodes/core/connections';
 import type { TypeRegistry } from '../nodes/core/type-registry';
 import { assertJson, isRecord, nonempty, positiveInteger } from '../utils';
 
-export const SNAPSHOT_VERSION = 1;
+export const SNAPSHOT_VERSION = 3;
 export type SnapshotMigration = (snapshot: unknown) => unknown;
 const migrations = new Map<number, SnapshotMigration>();
 
@@ -17,6 +17,56 @@ export function registerSnapshotMigration(version: number, migrate: SnapshotMigr
 
   migrations.set(version, migrate);
 }
+
+registerSnapshotMigration(1, (raw) => {
+  if (!isRecord(raw) || !Array.isArray(raw.nodes)) {
+    throw appError('workflow.INVALID_SNAPSHOT');
+  }
+
+  return {
+    ...raw,
+    schemaVersion: 2,
+    nodes: raw.nodes.map((node: unknown) => {
+      if (
+        !isRecord(node) ||
+        (node.type !== 'common.httpRequest' && node.type !== 'common.fieldInput') ||
+        !isRecord(node.config)
+      ) {
+        return node;
+      }
+
+      const format = node.config.outputFormat;
+
+      if (format !== 'TEXT' && format !== 'JSON') {
+        return node;
+      }
+
+      return { ...node, config: { ...node.config, outputFormat: format === 'TEXT' ? 'String' : 'Object' } };
+    }),
+  };
+});
+
+registerSnapshotMigration(2, (raw) => {
+  if (!isRecord(raw) || !Array.isArray(raw.nodes)) {
+    throw appError('workflow.INVALID_SNAPSHOT');
+  }
+
+  return {
+    ...raw,
+    schemaVersion: 3,
+    nodes: raw.nodes.map((node: unknown) => {
+      if (!isRecord(node) || node.type !== 'common.httpRequest' || !isRecord(node.config)) {
+        return node;
+      }
+
+      const config = { ...node.config };
+
+      delete config.outputFormat;
+
+      return { ...node, config };
+    }),
+  };
+});
 
 export function migrateSnapshot(raw: unknown): FlowSnapshot {
   assertJson(raw);

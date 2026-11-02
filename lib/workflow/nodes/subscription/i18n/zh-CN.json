@@ -1,16 +1,4 @@
 {
-  "formats": {
-    "auto": "自动识别",
-    "base64": "Base64／已解码的分享链接",
-    "links": "分享链接",
-    "clash": "Clash / Mihomo YAML 或 JSON",
-    "singBox": "sing-box JSON"
-  },
-  "parse": {
-    "name": "订阅解析",
-    "format": "输入格式",
-    "help": "从文本、JSON 对象或 HTTP 请求节点的响应体提取实际节点，统一输出节点列表。自动识别支持 Base64、分享链接、Clash/Mihomo 和 sing-box"
-  },
   "rename": {
     "name": "节点重命名",
     "help": "从上到下依次替换节点名称。左侧填写正则，右侧填写替换内容；留空表示删除匹配文字",
@@ -41,5 +29,24 @@
     "add": "添加规则",
     "remove": "删除规则"
   },
-  "group": "订阅节点"
+  "group": "订阅节点",
+  "extractNodes": {
+    "name": "订阅解析",
+    "format": "订阅类型",
+    "help": "接收文本，按所选订阅类型解析并输出节点列表；可连接输出为文本的 HTTP 请求、字段输入等节点",
+    "formats": {
+      "clash": "Clash / Mihomo",
+      "singBox": "sing-box",
+      "uri": "URI 分享链接",
+      "base64": "Base64",
+      "ss": "Shadowsocks JSON",
+      "ssr": "ShadowsocksR JSON",
+      "v2ray": "V2Ray JSON",
+      "ini": "INI",
+      "surge": "Surge",
+      "surfboard": "Surfboard",
+      "loon": "Loon",
+      "quanx": "Quantumult X"
+    }
+  }
 }

@@ -3,8 +3,8 @@ import { appError, errorMessage } from '@/lib/api';
 import type { Locale } from '@/lib/api';
 import { buildExecutionPlan, executeFlow } from '../engine';
 import type { RunEvent, RunRequest } from '../model';
+import { nodeRegistry } from '../nodes';
 import type { NodeRegistry } from '../nodes/core/registry';
-import { nodeRegistry } from '../nodes/core/registry';
 import { cloneJson, nonempty } from '../utils';
 
 export interface RunOptions {
@@ -17,11 +17,16 @@ export interface RunHandle {
   done: Promise<void>;
   cancel(): void;
 }
+interface ActiveRun {
+  owner: string;
+  controller: AbortController;
+}
 
 export class WorkflowRuntime {
-  private readonly runs = new Map<string, { owner: string; controller: AbortController }>();
-
-  constructor(private readonly registry: NodeRegistry = nodeRegistry) {}
+  constructor(
+    private readonly registry: NodeRegistry = nodeRegistry,
+    private readonly runs: Map<string, ActiveRun> = new Map(),
+  ) {}
 
   start(request: RunRequest, owner: string, emit: (event: RunEvent) => void, options: RunOptions = {}): RunHandle {
     if (
@@ -90,5 +95,5 @@ export class WorkflowRuntime {
     run.controller.abort();
   }
 }
-const runtimeGlobal = globalThis as typeof globalThis & { workflowRuntime?: WorkflowRuntime };
-export const workflowRuntime = (runtimeGlobal.workflowRuntime ??= new WorkflowRuntime());
+const runtimeGlobal = globalThis as typeof globalThis & { workflowRuns?: Map<string, ActiveRun> };
+export const workflowRuntime = new WorkflowRuntime(nodeRegistry, (runtimeGlobal.workflowRuns ??= new Map()));

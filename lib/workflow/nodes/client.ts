@@ -6,7 +6,7 @@ import { registerSubscriptionViews } from './subscription/client';
 export const typeRegistry = new TypeRegistry();
 export const nodeViewRegistry = new NodeViewRegistry();
 
-registerCommonViews(typeRegistry, nodeViewRegistry);
+registerCommonViews(nodeViewRegistry);
 registerSubscriptionViews(typeRegistry, nodeViewRegistry);
 
 export { defineNodeView } from './core/views';
