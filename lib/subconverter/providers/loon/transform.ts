@@ -1,4 +1,4 @@
-import type { LoonConfig, LoonNode } from '../../types/loon';
+import type { LoonConfig, LoonNode } from '../../types/providers/loon';
 import { canonicalType, createIniTransform, extract as extractIni } from '../ini/transform';
 
 export const supports = [

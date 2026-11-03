@@ -1,10 +1,10 @@
 import { ssrProxyNode } from './parser';
-import { rejectNode } from '../../debug';
-import { expand, flatten, get, put } from '../../mapping';
-import type { Binding } from '../../mapping';
-import { camelCase, object, text } from '../../schema';
-import { createTransform } from '../../transform';
-import type { SSRConfig, SSRNode } from '../../types/ssr';
+import { rejectNode } from '../../proxy-node/debug';
+import { expand, flatten, get, put } from '../../proxy-node/mapping';
+import { createTransform } from '../../proxy-node/transform';
+import type { SSRConfig, SSRNode } from '../../types/providers/ssr';
+import type { Binding } from '../../types/proxy-node/mapping';
+import { camelCase, object, text } from '../schema';
 
 export const supports = ['ssr'] as const;
 const bindings = [

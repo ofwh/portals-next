@@ -2,7 +2,7 @@
 
 import { useTranslations } from 'next-intl';
 import { useId } from 'react';
-import { Field, FieldDescription, FieldGroup, FieldLabel } from '@/components/ui/field';
+import { Field, FieldContent, FieldDescription, FieldGroup, FieldLabel } from '@/components/ui/field';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import type { NodeFormProps } from '@/lib/workflow/nodes/types';
 import { subscriptionFormatLabels, subscriptionFormats } from '../model/definition';
@@ -15,30 +15,34 @@ export function ExtractNodesForm({ value, onChange, disabled, issues }: NodeForm
 
   return (
     <fieldset disabled={disabled} className="min-w-0 space-y-6">
-      <FieldGroup>
-        <Field>
-          <FieldLabel htmlFor={`${id}-format`}>{t('extractNodes.format')}</FieldLabel>
-          <FieldDescription id={`${id}-help`}>{t('extractNodes.help')}</FieldDescription>
-          <Select
-            value={value.format}
-            disabled={disabled}
-            onValueChange={(format) => {
-              if (isSubscriptionFormat(format)) {
-                onChange({ format });
-              }
-            }}
-          >
-            <SelectTrigger id={`${id}-format`} aria-describedby={`${id}-help`} className="w-full">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent side="bottom" alignItemWithTrigger={false}>
-              {subscriptionFormats.map((format) => (
-                <SelectItem key={format} value={format}>
-                  {t(`extractNodes.formats.${subscriptionFormatLabels[format]}`)}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+      <FieldGroup className="gap-1">
+        <Field orientation="horizontal" className="min-w-0 gap-2">
+          <FieldContent>
+            <FieldLabel htmlFor={`${id}-format`}>{t('extractNodes.format')}</FieldLabel>
+            <FieldDescription id={`${id}-help`}>{t('extractNodes.help')}</FieldDescription>
+          </FieldContent>
+          <div data-slot="field-control">
+            <Select
+              value={value.format}
+              disabled={disabled}
+              onValueChange={(format) => {
+                if (isSubscriptionFormat(format)) {
+                  onChange({ format });
+                }
+              }}
+            >
+              <SelectTrigger id={`${id}-format`} aria-describedby={`${id}-help`} className="w-full">
+                <SelectValue>{t(`extractNodes.formats.${subscriptionFormatLabels[value.format]}`)}</SelectValue>
+              </SelectTrigger>
+              <SelectContent side="bottom" alignItemWithTrigger={false}>
+                {subscriptionFormats.map((format) => (
+                  <SelectItem key={format} value={format}>
+                    {t(`extractNodes.formats.${subscriptionFormatLabels[format]}`)}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
         </Field>
       </FieldGroup>
       {issues.length > 0 && (

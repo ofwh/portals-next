@@ -1,5 +1,5 @@
 import { splitFields } from './parser';
-import { debugNode, rejectNode } from '../../debug';
+import { debugNode, rejectNode } from '../../proxy-node/debug';
 import {
   assertCovered,
   convert,
@@ -10,13 +10,13 @@ import {
   put,
   remove,
   validateFields,
-} from '../../mapping';
-import type { Binding } from '../../mapping';
-import { array, camelCase, number, object, oneOf, optional, shape, text } from '../../schema';
-import { createTransform, supportsType } from '../../transform';
-import type { ProxyType } from '../../types/common';
-import type { IniConfig, IniNode, IniWireGuardSettings } from '../../types/ini';
-import type { ProxyNodeFields } from '../../types/proxy-node';
+} from '../../proxy-node/mapping';
+import { createTransform, supportsType } from '../../proxy-node/transform';
+import type { IniConfig, IniNode, IniWireGuardSettings } from '../../types/providers/ini';
+import type { ProxyType } from '../../types/proxy-node/common';
+import type { ProxyNodeFields } from '../../types/proxy-node/fields';
+import type { Binding } from '../../types/proxy-node/mapping';
+import { array, camelCase, number, object, oneOf, optional, shape, text } from '../schema';
 
 export const supports = [
   'ss',

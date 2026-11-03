@@ -1,10 +1,10 @@
 import { ssProxyNode } from './parser';
-import { rejectNode } from '../../debug';
-import { expand, flatten, get, put } from '../../mapping';
-import type { Binding } from '../../mapping';
-import { camelCase, object, text } from '../../schema';
-import { createTransform } from '../../transform';
-import type { SSConfig, SSNode } from '../../types/ss';
+import { rejectNode } from '../../proxy-node/debug';
+import { expand, flatten, get, put } from '../../proxy-node/mapping';
+import { createTransform } from '../../proxy-node/transform';
+import type { SSConfig, SSNode } from '../../types/providers/ss';
+import type { Binding } from '../../types/proxy-node/mapping';
+import { camelCase, object, text } from '../schema';
 
 export const supports = ['ss'] as const;
 const bindings = [

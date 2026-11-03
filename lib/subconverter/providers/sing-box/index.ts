@@ -1,9 +1,9 @@
 import { parse } from './parser';
 import { extract, supports, transform } from './transform';
-import { SubscriptionProvider } from '../../provider';
-import type { SingBoxConfig, SingBoxNode, SingBoxNodeFields } from '../../types/sing-box';
+import type { SingBoxConfig, SingBoxNode, SingBoxNodeFields } from '../../types/providers/sing-box';
+import { SubscriptionProvider } from '../provider';
 
-export type * from '../../types/sing-box';
+export type * from '../../types/providers/sing-box';
 
 export class SingBoxProvider extends SubscriptionProvider<SingBoxConfig, SingBoxNode, SingBoxNodeFields> {
   static readonly supports = supports;

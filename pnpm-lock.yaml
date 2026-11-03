@@ -199,6 +199,9 @@ importers:
       drizzle-orm:
         specifier: ^0.45.4
         version: 0.45.4(@types/better-sqlite3@9.6.0)(better-sqlite3@13.0.3)(kysely@0.29.7)
+      js-ini:
+        specifier: ^1.6.0
+        version: 1.6.0
       lucide-react:
         specifier: ^1.61.0
         version: 1.65.0(@types/react@19.3.0)(react@19.3.0)
@@ -229,6 +232,9 @@ importers:
       sonner:
         specifier: ^2.0.8
         version: 2.0.8(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
+      toml-eslint-parser:
+        specifier: ^1.0.3
+        version: 1.0.3
       tw-animate-css:
         specifier: ^1.4.0
         version: 1.4.0
@@ -3395,6 +3401,9 @@ packages:
   jose@6.2.14:
     resolution: {integrity: sha512-3JasLuki1NRLQvY4wCoC37KZk4qxoBx2k2aFqLxT84IezqW0bkJKnNtxnZj/Fu1xsQivoc/lytxaRHJoGLjJ1A==}
 
+  js-ini@1.6.0:
+    resolution: {integrity: sha512-9Vx+NVkMRNY4i7pLLIGdXIQbP1iwB3fP2IG1zMCgeUUvR1ODmTKa33eR/J9FHoorNsfoJr9/2SVqeSKLwPD9Nw==}
+
   js-tokens@4.0.0:
     resolution: {integrity: sha512-RdJUflcE3cUzKiMqQgsCu06FPu9UdIJO0beYbPhHN4k6apgJtifcoCtT9bcxOpYBtpD2kCM6Sbzg4CausW/PKQ==}
 
@@ -4325,6 +4334,10 @@ packages:
   to-regex-range@5.0.1:
     resolution: {integrity: sha512-65P7iz6X5yEr1cwcgvQxbbIw7Uk3gOy5dIdtZ4rDveLqhrdJP+Li/Hx6tyK0NEb+2GCyneCMJiGqrADCSNk8sQ==}
     engines: {node: '>=8.0'}
+
+  toml-eslint-parser@1.0.3:
+    resolution: {integrity: sha512-A5F0cM6+mDleacLIEUkmfpkBbnHJFV1d2rprHU2MXNk7mlxHq2zGojA+SRvQD1RoMo9gqjZPWEaKG4v1BQ48lw==}
+    engines: {node: ^20.19.0 || ^22.13.0 || >=24}
 
   ts-api-utils@2.5.0:
     resolution: {integrity: sha512-OJ/ibxhPlqrMM0UiNHJ/0CKQkoKF243/AEmplt3qpRgkW8VG7IfOS41h7V8TjITqdByHzrjcS/2si+y4lIh8NA==}
@@ -7428,6 +7441,8 @@ snapshots:
 
   jose@6.2.14: {}
 
+  js-ini@1.6.0: {}
+
   js-tokens@4.0.0: {}
 
   js-yaml@4.3.2:
@@ -8352,6 +8367,10 @@ snapshots:
   to-regex-range@5.0.1:
     dependencies:
       is-number: 7.0.0
+
+  toml-eslint-parser@1.0.3:
+    dependencies:
+      eslint-visitor-keys: 5.0.1
 
   ts-api-utils@2.5.0(typescript@5.9.3):
     dependencies:

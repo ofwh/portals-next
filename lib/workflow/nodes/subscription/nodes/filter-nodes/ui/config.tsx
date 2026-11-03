@@ -1,6 +1,6 @@
 'use client';
 
-import { CircleHelp, Plus, Trash2 } from 'lucide-react';
+import { Plus, Trash2 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useId } from 'react';
 import { Button } from '@/components/ui/button';
@@ -17,7 +17,7 @@ import {
   ComboboxValue,
   useComboboxAnchor,
 } from '@/components/ui/combobox';
-import { Field, FieldContent, FieldGroup, FieldLabel } from '@/components/ui/field';
+import { Field, FieldContent, FieldDescription, FieldGroup, FieldLabel } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
@@ -36,10 +36,11 @@ export function FilterForm({ value, onChange, disabled, issues }: NodeFormProps<
 
   return (
     <fieldset disabled={disabled} className="min-w-0 space-y-6">
-      <FieldGroup>
+      <FieldGroup className="gap-1">
         <Field orientation="horizontal" className="min-w-0 gap-2">
           <FieldContent>
             <FieldLabel id={`${id}-protocols`}>{t('protocols')}</FieldLabel>
+            <FieldDescription id={`${id}-protocols-help`}>{t('protocolsHelp')}</FieldDescription>
           </FieldContent>
           <div data-slot="field-control">
             <Combobox
@@ -56,7 +57,11 @@ export function FilterForm({ value, onChange, disabled, issues }: NodeFormProps<
                     <ComboboxChip key={protocol}>{protocolOptions[protocol]}</ComboboxChip>
                   ))}
                 </ComboboxValue>
-                <ComboboxChipsInput aria-labelledby={`${id}-protocols`} placeholder={t('protocolsPlaceholder')} />
+                <ComboboxChipsInput
+                  aria-labelledby={`${id}-protocols`}
+                  aria-describedby={`${id}-protocols-help`}
+                  placeholder={t('protocolsPlaceholder')}
+                />
                 <ComboboxTrigger
                   type="button"
                   disabled={disabled}
@@ -79,7 +84,10 @@ export function FilterForm({ value, onChange, disabled, issues }: NodeFormProps<
         </Field>
         <Field>
           <div className="flex items-center justify-between gap-3">
-            <FieldLabel id={`${id}-patterns`}>{t('namePattern')}</FieldLabel>
+            <FieldContent>
+              <FieldLabel id={`${id}-patterns`}>{t('namePattern')}</FieldLabel>
+              <FieldDescription id={`${id}-patterns-help`}>{t('help')}</FieldDescription>
+            </FieldContent>
             <Tooltip>
               <TooltipTrigger
                 render={
@@ -100,7 +108,12 @@ export function FilterForm({ value, onChange, disabled, issues }: NodeFormProps<
               <TooltipContent side="top">{t('add')}</TooltipContent>
             </Tooltip>
           </div>
-          <div role="group" aria-labelledby={`${id}-patterns`} className="min-w-0 space-y-3">
+          <div
+            role="group"
+            aria-labelledby={`${id}-patterns`}
+            aria-describedby={`${id}-patterns-help`}
+            className="min-w-0 space-y-3"
+          >
             {rules.map((rule) => (
               <div key={rule.id} className="grid grid-cols-[minmax(0,1fr)_auto] gap-2">
                 <Input
@@ -130,27 +143,15 @@ export function FilterForm({ value, onChange, disabled, issues }: NodeFormProps<
             ))}
           </div>
         </Field>
-        <Field orientation="horizontal">
+        <Field orientation="horizontal" className="min-w-0 gap-2">
           <FieldContent>
-            <div className="flex items-center gap-1.5">
-              <FieldLabel htmlFor={`${id}-exclude`}>{t('exclude')}</FieldLabel>
-              <Tooltip>
-                <TooltipTrigger
-                  aria-label={t('excludeHelp')}
-                  render={<Button type="button" variant="ghost" size="icon-xs" className="text-muted-foreground" />}
-                >
-                  <CircleHelp />
-                </TooltipTrigger>
-                <TooltipContent side="top" className="w-auto max-w-none">
-                  <p className="whitespace-nowrap">{t('excludeOffHelp')}</p>
-                  <p className="whitespace-nowrap">{t('excludeOnHelp')}</p>
-                </TooltipContent>
-              </Tooltip>
-            </div>
+            <FieldLabel htmlFor={`${id}-exclude`}>{t('exclude')}</FieldLabel>
+            <FieldDescription id={`${id}-exclude-help`}>{t('excludeHelp')}</FieldDescription>
           </FieldContent>
           <div data-slot="field-control">
             <Switch
               id={`${id}-exclude`}
+              aria-describedby={`${id}-exclude-help`}
               disabled={disabled}
               checked={value.exclude}
               onCheckedChange={(checked) => onChange({ ...value, exclude: checked })}

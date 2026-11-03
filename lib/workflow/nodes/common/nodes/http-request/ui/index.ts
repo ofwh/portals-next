@@ -7,6 +7,6 @@ import type { HttpRequestConfig } from '../model/types';
 export const httpRequestNodeView = defineNodeView<HttpRequestConfig>({
   type: definition.type,
   icon: HttpRequestIcon,
-  config: { Form: HttpRequestForm },
+  config: { Form: HttpRequestForm, className: 'sm:max-w-[720px]' },
   display: { size: { width: 260, height: 132 }, Content: HttpRequestContent },
 });

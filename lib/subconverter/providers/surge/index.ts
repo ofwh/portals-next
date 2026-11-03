@@ -1,9 +1,9 @@
 import { parse } from './parser';
 import { extract, supports, transform } from './transform';
-import { SubscriptionProvider } from '../../provider';
-import type { SurgeConfig, SurgeNode, SurgeNodeFields } from '../../types/surge';
+import type { SurgeConfig, SurgeNode, SurgeNodeFields } from '../../types/providers/surge';
+import { SubscriptionProvider } from '../provider';
 
-export type * from '../../types/surge';
+export type * from '../../types/providers/surge';
 
 export class SurgeProvider extends SubscriptionProvider<SurgeConfig, SurgeNode, SurgeNodeFields> {
   static readonly supports = supports;

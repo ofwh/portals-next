@@ -1,6 +1,6 @@
-import { get } from '../../mapping';
-import { createTransform } from '../../transform';
-import type { Base64Config, Base64Node } from '../../types/base64';
+import { get } from '../../proxy-node/mapping';
+import { createTransform } from '../../proxy-node/transform';
+import type { Base64Config, Base64Node } from '../../types/providers/base64';
 import { extract as extractIni, toFields as iniFields, toNode as iniNode, readNode as readIni } from '../ini/transform';
 import { readNode as readUri, transform as uriTransform } from '../uri/transform';
 

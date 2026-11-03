@@ -7,6 +7,6 @@ import type { FieldInputConfig } from '../model/types';
 export const fieldInputNodeView = defineNodeView<FieldInputConfig>({
   type: definition.type,
   icon: FieldInputIcon,
-  config: { Form: FieldInputForm },
+  config: { Form: FieldInputForm, className: 'sm:max-w-[720px]' },
   display: { size: { width: 260, height: 108 }, Content: FieldInputContent },
 });

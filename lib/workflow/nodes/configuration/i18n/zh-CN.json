@@ -1,0 +1,13 @@
+{
+  "group": "配置",
+  "ruleGroups": {
+    "name": "规则组解析"
+  },
+  "policyGroups": {
+    "name": "策略组解析"
+  },
+  "shared": {
+    "type": "配置类型",
+    "typeHelp": "请选择配置内容类型"
+  }
+}

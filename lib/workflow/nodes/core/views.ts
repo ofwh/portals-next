@@ -7,7 +7,7 @@ import type { NodeContentProps, NodeFormProps, NodeView } from '../types';
 export interface RegisteredNodeView {
   type: string;
   icon: NodeView<unknown>['icon'];
-  config: { Form: ComponentType<NodeFormProps<unknown>> };
+  config?: NodeView<unknown>['config'];
   display?: { size: { width: number; height: number }; Content: ComponentType<NodeContentProps<unknown>> };
 }
 
@@ -24,6 +24,7 @@ export class NodeViewRegistry {
     }
 
     const display = view.display;
+    const config = view.config;
 
     if (
       !nonempty(view.type) ||
@@ -47,7 +48,15 @@ export class NodeViewRegistry {
     this.views.set(view.type, {
       type: view.type,
       icon: view.icon,
-      config: { Form: (props) => createElement(view.config.Form, { ...props, value: check(props.value) }) },
+      ...(config
+        ? {
+            config: {
+              className: config.className,
+              Form: (props: NodeFormProps<unknown>) =>
+                createElement(config.Form, { ...props, value: check(props.value) }),
+            },
+          }
+        : {}),
       ...(display
         ? {
             display: {

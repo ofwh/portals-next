@@ -1,9 +1,9 @@
 import { parse } from './parser';
 import { extract, supports, transform } from './transform';
-import { SubscriptionProvider } from '../../provider';
-import type { SSConfig, SSNode, SSNodeFields } from '../../types/ss';
+import type { SSConfig, SSNode, SSNodeFields } from '../../types/providers/ss';
+import { SubscriptionProvider } from '../provider';
 
-export type * from '../../types/ss';
+export type * from '../../types/providers/ss';
 
 export class SSProvider extends SubscriptionProvider<SSConfig, SSNode, SSNodeFields> {
   static readonly supports = supports;

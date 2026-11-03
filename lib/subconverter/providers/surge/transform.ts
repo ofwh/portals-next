@@ -1,4 +1,4 @@
-import type { SurgeConfig, SurgeNode } from '../../types/surge';
+import type { SurgeConfig, SurgeNode } from '../../types/providers/surge';
 import { canonicalType, createIniTransform, extract as extractIni } from '../ini/transform';
 
 export const supports = [

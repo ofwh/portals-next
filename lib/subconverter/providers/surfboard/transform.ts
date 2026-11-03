@@ -1,4 +1,4 @@
-import type { SurfboardConfig, SurfboardNode } from '../../types/surfboard';
+import type { SurfboardConfig, SurfboardNode } from '../../types/providers/surfboard';
 import { canonicalType, createIniTransform, extract as extractIni } from '../ini/transform';
 
 export const supports = ['ss', 'vmess', 'socks5', 'http', 'https', 'trojan'] as const;

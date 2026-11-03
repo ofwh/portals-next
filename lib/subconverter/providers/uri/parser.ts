@@ -1,7 +1,7 @@
-import { debugNode } from '../../debug';
-import { base64, json, oneOf, optional, port, shape, stringOrNumber, text } from '../../schema';
-import type { UriConfig, UriProxyNode, UriUrlProxyNode } from '../../types/uri';
+import { debugNode } from '../../proxy-node/debug';
+import type { UriConfig, UriProxyNode, UriUrlProxyNode } from '../../types/providers/uri';
 import { parseIni } from '../ini/parser';
+import { base64, json, oneOf, optional, port, shape, stringOrNumber, text } from '../schema';
 import { ssrProxyNode } from '../ssr/parser';
 
 export const vmessShareNode = shape({

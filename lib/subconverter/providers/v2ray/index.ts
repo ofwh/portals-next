@@ -1,9 +1,9 @@
 import { parse } from './parser';
 import { extract, supports, transform } from './transform';
-import { SubscriptionProvider } from '../../provider';
-import type { V2RayConfig, V2RayNode, V2RayNodeFields } from '../../types/v2ray';
+import type { V2RayConfig, V2RayNode, V2RayNodeFields } from '../../types/providers/v2ray';
+import { SubscriptionProvider } from '../provider';
 
-export type * from '../../types/v2ray';
+export type * from '../../types/providers/v2ray';
 
 export class V2RayProvider extends SubscriptionProvider<V2RayConfig, V2RayNode, V2RayNodeFields> {
   static readonly supports = supports;

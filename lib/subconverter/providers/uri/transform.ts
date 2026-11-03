@@ -1,5 +1,5 @@
 import { vmessShareNode } from './parser';
-import { rejectNode } from '../../debug';
+import { rejectNode } from '../../proxy-node/debug';
 import {
   assertCovered,
   convert,
@@ -10,13 +10,13 @@ import {
   put,
   remove,
   validateFields,
-} from '../../mapping';
-import type { Binding } from '../../mapping';
-import { array, base64, camelCase, object, oneOf, optional, port, shape, text } from '../../schema';
-import { createTransform } from '../../transform';
-import type { ProxyNodeFields } from '../../types/proxy-node';
-import type { UriConfig, UriNode, UriUrlProxyNode } from '../../types/uri';
+} from '../../proxy-node/mapping';
+import { createTransform } from '../../proxy-node/transform';
+import type { UriConfig, UriNode, UriUrlProxyNode } from '../../types/providers/uri';
+import type { ProxyNodeFields } from '../../types/proxy-node/fields';
+import type { Binding } from '../../types/proxy-node/mapping';
 import { toFields as iniToFields, readNode as readIniNode } from '../ini/transform';
+import { array, base64, camelCase, object, oneOf, optional, port, shape, text } from '../schema';
 import { transform as ssTransform } from '../ss/transform';
 import { ssrProxyNode } from '../ssr/parser';
 import { transform as ssrTransform } from '../ssr/transform';

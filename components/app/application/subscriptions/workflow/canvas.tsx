@@ -277,7 +277,7 @@ export function Canvas({ canvas }: { canvas: ReturnType<typeof useWorkflowCanvas
           viewport={flow.viewport ?? { x: 0, y: 0, zoom: 1 }}
           onViewportChange={canvas.onViewportChange}
           onNodeDoubleClick={(_event, node) => {
-            if (node.data.available && !saving) {
+            if (node.data.available && !saving && nodeViewRegistry.getNodeView(node.data.instance.type)?.config) {
               canvas.setEditingId(node.id);
             }
           }}

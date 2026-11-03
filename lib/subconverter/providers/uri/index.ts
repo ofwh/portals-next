@@ -1,9 +1,9 @@
 import { parse } from './parser';
 import { extract, supports, transform } from './transform';
-import { SubscriptionProvider } from '../../provider';
-import type { UriConfig, UriNode, UriNodeFields } from '../../types/uri';
+import type { UriConfig, UriNode, UriNodeFields } from '../../types/providers/uri';
+import { SubscriptionProvider } from '../provider';
 
-export type * from '../../types/uri';
+export type * from '../../types/providers/uri';
 
 export class UriProvider extends SubscriptionProvider<UriConfig, UriNode, UriNodeFields> {
   static readonly supports = supports;

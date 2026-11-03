@@ -1,4 +1,5 @@
 import { errorMessages as commonMessages } from '@/lib/workflow/nodes/common/i18n/errors';
+import { errorMessages as configurationMessages } from '@/lib/workflow/nodes/configuration/i18n/errors';
 import { errorMessages as subscriptionMessages } from '@/lib/workflow/nodes/subscription/i18n/errors';
 
 export const codes = {
@@ -23,11 +24,13 @@ export const codes = {
   SUBSCRIPTION_PARSE_FAILED: 1301018,
   SUBSCRIPTION_EMPTY_NAME: 1301019,
   DRAFT_NOT_FOUND: 1301020,
+  CONFIGURATION_PARSE_FAILED: 1301021,
 } as const;
 export const messages = {
   'zh-CN': {
     ...subscriptionMessages['zh-CN'],
     ...commonMessages['zh-CN'],
+    ...configurationMessages['zh-CN'],
     DUPLICATE_TYPE: '工作流数据类型已注册',
     TYPE_NOT_FOUND: '工作流数据类型未注册',
     DUPLICATE_NODE: '工作流节点类型已注册',
@@ -49,6 +52,7 @@ export const messages = {
   en: {
     ...subscriptionMessages.en,
     ...commonMessages.en,
+    ...configurationMessages.en,
     DUPLICATE_TYPE: 'The workflow data type is already registered.',
     TYPE_NOT_FOUND: 'The workflow data type is not registered.',
     DUPLICATE_NODE: 'The workflow node type is already registered.',

@@ -4,7 +4,7 @@ import { ArrowDown, ArrowUp, Plus, Trash2 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useId } from 'react';
 import { Button } from '@/components/ui/button';
-import { Field, FieldGroup, FieldLabel } from '@/components/ui/field';
+import { Field, FieldContent, FieldDescription, FieldGroup, FieldLabel } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import type { NodeFormProps } from '@/lib/workflow/nodes/types';
@@ -27,10 +27,13 @@ export function RenameForm({ value, onChange, disabled, issues }: NodeFormProps<
 
   return (
     <fieldset disabled={disabled} className="min-w-0 space-y-6">
-      <FieldGroup>
+      <FieldGroup className="gap-1">
         <Field>
           <div className="flex items-center justify-between gap-3">
-            <FieldLabel id={`${id}-rules`}>{t('rules')}</FieldLabel>
+            <FieldContent>
+              <FieldLabel id={`${id}-rules`}>{t('rules')}</FieldLabel>
+              <FieldDescription id={`${id}-rules-help`}>{t('help')}</FieldDescription>
+            </FieldContent>
             <Tooltip>
               <TooltipTrigger
                 render={
@@ -53,7 +56,12 @@ export function RenameForm({ value, onChange, disabled, issues }: NodeFormProps<
               <TooltipContent side="top">{t('add')}</TooltipContent>
             </Tooltip>
           </div>
-          <div role="group" aria-labelledby={`${id}-rules`} className="min-w-0 space-y-3">
+          <div
+            role="group"
+            aria-labelledby={`${id}-rules`}
+            aria-describedby={`${id}-rules-help`}
+            className="min-w-0 space-y-3"
+          >
             {value.rules.map((rule, index) => (
               <div key={rule.id} className="grid grid-cols-[minmax(0,1fr)_minmax(0,1fr)_auto] gap-2">
                 <Input

@@ -1,9 +1,9 @@
 import { v2rayNProxyNode, v2rayProxyNode } from './parser';
-import { rejectNode } from '../../debug';
-import { expand, flatten, get, nativeFingerprint, put, remove } from '../../mapping';
-import type { Binding } from '../../mapping';
-import { createTransform } from '../../transform';
-import type { V2RayConfig, V2RayNode } from '../../types/v2ray';
+import { rejectNode } from '../../proxy-node/debug';
+import { expand, flatten, get, nativeFingerprint, put, remove } from '../../proxy-node/mapping';
+import { createTransform } from '../../proxy-node/transform';
+import type { V2RayConfig, V2RayNode } from '../../types/providers/v2ray';
+import type { Binding } from '../../types/proxy-node/mapping';
 
 export const supports = ['ss', 'socks5', 'vmess'] as const;
 const bindings = [

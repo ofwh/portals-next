@@ -9,7 +9,7 @@ export function MergeForm({ issues }: NodeFormProps<MergeConfig>) {
 
   return (
     <div className="space-y-3">
-      <p className="text-muted-foreground text-sm">{t('help')}</p>
+      <p className="text-muted-foreground text-sm">{t('summary')}</p>
       {issues.length > 0 && (
         <div role="alert" className="text-destructive text-sm">
           {issues.map((issue) => (

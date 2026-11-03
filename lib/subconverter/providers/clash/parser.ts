@@ -1,4 +1,5 @@
 import { parse as parseYaml } from 'yaml';
+import type { ClashConfig } from '../../types/providers/clash';
 import {
   array,
   boolean,
@@ -15,8 +16,7 @@ import {
   tagged,
   text,
   union,
-} from '../../schema';
-import type { ClashConfig } from '../../types/clash';
+} from '../schema';
 
 const clashECHOptions = shape({
   enable: optional(boolean),

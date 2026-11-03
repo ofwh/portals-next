@@ -1,9 +1,9 @@
 import { parse } from './parser';
 import { extract, supports, transform } from './transform';
-import { SubscriptionProvider } from '../../provider';
-import type { ClashConfig, ClashNode, ClashNodeFields } from '../../types/clash';
+import type { ClashConfig, ClashNode, ClashNodeFields } from '../../types/providers/clash';
+import { SubscriptionProvider } from '../provider';
 
-export type * from '../../types/clash';
+export type * from '../../types/providers/clash';
 
 export class ClashProvider extends SubscriptionProvider<ClashConfig, ClashNode, ClashNodeFields> {
   static readonly supports = supports;

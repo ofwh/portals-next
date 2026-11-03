@@ -2,7 +2,7 @@
 
 import { useTranslations } from 'next-intl';
 import { useId } from 'react';
-import { Field, FieldDescription, FieldGroup, FieldLabel } from '@/components/ui/field';
+import { Field, FieldContent, FieldDescription, FieldGroup, FieldLabel } from '@/components/ui/field';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import type { NodeFormProps } from '@/lib/workflow/nodes/types';
@@ -15,37 +15,48 @@ export function FieldInputForm({ value, onChange, disabled, issues }: NodeFormPr
 
   return (
     <fieldset disabled={disabled} className="min-w-0 space-y-6">
-      <FieldGroup>
-        <Field>
-          <FieldLabel htmlFor={`${id}-format`}>{t('fieldInput.outputFormat')}</FieldLabel>
-          <Select
-            value={value.outputFormat}
-            disabled={disabled}
-            onValueChange={(outputFormat) => {
-              if (isOutputFormat(outputFormat)) {
-                onChange({ ...value, outputFormat });
-              }
-            }}
-          >
-            <SelectTrigger id={`${id}-format`} className="w-full">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent side="bottom" alignItemWithTrigger={false}>
-              <SelectItem value="String">{t('shared.formats.text')}</SelectItem>
-              <SelectItem value="Object">{t('shared.formats.json')}</SelectItem>
-            </SelectContent>
-          </Select>
+      <FieldGroup className="gap-1">
+        <Field orientation="horizontal" className="min-w-0 gap-2">
+          <FieldContent>
+            <FieldLabel htmlFor={`${id}-format`}>{t('fieldInput.outputFormat')}</FieldLabel>
+            <FieldDescription id={`${id}-format-help`}>{t('fieldInput.outputFormatHelp')}</FieldDescription>
+          </FieldContent>
+          <div data-slot="field-control">
+            <Select
+              value={value.outputFormat}
+              disabled={disabled}
+              onValueChange={(outputFormat) => {
+                if (isOutputFormat(outputFormat)) {
+                  onChange({ ...value, outputFormat });
+                }
+              }}
+            >
+              <SelectTrigger id={`${id}-format`} aria-describedby={`${id}-format-help`} className="w-full">
+                <SelectValue>
+                  {t(value.outputFormat === 'String' ? 'shared.formats.text' : 'shared.formats.json')}
+                </SelectValue>
+              </SelectTrigger>
+              <SelectContent side="bottom" alignItemWithTrigger={false}>
+                <SelectItem value="String">{t('shared.formats.text')}</SelectItem>
+                <SelectItem value="Object">{t('shared.formats.json')}</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
         </Field>
-        <Field>
-          <FieldLabel htmlFor={`${id}-text`}>{t('fieldInput.text')}</FieldLabel>
-          <FieldDescription id={`${id}-help`}>{t('fieldInput.help')}</FieldDescription>
-          <Textarea
-            id={`${id}-text`}
-            aria-describedby={`${id}-help`}
-            className="min-h-64 resize-y font-mono"
-            value={value.text}
-            onChange={(event) => onChange({ ...value, text: event.target.value })}
-          />
+        <Field orientation="horizontal" className="min-w-0 gap-2">
+          <FieldContent>
+            <FieldLabel htmlFor={`${id}-text`}>{t('fieldInput.text')}</FieldLabel>
+            <FieldDescription id={`${id}-help`}>{t('fieldInput.help')}</FieldDescription>
+          </FieldContent>
+          <div data-slot="field-control">
+            <Textarea
+              id={`${id}-text`}
+              aria-describedby={`${id}-help`}
+              className="min-h-64 resize-y font-mono"
+              value={value.text}
+              onChange={(event) => onChange({ ...value, text: event.target.value })}
+            />
+          </div>
         </Field>
       </FieldGroup>
       {issues.length > 0 && (

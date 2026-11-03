@@ -1,7 +1,7 @@
 {
   "rename": {
     "name": "Rename nodes",
-    "help": "Apply rules from top to bottom. Enter a pattern on the left and replacement text on the right. Leave the replacement empty to remove matched text.",
+    "help": "Replace names using patterns in order; an empty replacement removes matches",
     "rule": "Rule {index}",
     "pattern": "Pattern",
     "replacement": "Replacement",
@@ -17,23 +17,22 @@
     "protocols": "Protocols",
     "namePattern": "Name filter rules",
     "exclude": "Exclude matching nodes",
-    "excludeHelp": "Explain filtering modes",
-    "excludeOffHelp": "Off (default): keep nodes that match the rules",
-    "excludeOnHelp": "On: exclude nodes that match the rules",
-    "help": "Match any name pattern. Selected protocols must also match. Enable exclusion to remove matching nodes.",
+    "excludeHelp": "Remove nodes matching the rules when enabled",
+    "help": "Filter nodes by rules",
     "excludeSummary": "Exclude matches · {count} protocols",
     "keepSummary": "Keep matches · {count} protocols",
     "protocolsPlaceholder": "Select protocols, or leave empty for all",
     "noProtocols": "No matching protocols",
-    "pattern": "Enter a name pattern",
+    "pattern": "Name or pattern to filter, e.g. `/(HK|US)/`",
     "add": "Add rule",
-    "remove": "Remove rule"
+    "remove": "Remove rule",
+    "protocolsHelp": "Select node protocols; leave empty for all protocols"
   },
   "group": "Subscription nodes",
   "extractNodes": {
-    "name": "Extract subscription nodes",
+    "name": "Parse nodes",
     "format": "Subscription type",
-    "help": "Accept text and parse it using the selected subscription format into a node list. Connect any text output, including HTTP request and Field input nodes.",
+    "help": "Select the subscription configuration type",
     "formats": {
       "clash": "Clash / Mihomo",
       "singBox": "sing-box",

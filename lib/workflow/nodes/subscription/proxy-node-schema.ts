@@ -1,5 +1,5 @@
 import { appError } from '@/lib/api';
-import { validateFields } from '@/lib/subconverter/mapping';
+import { validateFields } from '@/lib/subconverter/proxy-node/mapping';
 import type { ProxyNodeFields } from '@/lib/subconverter/types';
 import { assertJson } from '../../utils';
 import { arrayOf } from '../core/schemas';

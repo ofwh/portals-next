@@ -1,4 +1,4 @@
-import type { SurfboardConfig } from '../../types/surfboard';
+import type { SurfboardConfig } from '../../types/providers/surfboard';
 import { parseIni } from '../ini/parser';
 
 export function parse(content: string): SurfboardConfig {

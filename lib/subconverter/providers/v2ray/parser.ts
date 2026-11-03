@@ -1,3 +1,4 @@
+import type { V2RayConfig } from '../../types/providers/v2ray';
 import {
   array,
   boolean,
@@ -12,8 +13,7 @@ import {
   stringOrNumber,
   text,
   union,
-} from '../../schema';
-import type { V2RayConfig } from '../../types/v2ray';
+} from '../schema';
 
 const headers = entries(union(text, array(text)));
 

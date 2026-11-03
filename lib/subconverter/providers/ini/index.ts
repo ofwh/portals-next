@@ -1,9 +1,9 @@
 import { parse } from './parser';
 import { extract, supports, transform } from './transform';
-import { SubscriptionProvider } from '../../provider';
-import type { IniConfig, IniNode, IniNodeFields } from '../../types/ini';
+import type { IniConfig, IniNode, IniNodeFields } from '../../types/providers/ini';
+import { SubscriptionProvider } from '../provider';
 
-export type * from '../../types/ini';
+export type * from '../../types/providers/ini';
 
 export class IniProvider extends SubscriptionProvider<IniConfig, IniNode, IniNodeFields> {
   static readonly supports = supports;

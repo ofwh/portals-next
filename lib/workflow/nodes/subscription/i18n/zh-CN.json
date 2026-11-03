@@ -1,7 +1,7 @@
 {
   "rename": {
     "name": "节点重命名",
-    "help": "从上到下依次替换节点名称。左侧填写正则，右侧填写替换内容；留空表示删除匹配文字",
+    "help": "按顺序用正则替换名称，替换内容留空则删除匹配文字",
     "rule": "规则 {index}",
     "pattern": "匹配正则",
     "replacement": "替换内容",
@@ -17,23 +17,22 @@
     "protocols": "节点协议",
     "namePattern": "名称过滤规则",
     "exclude": "排除匹配节点",
-    "excludeHelp": "查看过滤方式说明",
-    "excludeOffHelp": "默认关闭：保留匹配规则的节点",
-    "excludeOnHelp": "开启开关：排除匹配规则的节点",
-    "help": "名称匹配任意一条正则即可。选择协议后，还须满足协议条件；开启排除则删除匹配节点",
+    "excludeHelp": "开启时过滤掉符合规则的节点",
+    "help": "按规则过滤节点",
     "excludeSummary": "排除匹配 · {count} 种协议",
     "keepSummary": "保留匹配 · {count} 种协议",
     "protocolsPlaceholder": "选择协议，留空不限",
     "noProtocols": "没有匹配的协议",
-    "pattern": "输入名称正则",
+    "pattern": "需过滤的名称或正则,例如 `/(HK|US)/`",
     "add": "添加规则",
-    "remove": "删除规则"
+    "remove": "删除规则",
+    "protocolsHelp": "选择节点协议，留空不限"
   },
   "group": "订阅节点",
   "extractNodes": {
-    "name": "订阅解析",
+    "name": "节点解析",
     "format": "订阅类型",
-    "help": "接收文本，按所选订阅类型解析并输出节点列表；可连接输出为文本的 HTTP 请求、字段输入等节点",
+    "help": "选择订阅配置类型",
     "formats": {
       "clash": "Clash / Mihomo",
       "singBox": "sing-box",

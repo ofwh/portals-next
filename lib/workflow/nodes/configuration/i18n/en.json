@@ -1,0 +1,13 @@
+{
+  "group": "Configuration",
+  "ruleGroups": {
+    "name": "Parse rule groups"
+  },
+  "policyGroups": {
+    "name": "Parse policy groups"
+  },
+  "shared": {
+    "type": "Configuration type",
+    "typeHelp": "Select the configuration content type"
+  }
+}

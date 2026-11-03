@@ -1,10 +1,10 @@
 import { clashProxyNode } from './parser';
-import { rejectNode } from '../../debug';
-import { expand, flatten, get, nativeFingerprint, projectWireGuard, put, remove } from '../../mapping';
-import type { Binding } from '../../mapping';
-import { createTransform, supportsType } from '../../transform';
-import type { ClashConfig, ClashNode } from '../../types/clash';
-import type { ProxyNodeFields } from '../../types/proxy-node';
+import { rejectNode } from '../../proxy-node/debug';
+import { expand, flatten, get, nativeFingerprint, projectWireGuard, put, remove } from '../../proxy-node/mapping';
+import { createTransform, supportsType } from '../../proxy-node/transform';
+import type { ClashConfig, ClashNode } from '../../types/providers/clash';
+import type { ProxyNodeFields } from '../../types/proxy-node/fields';
+import type { Binding } from '../../types/proxy-node/mapping';
 
 export const supports = [
   'anytls',

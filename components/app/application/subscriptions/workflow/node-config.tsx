@@ -1,5 +1,7 @@
 'use client';
 
+import { ScrollArea as ScrollAreaPrimitive } from '@base-ui/react/scroll-area';
+import { cn } from 'cn';
 import { useTranslations } from 'next-intl';
 import type { ComponentType, FormEvent } from 'react';
 import { useState } from 'react';
@@ -12,6 +14,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
+import { ScrollArea } from '@/components/ui/scroll-area';
 import { useWorkflow } from '@/hooks/use-workflow';
 import type { NodeInstance } from '@/lib/workflow/model';
 import { nodeViewRegistry } from '@/lib/workflow/nodes/client';
@@ -22,10 +25,11 @@ import styles from '@/styles/ui.module.css';
 interface NodeConfigEditorProps {
   node: NodeInstance;
   Form: ComponentType<NodeFormProps<unknown>>;
+  className?: string;
   onClose(): void;
 }
 
-function NodeConfigEditor({ node, Form, onClose }: NodeConfigEditorProps) {
+function NodeConfigEditor({ node, Form, className, onClose }: NodeConfigEditorProps) {
   const t = useTranslations();
   const { saving, updateConfig, notifyError } = useWorkflow((state) => ({
     saving: state.saving || state.running,
@@ -58,7 +62,7 @@ function NodeConfigEditor({ node, Form, onClose }: NodeConfigEditorProps) {
       }}
     >
       <DialogContent
-        className="flex max-h-[85dvh] flex-col gap-0 overflow-hidden p-0 sm:max-w-xl"
+        className={cn('flex max-h-[85dvh] flex-col gap-0 overflow-hidden p-0 sm:max-w-xl', className)}
         showCloseButton={!saving}
       >
         <DialogHeader className="shrink-0 border-b p-6 pr-12">
@@ -66,9 +70,11 @@ function NodeConfigEditor({ node, Form, onClose }: NodeConfigEditorProps) {
           <DialogDescription>{t('admin.application.subscriptions.flowEditor.configHelp')}</DialogDescription>
         </DialogHeader>
         <form noValidate onSubmit={submit} className={`flex min-h-0 flex-1 flex-col ${styles.highlight}`}>
-          <div className="min-h-0 flex-1 overflow-y-auto p-6">
-            <Form value={draft} disabled={saving} issues={[]} onChange={setDraft} />
-          </div>
+          <ScrollArea className="flex min-h-0 flex-1 flex-col overflow-hidden [&>[data-slot=scroll-area-viewport]]:min-h-0 [&>[data-slot=scroll-area-viewport]]:overscroll-contain">
+            <ScrollAreaPrimitive.Content className="p-6">
+              <Form value={draft} disabled={saving} issues={[]} onChange={setDraft} />
+            </ScrollAreaPrimitive.Content>
+          </ScrollArea>
           <DialogFooter className="shrink-0 border-t p-4 sm:px-6">
             <Button type="button" variant="outline" disabled={saving} onClick={onClose}>
               {t('shared.cancel')}
@@ -87,9 +93,17 @@ export function NodeConfig({ id, onClose }: { id: string | null; onClose(): void
   const node = useWorkflow((state) => state.flow?.nodes.find((item) => item.id === id));
   const view = node ? nodeViewRegistry.getNodeView(node.type) : undefined;
 
-  if (!node || !view) {
+  if (!node || !view?.config) {
     return null;
   }
 
-  return <NodeConfigEditor key={node.id} node={node} Form={view.config.Form} onClose={onClose} />;
+  return (
+    <NodeConfigEditor
+      key={node.id}
+      node={node}
+      Form={view.config.Form}
+      className={view.config.className}
+      onClose={onClose}
+    />
+  );
 }

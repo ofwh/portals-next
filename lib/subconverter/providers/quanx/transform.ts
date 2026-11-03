@@ -1,4 +1,4 @@
-import type { QuanXConfig, QuanXNode } from '../../types/quanx';
+import type { QuanXConfig, QuanXNode } from '../../types/providers/quanx';
 import { canonicalType, createIniTransform, extract as extractIni } from '../ini/transform';
 
 export const supports = ['ss', 'ssr', 'vmess', 'vless', 'trojan', 'http', 'https', 'socks5', 'anytls'] as const;

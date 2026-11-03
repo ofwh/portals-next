@@ -97,6 +97,7 @@ export interface NodeFormProps<C> {
   issues: readonly ConfigIssue[];
 }
 export interface NodeConfigView<C> {
+  className?: string;
   Form: ComponentType<NodeFormProps<C>>;
 }
 export interface NodeContentProps<C> {
@@ -112,6 +113,6 @@ export interface NodeDisplayView<C> {
 export interface NodeView<C> {
   type: string;
   icon: ComponentType<{ className?: string }>;
-  config: NodeConfigView<C>;
+  config?: NodeConfigView<C>;
   display?: NodeDisplayView<C>;
 }

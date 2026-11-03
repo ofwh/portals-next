@@ -1,6 +1,6 @@
-import { base64 } from '../../schema';
-import type { Base64Config } from '../../types/base64';
+import type { Base64Config } from '../../types/providers/base64';
 import { parseIni } from '../ini/parser';
+import { base64 } from '../schema';
 import { parse as parseUri } from '../uri/parser';
 
 export function parse(content: string): Base64Config {

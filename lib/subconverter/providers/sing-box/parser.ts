@@ -1,3 +1,4 @@
+import type { SingBoxConfig } from '../../types/providers/sing-box';
 import {
   array,
   boolean,
@@ -14,8 +15,7 @@ import {
   shape,
   text,
   union,
-} from '../../schema';
-import type { SingBoxConfig } from '../../types/sing-box';
+} from '../schema';
 
 const strings = array(text);
 

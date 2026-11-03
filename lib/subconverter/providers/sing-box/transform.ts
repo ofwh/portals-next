@@ -1,9 +1,9 @@
 import { singBoxProxyNode, singBoxWireGuardEndpoint } from './parser';
-import { rejectNode } from '../../debug';
-import { expand, flatten, get, projectWireGuard, put, remove } from '../../mapping';
-import type { Binding } from '../../mapping';
-import { createTransform } from '../../transform';
-import type { SingBoxConfig, SingBoxNode } from '../../types/sing-box';
+import { rejectNode } from '../../proxy-node/debug';
+import { expand, flatten, get, projectWireGuard, put, remove } from '../../proxy-node/mapping';
+import { createTransform } from '../../proxy-node/transform';
+import type { SingBoxConfig, SingBoxNode } from '../../types/providers/sing-box';
+import type { Binding } from '../../types/proxy-node/mapping';
 import { pluginInput, pluginOutput } from '../ss/transform';
 
 export const supports = [

@@ -1,9 +1,9 @@
 import { parse } from './parser';
 import { extract, supports, transform } from './transform';
-import { SubscriptionProvider } from '../../provider';
-import type { QuanXConfig, QuanXNode, QuanXNodeFields } from '../../types/quanx';
+import type { QuanXConfig, QuanXNode, QuanXNodeFields } from '../../types/providers/quanx';
+import { SubscriptionProvider } from '../provider';
 
-export type * from '../../types/quanx';
+export type * from '../../types/providers/quanx';
 
 export class QuanXProvider extends SubscriptionProvider<QuanXConfig, QuanXNode, QuanXNodeFields> {
   static readonly supports = supports;

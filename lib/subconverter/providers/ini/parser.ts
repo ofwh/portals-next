@@ -1,6 +1,6 @@
-import { debugNode } from '../../debug';
-import { camelCase } from '../../schema';
-import type { IniConfig, IniProxyNode, IniProxyOptions, IniSection } from '../../types/ini';
+import { debugNode } from '../../proxy-node/debug';
+import type { IniConfig, IniProxyNode, IniProxyOptions, IniSection } from '../../types/providers/ini';
+import { camelCase } from '../schema';
 
 export function splitFields(line: string): string[] {
   const fields: string[] = [];

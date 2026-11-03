@@ -1,8 +1,11 @@
 'use client';
 
-import { Blocks } from 'lucide-react';
+import { Blocks, RotateCw } from 'lucide-react';
 import { useTranslations } from 'next-intl';
+import { useEffect, useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { useWorkflow } from '@/hooks/use-workflow';
 import type { useWorkflowCanvas } from '@/hooks/use-workflow-canvas';
 import { NODE_PREVIEW_SIZE } from '@/lib/types/workflow-canvas';
@@ -68,34 +71,111 @@ export function NodeList({ drag }: { drag: DragHandlers }) {
     refresh: state.loadNodes,
   }));
 
+  const [spinning, setSpinning] = useState(false);
+  const refreshIcon = useRef<SVGSVGElement>(null);
+  const activeAnimation = useRef<Animation | null>(null);
+
+  useEffect(
+    () => () => {
+      activeAnimation.current?.cancel();
+      activeAnimation.current = null;
+    },
+    [],
+  );
+
+  async function handleRefresh() {
+    const icon = refreshIcon.current;
+
+    if (loading || spinning || !icon || activeAnimation.current) {
+      return;
+    }
+
+    const duration = 1000;
+    const stopDuration = 350;
+    const spin = icon.animate([{ transform: 'rotate(0deg)' }, { transform: 'rotate(360deg)' }], {
+      duration,
+      iterations: Infinity,
+      easing: 'linear',
+    });
+
+    activeAnimation.current = spin;
+    setSpinning(true);
+    try {
+      await refresh();
+    } finally {
+      if (activeAnimation.current !== spin) {
+        return;
+      }
+
+      const currentAngle = ((Number(spin.currentTime ?? 0) % duration) / duration) * 360;
+      const stop = icon.animate([{ transform: `rotate(${currentAngle}deg)` }, { transform: 'rotate(360deg)' }], {
+        duration: stopDuration,
+        easing: 'cubic-bezier(0.333333, 0.666667, 0.666667, 1)',
+        fill: 'forwards',
+      });
+
+      spin.cancel();
+      activeAnimation.current = stop;
+      await stop.finished.then(
+        () => {
+          icon.style.transform = 'rotate(0deg)';
+          stop.cancel();
+          activeAnimation.current = null;
+          setSpinning(false);
+        },
+        () => undefined,
+      );
+    }
+  }
+
   return (
     <aside
       aria-label={t('admin.application.subscriptions.flowEditor.nodes')}
       aria-busy={loading}
-      className="bg-sidebar w-64 shrink-0 overflow-y-auto border-r p-4"
+      className="bg-sidebar min-h-0 w-64 shrink-0 overflow-hidden border-r"
     >
-      <div className="flex items-center justify-between gap-2">
-        <h2 className="text-muted-foreground text-xs">{t('admin.application.subscriptions.flowEditor.nodes')}</h2>
-        <Button type="button" variant="ghost" size="sm" disabled={loading} onClick={() => void refresh()}>
-          {t('shared.refresh')}
-        </Button>
-      </div>
-      {error !== null && (
-        <p role="alert" className="text-destructive mt-4 text-sm">
-          {error || t('admin.application.subscriptions.flowEditor.nodesError')}
-        </p>
-      )}
-      {!loaded && loading ? (
-        <div className="bg-muted mt-4 h-32 animate-pulse rounded-md" />
-      ) : groups.length > 0 ? (
-        <NodePalette groups={groups} drag={drag} />
-      ) : (
-        error === null && (
-          <p role="status" className="text-muted-foreground mt-4 text-sm leading-6">
-            {t('admin.application.subscriptions.flowEditor.noNodes')}
-          </p>
-        )
-      )}
+      <ScrollArea className="h-full">
+        <div className="p-4">
+          <div className="flex items-center justify-between gap-2">
+            <h2 className="text-muted-foreground text-xs">{t('admin.application.subscriptions.flowEditor.nodes')}</h2>
+            <Tooltip>
+              <TooltipTrigger
+                render={
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon-sm"
+                    className="border-0"
+                    aria-label={t('shared.refresh')}
+                    aria-busy={spinning}
+                    disabled={loading || spinning}
+                    onClick={() => void handleRefresh()}
+                  />
+                }
+              >
+                <RotateCw ref={refreshIcon} aria-hidden="true" />
+              </TooltipTrigger>
+              <TooltipContent side="top">{t('shared.refresh')}</TooltipContent>
+            </Tooltip>
+          </div>
+          {error !== null && (
+            <p role="alert" className="text-destructive mt-4 text-sm">
+              {error || t('admin.application.subscriptions.flowEditor.nodesError')}
+            </p>
+          )}
+          {!loaded && loading ? (
+            <div className="bg-muted mt-4 h-32 animate-pulse rounded-md" />
+          ) : groups.length > 0 ? (
+            <NodePalette groups={groups} drag={drag} />
+          ) : (
+            error === null && (
+              <p role="status" className="text-muted-foreground mt-4 text-sm leading-6">
+                {t('admin.application.subscriptions.flowEditor.noNodes')}
+              </p>
+            )
+          )}
+        </div>
+      </ScrollArea>
     </aside>
   );
 }

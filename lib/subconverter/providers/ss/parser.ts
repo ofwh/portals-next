@@ -1,5 +1,5 @@
-import { json, nodeItems, optional, port, shape, text, union } from '../../schema';
-import type { SSConfig } from '../../types/ss';
+import type { SSConfig } from '../../types/providers/ss';
+import { json, nodeItems, optional, port, shape, text, union } from '../schema';
 
 export const ssProxyNode = shape({
   server: text,

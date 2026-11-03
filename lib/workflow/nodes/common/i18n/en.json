@@ -1,26 +1,19 @@
 {
   "group": "Common nodes",
-  "base64": {
-    "name": "Base64",
-    "mode": "Operation",
-    "encode": "Encode",
-    "decode": "Decode",
-    "help": "Encode upstream text as Base64 using UTF-8, or decode Base64 into UTF-8 text. Invalid Base64 or UTF-8 input is rejected."
-  },
   "httpRequest": {
     "name": "HTTP request"
   },
   "merge": {
     "name": "Merge data",
-    "help": "Connect multiple inputs. Values are collected in connection order; arrays are expanded by one level and objects remain intact. No configuration is required.",
     "summary": "Combine multiple inputs into one array"
   },
   "fieldInput": {
-    "name": "Field input",
+    "name": "Text Content",
     "outputFormat": "Output type",
     "text": "Input content",
-    "help": "Text mode outputs the content as entered. JSON object mode parses the content into a JSON object.",
-    "summary": "{count} characters"
+    "help": "Enter text or a JSON object",
+    "summary": "{count} characters",
+    "outputFormatHelp": "Select the output content type"
   },
   "shared": {
     "formats": {
@@ -38,7 +31,10 @@
     "addHeader": "Add header",
     "removeHeader": "Remove header",
     "body": "Request body",
-    "bodyHelp": "Send the text as entered. Set Content-Type in the headers when needed."
+    "bodyHelp": "Enter the raw request body",
+    "methodHelp": "Select the HTTP request method",
+    "urlHelp": "Resource URL",
+    "headersHelp": "Set request header names and values"
   },
   "httpResponseHeaders": {
     "name": "HTTP response headers"
