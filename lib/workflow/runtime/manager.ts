@@ -1,11 +1,11 @@
 import 'server-only';
 import { appError, errorMessage } from '@/lib/api';
 import type { Locale } from '@/lib/api';
+import { cloneJson, nonempty } from '@/lib/shared/data';
 import { buildExecutionPlan, executeFlow } from '../engine';
 import type { RunEvent, RunRequest } from '../model';
 import { nodeRegistry } from '../nodes';
 import type { NodeRegistry } from '../nodes/core/registry';
-import { cloneJson, nonempty } from '../utils';
 
 export interface RunOptions {
   signal?: AbortSignal;

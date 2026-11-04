@@ -3,8 +3,6 @@
 import { useTranslations } from 'next-intl';
 import { useRef, useState } from 'react';
 import { usePagination } from '@/hooks/use-pagination';
-import { ROUTE_TYPE } from '@/lib/constants';
-import type { RouteMode } from '@/lib/constants/routes';
 import {
   listCaches,
   listOriginals,
@@ -18,7 +16,9 @@ import {
   updateOriginal,
   updateProxy,
   updateRedirect,
-} from '@/lib/requests/routes';
+} from '@/lib/client/routes';
+import { ROUTE_TYPE } from '@/lib/constants';
+import type { RouteMode } from '@/lib/constants/routes';
 import type { Pagination } from '@/lib/types/pagination';
 import type {
   CacheListItem,

@@ -1,7 +1,7 @@
 import 'server-only';
 import { db } from '@/lib/db';
 import { preferences } from '@/lib/db/schema';
-import { preferenceKeys } from '@/lib/preferences';
+import { preferenceKeys } from '@/lib/services/preferences/shared';
 import type { Preferences, PreferenceValues } from '@/lib/types/preferences';
 
 export function get(): PreferenceValues {

@@ -16,7 +16,7 @@ import {
 } from '@/components/ui/combobox';
 import { Field, FieldContent, FieldDescription, FieldGroup, FieldLabel } from '@/components/ui/field';
 import { usePreferences } from '@/hooks/use-preferences';
-import { TIME_FORMATS } from '@/lib/date-time';
+import { TIME_FORMATS } from '@/lib/shared/date-time';
 
 export default function Page() {
   const t = useTranslations();

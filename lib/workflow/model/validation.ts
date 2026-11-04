@@ -1,6 +1,6 @@
 import { appError } from '@/lib/api';
+import { assertJson, cloneJson, isRecord, nonempty, positiveInteger } from '@/lib/shared/data';
 import type { FlowEdge, NodeInstance, WorkflowDefinition } from './index';
-import { assertJson, cloneJson, isRecord, nonempty, positiveInteger } from '../utils';
 
 export function parseNode(raw: unknown): NodeInstance {
   if (

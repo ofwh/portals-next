@@ -1,8 +1,8 @@
 import { appError } from '@/lib/api';
+import { isRecord } from '@/lib/shared/data';
 import type { WorkflowNodeCatalog } from '@/lib/types/workflow';
 import type { RunEvent } from '@/lib/workflow/model';
 import { parseRunEvent } from '@/lib/workflow/model/events';
-import { isRecord } from '@/lib/workflow/utils';
 import { request } from './request';
 
 export function listWorkflowNodes(signal?: AbortSignal): Promise<WorkflowNodeCatalog> {

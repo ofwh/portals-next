@@ -1,5 +1,5 @@
 import { appError } from '@/lib/api';
-import { assertJson, cloneJson, freezeDeep, nonempty, positiveInteger } from '../../utils';
+import { assertJson, cloneJson, freezeDeep, nonempty, positiveInteger } from '@/lib/shared/data';
 import type { NamedType, TypeDescriptor } from '../types';
 
 export class TypeRegistry {

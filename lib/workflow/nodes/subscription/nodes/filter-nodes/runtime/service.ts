@@ -1,6 +1,6 @@
 import 'server-only';
+import { compilePattern } from '@/lib/shared/regex';
 import type { ExecutionContext } from '@/lib/workflow/nodes/types';
-import { compilePattern } from '../../../utils';
 import { getNameRules } from '../model/schema';
 import type { FilterConfig, FilterOutput, FilterRunInput } from '../model/types';
 

@@ -1,6 +1,6 @@
 import { createStore } from 'zustand/vanilla';
-import { DEFAULT_PREFERENCES } from '@/lib/preferences';
-import { getPreferences, updatePreferences } from '@/lib/requests/preferences';
+import { getPreferences, updatePreferences } from '@/lib/client/preferences';
+import { DEFAULT_PREFERENCES } from '@/lib/services/preferences/shared';
 import type { Preferences } from '@/lib/types/preferences';
 
 export type PreferencesState = {

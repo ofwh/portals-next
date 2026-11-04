@@ -1,10 +1,10 @@
 import 'server-only';
 import { locales } from '@/i18n/config';
 import { appError } from '@/lib/api';
-import { normalizeTimeFormat, preferenceKeys, resolvePreferences, themes } from '@/lib/preferences';
 import repository from '@/lib/repositories/preferences';
+import { normalizeTimeFormat, preferenceKeys, resolvePreferences, themes } from '@/lib/services/preferences/shared';
 import type { Preferences, PreferenceValues } from '@/lib/types/preferences';
-import * as v from './validation';
+import * as v from '../shared/validation';
 
 export function get(input: unknown, fallback: PreferenceValues = {}): Preferences {
   if (Object.keys(v.record(input)).length > 0) {

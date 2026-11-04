@@ -1,7 +1,7 @@
 import { appError } from '@/lib/api';
+import { isRecord } from '@/lib/shared/data';
 import { recordOf, stringValue, unionOf, unknownValue } from '@/lib/workflow/nodes/core/schemas';
 import type { ConfiguredType, Parser } from '@/lib/workflow/nodes/types';
-import { isRecord } from '@/lib/workflow/utils';
 import { parseJsonObject } from './json';
 import type { FieldInputConfig, OutputFormat } from './types';
 

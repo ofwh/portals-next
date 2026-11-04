@@ -1,1 +1,0 @@
-export { compilePattern } from './regex';

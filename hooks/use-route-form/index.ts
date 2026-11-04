@@ -4,9 +4,9 @@ import { useTranslations } from 'next-intl';
 import type { FormEvent } from 'react';
 import { useEffect, useRef, useState } from 'react';
 import type { RouteMode } from '@/lib/constants/routes';
-import { formStrategies } from '@/lib/routes/form-strategies';
-import type { RouteForms } from '@/lib/routes/form-strategies';
-import { validateBaseForm } from '@/lib/routes/validation';
+import { formStrategies } from './strategies';
+import type { RouteForms } from './strategies';
+import { validateBaseForm } from './validation';
 
 export function useRouteForm<Type extends RouteMode>(type: Type, onSaved: () => void, id?: string) {
   const t = useTranslations();

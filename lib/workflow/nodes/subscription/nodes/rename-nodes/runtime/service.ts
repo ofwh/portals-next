@@ -1,7 +1,7 @@
 import 'server-only';
 import { appError } from '@/lib/api';
+import { compilePattern } from '@/lib/shared/regex';
 import type { ExecutionContext } from '@/lib/workflow/nodes/types';
-import { compilePattern } from '../../../utils';
 import type { RenameConfig, RenameOutput, RenameRunInput } from '../model/types';
 
 export async function rename(

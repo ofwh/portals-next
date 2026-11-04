@@ -5,8 +5,8 @@ import { validateArrangement } from '@/lib/workflow/model/arrangement';
 import { toWorkflow } from '@/lib/workflow/model/canvas';
 import { restoreSnapshot } from '@/lib/workflow/model/snapshot';
 import { nodeRegistry } from '@/lib/workflow/nodes';
-import { createService } from './crud';
-import * as v from './validation';
+import { createService } from './shared/crud';
+import * as v from './shared/validation';
 
 function validate(params: Record<string, unknown>) {
   const name = v.string(params.name).trim();

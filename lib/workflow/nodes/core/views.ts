@@ -1,7 +1,7 @@
 import { createElement } from 'react';
 import type { ComponentType } from 'react';
 import { appError } from '@/lib/api';
-import { nonempty } from '../../utils';
+import { nonempty } from '@/lib/shared/data';
 import type { NodeContentProps, NodeFormProps, NodeView } from '../types';
 
 export interface RegisteredNodeView {

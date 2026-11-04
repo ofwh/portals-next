@@ -2,7 +2,7 @@
 import { useTranslations } from 'next-intl';
 import { useRef, useState } from 'react';
 import { usePagination } from '@/hooks/use-pagination';
-import { listSubscriptions, removeSubscription, updateSubscription } from '@/lib/requests/subscriptions';
+import { listSubscriptions, removeSubscription, updateSubscription } from '@/lib/client/subscriptions';
 import type { SubscriptionStatusActions } from '@/lib/types/subscriptions';
 import type { SubscriptionListItem, SubscriptionListParams } from '@/lib/types/subscriptions';
 

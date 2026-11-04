@@ -2,8 +2,8 @@ import 'server-only';
 import { appError } from '@/lib/api';
 import repository from '@/lib/repositories/shortcuts';
 import type { ShortcutRow, ShortcutValues } from '@/lib/repositories/shortcuts';
-import { createService } from './crud';
-import * as v from './validation';
+import { createService } from './shared/crud';
+import * as v from './shared/validation';
 
 function validate(params: Record<string, unknown>) {
   return {

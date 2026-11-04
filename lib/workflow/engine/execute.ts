@@ -1,11 +1,11 @@
 import 'server-only';
 import { appError, AppError, errorMessage } from '@/lib/api';
 import type { Locale } from '@/lib/api';
+import { cloneJson } from '@/lib/shared/data';
 import type { ExecutionPlan, NodeRunState, RunEvent } from '../model';
 import { resolveOutputType } from '../nodes/core/ports';
 import type { NodeRegistry } from '../nodes/core/registry';
 import { nodeRegistry } from '../nodes/core/registry';
-import { cloneJson } from '../utils';
 
 export interface FlowExecutionContext {
   runId: string;

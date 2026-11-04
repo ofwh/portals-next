@@ -3,7 +3,7 @@ import { appError } from '@/lib/api';
 import { TAG_GROUPS } from '@/lib/constants';
 import repository from '@/lib/repositories/tags';
 import type { TagRow, TagValues } from '@/lib/repositories/tags';
-import * as v from './validation';
+import * as v from './shared/validation';
 
 const fields = ['group', 'label', 'color', 'bgColor', 'rounded'] as const;
 const groups = TAG_GROUPS.map((group) => group.value);

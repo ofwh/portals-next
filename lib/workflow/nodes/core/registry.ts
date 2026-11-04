@@ -1,10 +1,10 @@
 import 'server-only';
 import { appError } from '@/lib/api';
+import { cloneJson, freezeDeep, nonempty, positiveInteger } from '@/lib/shared/data';
 import { resolveOutputType } from './ports';
 import { TypeRegistry } from './type-registry';
 import type { CanvasNode } from '../../model';
 import { createNodeInstance } from '../../model/canvas';
-import { cloneJson, freezeDeep, nonempty, positiveInteger } from '../../utils';
 import type { ExecutionContext, NodeGroup, NodeModule, NodeModuleGroup, RegisteredNode, ValueSchema } from '../types';
 
 export function defineNode<I, C, O, R = I>(definition: NodeModule<I, C, O, R>): NodeModule<I, C, O, R> {

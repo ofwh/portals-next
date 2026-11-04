@@ -1,5 +1,5 @@
+import { parseHeaders, selectedHeaders } from '@/lib/shared/headers';
 import type { RequestFormState, RouteFormState } from '@/lib/types/routes';
-import { parseHeaders, selectedHeaders } from './validation';
 
 export function initialRouteForm(): RouteFormState {
   return { name: '', description: '', status: true, pathname: '', token: '', expiredAt: '', tagIds: [] };

@@ -1,7 +1,7 @@
 import { appError } from '@/lib/api';
+import { assertJson } from '@/lib/shared/data';
 import { arrayOf } from '@/lib/workflow/nodes/core/schemas';
 import type { NamedType } from '@/lib/workflow/nodes/types';
-import { assertJson } from '@/lib/workflow/utils';
 import { readRuleGroupFields } from './fields';
 import type { RuleGroupFields } from './fields-types';
 

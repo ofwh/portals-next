@@ -1,5 +1,5 @@
 import { appError } from '@/lib/api';
-import { isRecord } from '../../utils';
+import { isRecord } from '@/lib/shared/data';
 import type { NodeManifest, TypeDescriptor } from '../types';
 
 export function resolveOutputType(output: NonNullable<NodeManifest['output']>, config: unknown): TypeDescriptor {

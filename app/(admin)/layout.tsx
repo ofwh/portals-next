@@ -5,7 +5,7 @@ import type { ReactNode } from 'react';
 import { Suspense } from 'react';
 import { PreferencesProvider } from '@/components/app/settings/system/preferences-provider';
 import { AdminShell } from '@/components/app/shell/admin-shell';
-import { getRequestPreferences } from '@/lib/preferences/server';
+import { getRequestPreferences } from '@/lib/services/preferences/server';
 
 async function AdminLayoutContent({ children }: { children: ReactNode }) {
   const [cookieStore, locale, messages, preferences] = await Promise.all([

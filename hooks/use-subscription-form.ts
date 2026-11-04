@@ -2,7 +2,7 @@
 import { useTranslations } from 'next-intl';
 import type { FormEvent } from 'react';
 import { useEffect, useRef, useState } from 'react';
-import { getSubscription, updateSubscription } from '@/lib/requests/subscriptions';
+import { getSubscription, updateSubscription } from '@/lib/client/subscriptions';
 import type { SubscriptionFormState } from '@/lib/types/subscriptions';
 
 function initialForm(): SubscriptionFormState {

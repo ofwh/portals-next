@@ -16,10 +16,10 @@ import {
 } from '@/components/ui/dialog';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useWorkflow } from '@/hooks/use-workflow';
+import { cloneJson } from '@/lib/shared/data';
 import type { NodeInstance } from '@/lib/workflow/model';
 import { nodeViewRegistry } from '@/lib/workflow/nodes/client';
 import type { NodeFormProps } from '@/lib/workflow/nodes/types';
-import { cloneJson } from '@/lib/workflow/utils';
 import styles from '@/styles/ui.module.css';
 
 interface NodeConfigEditorProps {

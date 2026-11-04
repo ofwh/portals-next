@@ -6,7 +6,7 @@ import { originals } from '@/lib/db/schema';
 import type { Pagination } from '@/lib/types/pagination';
 import type { OriginalListParams } from '@/lib/types/routes';
 import type { TagOption } from '@/lib/types/tag';
-import { attachTags, findTagIds as findConfiguredTagIds, replaceTags } from '../tag-configs';
+import { attachTags, findTagIds as findConfiguredTagIds, replaceTags } from './tag-configs';
 
 export type OriginalRow = typeof originals.$inferSelect;
 export type OriginalValues = Omit<typeof originals.$inferInsert, 'id' | 'createdAt' | 'updatedAt'> & {

@@ -4,8 +4,8 @@ import { useTranslations } from 'next-intl';
 import type { FormEvent } from 'react';
 import { useEffect, useRef, useState } from 'react';
 import { usePagination } from '@/hooks/use-pagination';
+import { getTag, listTagOptions, listTags, removeTag, updateTag } from '@/lib/client/tags';
 import { TAG_GROUPS } from '@/lib/constants/tags';
-import { getTag, listTagOptions, listTags, removeTag, updateTag } from '@/lib/requests/tags';
 import type { TagDetail, TagFormChange, TagInput, TagListParams, TagOption } from '@/lib/types/tag';
 
 export const COLOR_PRESETS = {

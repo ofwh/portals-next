@@ -2,8 +2,8 @@ import { cookies, headers } from 'next/headers';
 import { cache } from 'react';
 import 'server-only';
 import { auth } from '@/lib/auth';
-import { preferenceCookieOptions, preferenceKeys, resolvePreferences } from '@/lib/preferences';
 import service from '@/lib/services/preferences';
+import { preferenceCookieOptions, preferenceKeys, resolvePreferences } from '@/lib/services/preferences/shared';
 import type { Preferences, PreferenceValues } from '@/lib/types/preferences';
 
 export const getPreferenceCookies = cache(async (): Promise<PreferenceValues> => {

@@ -1,5 +1,5 @@
+import type { HttpHeader } from '@/lib/shared/http';
 import type { WorkflowDataTypes } from '@/lib/workflow/nodes/types';
-import type { HttpHeader } from '../../../types/http';
 
 export interface HttpRequestConfig {
   method: 'GET' | 'POST';

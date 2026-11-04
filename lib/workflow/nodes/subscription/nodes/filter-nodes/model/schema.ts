@@ -1,10 +1,10 @@
 import { appError } from '@/lib/api';
+import { isRecord } from '@/lib/shared/data';
+import { compilePattern } from '@/lib/shared/regex';
 import type { ProxyType } from '@/lib/subconverter/types';
 import type { Parser } from '@/lib/workflow/nodes/types';
-import { isRecord } from '@/lib/workflow/utils';
 import { protocolOptions } from './definition';
 import type { FilterConfig, FilterRule } from './types';
-import { compilePattern } from '../../../utils';
 
 export { proxyNodesSchema as inputSchema, proxyNodesSchema as outputSchema } from '../../../proxy-node-schema';
 

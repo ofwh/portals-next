@@ -1,7 +1,7 @@
 import 'server-only';
 import { appError } from '@/lib/api';
+import { request as sendRequest } from '@/lib/shared/http';
 import type { ExecutionContext } from '@/lib/workflow/nodes/types';
-import { request as sendRequest } from '../../../utils/http';
 import type { HttpRequestConfig, HttpRequestOutput } from '../model/types';
 
 export async function request(config: HttpRequestConfig, context: ExecutionContext): Promise<HttpRequestOutput> {

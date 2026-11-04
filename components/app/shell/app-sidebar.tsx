@@ -1,6 +1,16 @@
 'use client';
 
-import { Orbit } from 'lucide-react';
+import {
+  ArrowRightLeft,
+  DatabaseZap,
+  FileCodeCorner,
+  Gauge,
+  Navigation,
+  Orbit,
+  Rss,
+  Settings,
+  UserRound,
+} from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -16,7 +26,37 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from '@/components/ui/sidebar';
-import { isNavigationActive, navigationGroups } from '@/lib/navigation';
+
+const navigationGroups = [
+  {
+    label: 'dashboards',
+    items: [{ label: 'dashboard', href: '/dashboard', icon: Gauge }],
+  },
+  {
+    label: 'routes',
+    items: [
+      { label: 'proxies', href: '/routes/proxies', icon: ArrowRightLeft },
+      { label: 'redirects', href: '/routes/redirects', icon: Navigation },
+      { label: 'caches', href: '/routes/caches', icon: DatabaseZap },
+      { label: 'originals', href: '/routes/originals', icon: FileCodeCorner },
+    ],
+  },
+  {
+    label: 'application',
+    items: [{ label: 'subscriptions', href: '/application/subscriptions', icon: Rss }],
+  },
+  {
+    label: 'settings',
+    items: [
+      { label: 'account', href: '/settings/account', icon: UserRound },
+      { label: 'system', href: '/settings/system', icon: Settings },
+    ],
+  },
+] as const;
+
+function isNavigationActive(pathname: string, href: string) {
+  return pathname === href || pathname.startsWith(`${href}/`);
+}
 
 export function AppSidebar() {
   const t = useTranslations();

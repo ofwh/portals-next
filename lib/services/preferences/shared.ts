@@ -1,5 +1,5 @@
 import { defaultLocale, locales } from '@/i18n/config';
-import { DEFAULT_TIME_FORMAT } from '@/lib/date-time';
+import { DEFAULT_TIME_FORMAT } from '@/lib/shared/date-time';
 import type { Preferences, PreferenceValues } from '@/lib/types/preferences';
 
 export const themes = ['system', 'light', 'dark'] as const;

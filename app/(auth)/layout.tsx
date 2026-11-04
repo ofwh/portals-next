@@ -4,7 +4,7 @@ import type { ReactNode } from 'react';
 import { Suspense } from 'react';
 import { AuthShell } from '@/components/app/auth/auth-shell';
 import { PreferencesProvider } from '@/components/app/settings/system/preferences-provider';
-import { getRequestPreferences } from '@/lib/preferences/server';
+import { getRequestPreferences } from '@/lib/services/preferences/server';
 
 async function AuthLayoutContent({ children }: { children: ReactNode }) {
   const [locale, messages, preferences] = await Promise.all([getLocale(), getMessages(), getRequestPreferences()]);

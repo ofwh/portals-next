@@ -1,5 +1,5 @@
 import { createStore } from 'zustand/vanilla';
-import { listShortcuts, updateShortcut } from '@/lib/requests/shortcuts';
+import { listShortcuts, updateShortcut } from '@/lib/client/shortcuts';
 import type { Shortcut, ShortcutInput, ShortcutType } from '@/lib/types/shortcuts';
 
 interface ShortcutsState {

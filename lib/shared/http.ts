@@ -1,4 +1,11 @@
-import type { HttpHeader, HttpRequestOptions } from '../types/http';
+export interface HttpHeader {
+  name: string;
+  value: string;
+}
+
+export interface HttpRequestOptions extends Omit<RequestInit, 'headers'> {
+  headers?: readonly HttpHeader[];
+}
 
 export function createHeaders(values: readonly HttpHeader[]): Headers {
   const headers = new Headers();

@@ -1,5 +1,5 @@
 import { appError } from '@/lib/api';
-import { validPathname, validUrl } from '@/lib/routes/validation';
+import { validPathname, validUrl } from '@/lib/shared/validation';
 
 export function record(value: unknown): Record<string, unknown> {
   if (!value || typeof value !== 'object' || Array.isArray(value)) {

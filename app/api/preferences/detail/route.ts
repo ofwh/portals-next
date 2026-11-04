@@ -1,6 +1,6 @@
 import { handle } from '@/lib/api/server';
-import { getPreferenceCookies, writePreferenceCookies } from '@/lib/preferences/server';
 import service from '@/lib/services/preferences';
+import { getPreferenceCookies, writePreferenceCookies } from '@/lib/services/preferences/server';
 
 export async function POST(request: Request) {
   return handle(request, async (params) => {

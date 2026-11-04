@@ -1,8 +1,8 @@
 import { appError } from '@/lib/api';
+import { isRecord } from '@/lib/shared/data';
+import { compilePattern } from '@/lib/shared/regex';
 import type { Parser } from '@/lib/workflow/nodes/types';
-import { isRecord } from '@/lib/workflow/utils';
 import type { RenameConfig, RenameRule } from './types';
-import { compilePattern } from '../../../utils';
 
 export { proxyNodesSchema as inputSchema, proxyNodesSchema as outputSchema } from '../../../proxy-node-schema';
 

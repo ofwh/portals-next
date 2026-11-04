@@ -6,7 +6,7 @@ import { caches } from '@/lib/db/schema';
 import type { Pagination } from '@/lib/types/pagination';
 import type { CacheListParams } from '@/lib/types/routes';
 import type { TagOption } from '@/lib/types/tag';
-import { attachTags, findTagIds as findConfiguredTagIds, replaceTags } from '../tag-configs';
+import { attachTags, findTagIds as findConfiguredTagIds, replaceTags } from './tag-configs';
 
 export type CacheRow = typeof caches.$inferSelect;
 export type CacheValues = Omit<typeof caches.$inferInsert, 'id' | 'createdAt' | 'updatedAt' | 'cachedAt'> & {

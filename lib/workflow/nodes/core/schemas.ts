@@ -1,5 +1,5 @@
 import { appError } from '@/lib/api';
-import { assertJson, isRecord } from '../../utils';
+import { assertJson, isRecord } from '@/lib/shared/data';
 import type { ValueSchema, WorkflowArray, WorkflowDataTypes, WorkflowObject } from '../types';
 
 export const unknownValue: ValueSchema<WorkflowDataTypes['any']> = {

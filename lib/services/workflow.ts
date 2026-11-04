@@ -13,7 +13,7 @@ import type { NodeLabel } from '@/lib/workflow/nodes/types';
 import { nodeLabel } from '@/lib/workflow/nodes/utils';
 import type { WorkflowRuntime } from '@/lib/workflow/runtime/manager';
 import { workflowRuntime } from '@/lib/workflow/runtime/manager';
-import * as v from './validation';
+import * as v from './shared/validation';
 
 export interface WorkflowRunContext {
   signal: AbortSignal;

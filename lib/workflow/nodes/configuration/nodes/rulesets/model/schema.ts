@@ -1,7 +1,7 @@
 import { appError } from '@/lib/api';
+import { isRecord } from '@/lib/shared/data';
 import { stringValue } from '@/lib/workflow/nodes/core/schemas';
 import type { Parser } from '@/lib/workflow/nodes/types';
-import { isRecord } from '@/lib/workflow/utils';
 import type { RuleGroupsConfig } from './types';
 import { isConfigurationType } from '../../../utils/configuration';
 

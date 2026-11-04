@@ -1,5 +1,5 @@
 import { getRequestConfig } from 'next-intl/server';
-import { getRequestPreferences } from '@/lib/preferences/server';
+import { getRequestPreferences } from '@/lib/services/preferences/server';
 import { languageMessages, mergeMessages } from './config';
 
 export default getRequestConfig(async () => {

@@ -1,5 +1,5 @@
 import { appError } from '@/lib/api';
-import { isRecord } from '@/lib/workflow/utils';
+import { isRecord } from '@/lib/shared/data';
 
 export function parseJsonObject(text: string): Record<string, unknown> {
   try {

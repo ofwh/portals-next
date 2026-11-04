@@ -17,7 +17,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { usePreferences } from '@/hooks/use-preferences';
 import { locales, resolveLocale } from '@/i18n/config';
-import { resolveTheme, themes } from '@/lib/preferences';
+import { resolveTheme, themes } from '@/lib/services/preferences/shared';
 
 const themeIcons = { light: Sun, dark: Moon, system: Monitor };
 

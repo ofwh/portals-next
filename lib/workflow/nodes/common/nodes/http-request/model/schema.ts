@@ -1,9 +1,9 @@
 import { appError } from '@/lib/api';
+import { isRecord } from '@/lib/shared/data';
+import { createHeaders } from '@/lib/shared/http';
 import { stringValue } from '@/lib/workflow/nodes/core/schemas';
 import type { Parser } from '@/lib/workflow/nodes/types';
-import { isRecord } from '@/lib/workflow/utils';
 import type { HttpRequestConfig } from './types';
-import { createHeaders } from '../../../utils/http';
 
 function isHeader(value: unknown): value is HttpRequestConfig['headers'][number] {
   return (

@@ -1,7 +1,7 @@
 import { createStore } from 'zustand/vanilla';
 import { AppError, appError, errorMessage } from '@/lib/api';
-import { getSubscription, updateSubscription } from '@/lib/requests/subscriptions';
-import { listWorkflowNodes, runWorkflow, saveWorkflowDraft } from '@/lib/requests/workflow';
+import { getSubscription, updateSubscription } from '@/lib/client/subscriptions';
+import { listWorkflowNodes, runWorkflow, saveWorkflowDraft } from '@/lib/client/workflow';
 import type { SubscriptionDetail } from '@/lib/types/subscriptions';
 import type { WorkflowNodeCatalog } from '@/lib/types/workflow';
 import type { FlowSnapshot, NodeRunState } from '@/lib/workflow/model';
