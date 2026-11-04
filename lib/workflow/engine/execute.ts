@@ -2,6 +2,7 @@ import 'server-only';
 import { appError, AppError, errorMessage } from '@/lib/api';
 import type { Locale } from '@/lib/api';
 import type { ExecutionPlan, NodeRunState, RunEvent } from '../model';
+import { resolveOutputType } from '../nodes/core/ports';
 import type { NodeRegistry } from '../nodes/core/registry';
 import { nodeRegistry } from '../nodes/core/registry';
 import { cloneJson } from '../utils';
@@ -60,12 +61,27 @@ export async function executeFlow(
       const node = nodes.get(id)!;
       const registered = registry.getNode(node.type);
       const input = plan.incoming[id].map((upstream) => cloneJson(outputs.get(upstream)));
+      const inputSources = plan.incoming[id].map((upstream) => {
+        const source = nodes.get(upstream)!;
+        const output = registry.getNode(source.type).manifest.output;
+
+        if (!output) {
+          throw appError('workflow.INVALID_CONNECTION');
+        }
+
+        return { nodeId: upstream, type: resolveOutputType(output, source.config) };
+      });
       const state: NodeRunState = { runId: context.runId, nodeId: id, status: 'running', input, startedAt: Date.now() };
 
       emitState(state);
       try {
         const result = await abortable(
-          registered.run(input, node.config, { runId: context.runId, nodeId: id, signal: context.signal }),
+          registered.run(input, node.config, {
+            runId: context.runId,
+            nodeId: id,
+            signal: context.signal,
+            inputSources,
+          }),
           context.signal,
         );
 

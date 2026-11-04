@@ -47,5 +47,10 @@
       "loon": "Loon",
       "quanx": "Quantumult X"
     }
+  },
+  "generateSubscription": {
+    "name": "Generate subscription",
+    "format": "Subscription type",
+    "help": "Select the output subscription type"
   }
 }

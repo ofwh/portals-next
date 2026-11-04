@@ -45,10 +45,15 @@ export interface OutputPort<T> {
   multiple: boolean;
   typeByConfig?: ConfiguredType;
 }
+export interface InputSource {
+  nodeId: string;
+  type: TypeDescriptor;
+}
 export interface ExecutionContext {
   runId: string;
   nodeId: string;
   signal: AbortSignal;
+  inputSources?: readonly InputSource[];
 }
 export interface NodeLabel {
   name: string;

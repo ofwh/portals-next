@@ -6,6 +6,8 @@
     "clear": "Clear",
     "close": "Close",
     "confirm": "Confirm",
+    "copy": "Copy",
+    "copySuccess": "Copied",
     "copyError": "Failed to copy. Please try again",
     "delete": "Delete",
     "deleteSelected": "Delete selected ({count})",
@@ -530,6 +532,10 @@
             "skipped": "Skipped"
           },
           "runDetails": "View execution data",
+          "runDetailsTitle": "Execution data",
+          "runDetailsDescription": "Execution node <node>{name}</node>",
+          "wrapLines": "Wrap lines",
+          "noWrapLines": "Do not wrap lines",
           "runInput": "Input",
           "runOutput": "Output",
           "noRunData": "No data"

@@ -13,7 +13,7 @@ interface ClashOptions extends OutputOptions {
 type ClashInput = OutputInput<NativeObject, ClashOptions>;
 ```
 
-现有 [ClashProvider](../../../lib/subconverter/providers/clash/index.ts) 支持节点解析和双向转换；现有 `ClashConfig` 主要约束节点提取区域，不是完整输出配置类型。以下组、规则和装配结构均为目标设计。
+现有 [ClashProvider](../../../lib/subconverter/providers/clash/index.ts) 支持节点解析和双向转换；现有 `ClashConfig` 主要约束节点提取区域，不是完整输出配置类型。完整生成入口及实现边界见[订阅生成节点](../output-adapter.md#订阅生成节点)，下列接口仍包含扩展目标。
 
 ## 节点处理
 

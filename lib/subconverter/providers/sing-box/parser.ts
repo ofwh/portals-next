@@ -52,7 +52,7 @@ const transport = shape({
   early_data_header_name: optional(text),
 });
 
-const singBoxNode = shape({
+export const singBoxNode = shape({
   type: oneOf(
     'shadowsocks',
     'vmess',

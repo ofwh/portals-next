@@ -47,5 +47,10 @@
       "loon": "Loon",
       "quanx": "Quantumult X"
     }
+  },
+  "generateSubscription": {
+    "name": "订阅生成",
+    "format": "订阅类型",
+    "help": "选择输出的订阅类型"
   }
 }

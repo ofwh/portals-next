@@ -1,0 +1,40 @@
+# 目标：singbox。使用方式及节点前提见 README.md。
+custom:
+  proxy_groups:
+    # 参数格式：<…> 为需要替换的值；方括号表示可选部分，成员引用前缀 [] 除外。
+    # 每项位于 custom.proxy_groups 数组。
+    # 手动：{name: <组名>, type: select, rule: ["<成员>", …]}
+    # 检测：{name: <组名>, type: <url-test>, rule: ["<成员>", …]}
+    # 检测字段：url: <检测URL>；interval: <检测间隔>；可选 timeout: <超时>、tolerance: <容差>。
+    # 组名：非空且唯一，不能与节点或内置动作重名。
+    # 成员：[]名称引用节点、组或内置动作；普通文本为节点名称正则。
+    # 筛选成员也可用 !!TYPE=<协议正则>[!!<名称正则>]、!!SERVER=<地址正则>[!!<名称正则>]、!!PORT=<端口范围>[!!<名称正则>]。
+    # 成员至少有一个有效结果；组引用必须存在且无循环。
+    # 组成员可用 DIRECT，不能包含 REJECT；拒绝动作应在规则中设置。
+    # 检测URL：有效 HTTP(S) URL；检测间隔以秒计，定时组须为正安全整数。
+    # 超时、容差：非负安全整数。
+    # sing-box 的超时只填写 0；容差用于 url-test，select 不设置检测字段。
+
+    # 最小配置：单个内置成员。
+    - name: Manual
+      type: select
+      rule:
+        - '[]DIRECT'
+
+    # 完整配置：延迟组显式提供 URL、间隔、超时和容差。当前输出要求 timeout=0。
+    - name: Latency
+      type: url-test
+      rule:
+        - ^(HK|SG)-
+      url: https://example.com/generate_204
+      interval: 300
+      timeout: 0
+      tolerance: 50
+
+    # 关联配置：selector 可以引用 urltest 组。
+    - name: Selection
+      type: select
+      rule:
+        - '[]Latency'
+        - '[]HK-01'
+        - '[]DIRECT'

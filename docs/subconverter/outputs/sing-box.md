@@ -4,7 +4,7 @@
 
 ## 输入与版本
 
-三要素为 `RuleSetConfigFields[]`、`PolicyConfigFields[]`、`ExtractNodesOutput`，引用[公共契约](../README.md#输出公共契约目标)。SCE 名称为 `singbox`。现有 [SingBoxProvider](../../../lib/subconverter/providers/sing-box/index.ts) 只提供配置节点提取和字段转换，不生成完整 route。
+三要素为 `RuleSetConfigFields[]`、`PolicyConfigFields[]`、`ExtractNodesOutput`，引用[公共契约](../README.md#输出公共契约目标)。SCE 名称为 `singbox`。现有 [SingBoxProvider](../../../lib/subconverter/providers/sing-box/index.ts) 负责配置节点提取和字段转换；route 由独立输出适配器生成，入口与实现边界见[订阅生成节点](../output-adapter.md#订阅生成节点)。
 
 ```ts
 interface SingBoxOptions extends OutputOptions {

@@ -25,6 +25,7 @@ export const codes = {
   SUBSCRIPTION_EMPTY_NAME: 1301019,
   DRAFT_NOT_FOUND: 1301020,
   CONFIGURATION_PARSE_FAILED: 1301021,
+  SUBSCRIPTION_GENERATE_FAILED: 1301022,
 } as const;
 export const messages = {
   'zh-CN': {

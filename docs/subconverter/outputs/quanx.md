@@ -4,7 +4,7 @@
 
 ## 输入
 
-三要素为 `RuleSetConfigFields[]`、`PolicyConfigFields[]`、`ExtractNodesOutput`，类型及通用处理见[公共契约](../README.md#输出公共契约目标)。现有 [QuanXProvider](../../../lib/subconverter/providers/quanx/index.ts) 已实现节点转换，完整配置装配尚未实现。
+三要素为 `RuleSetConfigFields[]`、`PolicyConfigFields[]`、`ExtractNodesOutput`，类型及通用处理见[公共契约](../README.md#输出公共契约目标)。现有 [QuanXProvider](../../../lib/subconverter/providers/quanx/index.ts) 已实现节点转换，完整生成入口及实现边界见[订阅生成节点](../output-adapter.md#订阅生成节点)。
 
 ```ts
 interface QuanXOptions extends OutputOptions {

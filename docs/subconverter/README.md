@@ -56,7 +56,7 @@ SCE 另外注册的目标对应：[clashr](outputs/clashr.md)、[stash](outputs/
 
 ## 输出公共契约（目标）
 
-以下类型仅在文档中定义，供各输出文档引用；并非可导入的源码模块。三要素的字段定义仅以源码为准，不另建替代领域模型。
+以下契约描述包含底稿、选项和扩展资源的完整输出目标；当前工作流入口及实现边界见[订阅生成节点](output-adapter.md#订阅生成节点)。三要素的字段定义仅以源码为准，不另建替代领域模型。
 
 ```ts
 import type { RuleGroupsOutput } from '@/lib/workflow/nodes/configuration/nodes/rulesets/model/types';

@@ -96,7 +96,25 @@ export class NodeRegistry {
             throw appError('workflow.INVALID_CONNECTION');
           }
 
-          const parsed = input ? values.map((value) => parse(input.schema, value)) : [];
+          if (context.inputSources && context.inputSources.length !== values.length) {
+            throw appError('workflow.INVALID_CONNECTION');
+          }
+
+          const parsed = input
+            ? values.map((value, index) => {
+                const source = context.inputSources?.[index];
+
+                if (source) {
+                  if (!this.types.isAssignable(source.type, input.schema.descriptor)) {
+                    throw appError('workflow.INCOMPATIBLE_TYPE');
+                  }
+
+                  this.types.parse(source.type, value);
+                }
+
+                return parse(input.schema, value);
+              })
+            : [];
           const result = await node.execute(
             node.parseInput(parsed, context),
             node.configSchema.parse(cloneJson(config)),

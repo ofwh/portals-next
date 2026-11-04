@@ -6,6 +6,8 @@
     "clear": "清除",
     "close": "关闭",
     "confirm": "确认",
+    "copy": "复制",
+    "copySuccess": "已复制",
     "copyError": "复制失败，请重试",
     "delete": "删除",
     "deleteSelected": "删除所选（{count}）",
@@ -530,6 +532,10 @@
             "skipped": "已跳过"
           },
           "runDetails": "查看执行数据",
+          "runDetailsTitle": "执行数据",
+          "runDetailsDescription": "执行节点 <node>{name}</node>",
+          "wrapLines": "自动换行",
+          "noWrapLines": "不换行",
           "runInput": "入参",
           "runOutput": "出参",
           "noRunData": "无数据"

@@ -4,7 +4,7 @@
 
 ## 输入
 
-三要素依次为 `RuleSetConfigFields[]`、`PolicyConfigFields[]`、`ExtractNodesOutput`，使用[公共类型与处理约束](../README.md#输出公共契约目标)。现有 [SurgeProvider](../../../lib/subconverter/providers/surge/index.ts) 已有节点转换；完整装配尚未实现。
+三要素依次为 `RuleSetConfigFields[]`、`PolicyConfigFields[]`、`ExtractNodesOutput`，使用[公共类型与处理约束](../README.md#输出公共契约目标)。现有 [SurgeProvider](../../../lib/subconverter/providers/surge/index.ts) 已有节点转换；完整生成入口及实现边界见[订阅生成节点](../output-adapter.md#订阅生成节点)。
 
 ```ts
 interface SurgeOptions extends OutputOptions {

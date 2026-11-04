@@ -1,6 +1,18 @@
 import { debugNode, rejectNode } from '../proxy-node/debug';
 import type { Parsed, Reader, Shape, ShapeValue } from '../types/providers/schema';
 
+const nativeWriters = new WeakMap<Reader<unknown>, (value: unknown) => unknown>();
+
+function writable<T>(read: Reader<T>, write: (value: T) => unknown): Reader<T> {
+  nativeWriters.set(read, (value) => write(read(value)));
+
+  return read;
+}
+
+export function toNative<T>(read: Reader<T>, value: T): unknown {
+  return nativeWriters.get(read)?.(value) ?? read(value);
+}
+
 export function object(value: unknown): object {
   if (typeof value !== 'object' || value === null || Array.isArray(value)) {
     throw new Error('Expected a configuration object');
@@ -34,17 +46,23 @@ export function boolean(value: unknown): boolean {
 }
 
 export function optional<T>(read: Reader<T>): Reader<T | undefined> {
-  return (value) => (value === undefined ? undefined : read(value));
+  return writable(
+    (value) => (value === undefined ? undefined : read(value)),
+    (value) => (value === undefined ? undefined : toNative(read, value)),
+  );
 }
 
 export function array<T>(read: Reader<T>): Reader<T[]> {
-  return (value) => {
-    if (!Array.isArray(value)) {
-      throw new Error('Expected an array');
-    }
+  return writable(
+    (value) => {
+      if (!Array.isArray(value)) {
+        throw new Error('Expected an array');
+      }
 
-    return value.map(read);
-  };
+      return value.map(read);
+    },
+    (values) => values.map((value) => toNative(read, value)),
+  );
 }
 
 export function oneOf<const T extends readonly string[]>(...values: T): Reader<T[number]> {
@@ -60,31 +78,49 @@ export function oneOf<const T extends readonly string[]>(...values: T): Reader<T
 }
 
 export function union<A, B>(a: Reader<A>, b: Reader<B>): Reader<A | B> {
-  return (value) => {
-    try {
-      return a(value);
-    } catch {
-      return b(value);
-    }
-  };
+  return writable(
+    (value) => {
+      try {
+        return a(value);
+      } catch {
+        return b(value);
+      }
+    },
+    (value) => {
+      try {
+        return toNative(a, a(value));
+      } catch {
+        return toNative(b, b(value));
+      }
+    },
+  );
 }
 
 export function entries<T>(read: Reader<T>): Reader<{ name: string; value: T }[]> {
-  return (value) => {
-    if (Array.isArray(value)) {
-      return value.map((item) => {
-        const entry = object(item);
+  return writable(
+    (value) => {
+      if (Array.isArray(value)) {
+        return value.map((item) => {
+          const entry = object(item);
 
-        if (Object.keys(entry).some((key) => key !== 'name' && key !== 'value')) {
-          return rejectNode('unrepresentable-header');
-        }
+          if (Object.keys(entry).some((key) => key !== 'name' && key !== 'value')) {
+            return rejectNode('unrepresentable-header');
+          }
 
-        return { name: text(field(entry, 'name')), value: read(field(entry, 'value')) };
-      });
-    }
+          return { name: text(field(entry, 'name')), value: read(field(entry, 'value')) };
+        });
+      }
 
-    return Object.entries(object(value)).map(([name, item]: [string, unknown]) => ({ name, value: read(item) }));
-  };
+      return Object.entries(object(value)).map(([name, item]: [string, unknown]) => ({ name, value: read(item) }));
+    },
+    (values) => {
+      if (new Set(values.map((entry) => entry.name)).size !== values.length) {
+        throw new Error('Duplicate native header');
+      }
+
+      return Object.fromEntries(values.map((entry) => [entry.name, toNative(read, entry.value)]));
+    },
+  );
 }
 
 export function field(value: object, key: string): unknown {
@@ -131,31 +167,48 @@ export function camelObject(value: unknown): object {
 }
 
 export function shape<S extends Shape<S>>(fields: S, strict = false): Reader<ShapeValue<S>> {
-  return (value) => {
-    const source = object(value);
+  return writable(
+    (value) => {
+      const source = object(value);
 
-    if (strict && Object.keys(source).some((key) => !Object.hasOwn(fields, key))) {
-      return rejectNode('unrepresentable-parameter');
-    }
-
-    const result = camelObject(source);
-
-    for (const [key, candidate] of Object.entries(fields)) {
-      const read = candidate as Reader<unknown>;
-      const decoded = read(field(source, Object.hasOwn(source, key) ? key : camelCase(key)));
-
-      if (decoded !== undefined) {
-        Object.defineProperty(result, camelCase(key), {
-          value: decoded,
-          enumerable: true,
-          configurable: true,
-          writable: true,
-        });
+      if (strict && Object.keys(source).some((key) => !Object.hasOwn(fields, key))) {
+        return rejectNode('unrepresentable-parameter');
       }
-    }
 
-    return result as ShapeValue<S>;
-  };
+      const result = camelObject(source);
+
+      for (const [key, candidate] of Object.entries(fields)) {
+        const read = candidate as Reader<unknown>;
+        const decoded = read(field(source, Object.hasOwn(source, key) ? key : camelCase(key)));
+
+        if (decoded !== undefined) {
+          Object.defineProperty(result, camelCase(key), {
+            value: decoded,
+            enumerable: true,
+            configurable: true,
+            writable: true,
+          });
+        }
+      }
+
+      return result as ShapeValue<S>;
+    },
+    (value) => {
+      const keys = new Set(Object.keys(fields).map(camelCase));
+
+      if (Object.keys(value).some((key) => !keys.has(key))) {
+        throw new Error('Unrepresentable native field');
+      }
+
+      return Object.fromEntries(
+        Object.entries(fields).flatMap(([key, read]) => {
+          const item = field(value, camelCase(key));
+
+          return item === undefined ? [] : [[key, toNative(read as Reader<unknown>, item)]];
+        }),
+      );
+    },
+  );
 }
 
 export const stringOrNumber = union(text, number);
@@ -194,15 +247,20 @@ export function base64(content: string): string {
 }
 
 export function tagged<S extends Shape<S>>(key: string, readers: S): Reader<Parsed<S[keyof S]>> {
-  return (value) => {
+  const select = (value: unknown): Reader<Parsed<S[keyof S]>> => {
     const tag = text(field(object(value), key));
 
     if (!Object.hasOwn(readers, tag)) {
       throw new Error('Unsupported configuration type');
     }
 
-    return (field(readers, tag) as Reader<Parsed<S[keyof S]>>)(value);
+    return field(readers, tag) as Reader<Parsed<S[keyof S]>>;
   };
+
+  return writable(
+    (value) => select(value)(value),
+    (value) => toNative(select(value), value),
+  );
 }
 
 export function nodeItems<T>(read: Reader<T>, provider: string): Reader<T[]> {
