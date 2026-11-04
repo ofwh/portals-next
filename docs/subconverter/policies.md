@@ -2,7 +2,7 @@
 
 ## 契约与边界
 
-[策略 parser](../../lib/workflow/nodes/configuration/nodes/policies/runtime/parser.ts) 具名导出 `parse(configuration: ConfigObject): PolicyConfigFields[]`。配置树由[配置解析器](configuration.md)提供；同一配置树可以分别交给策略与规则模块，不重复解析文本。
+[策略 parser](../../lib/workflow/flows/configuration/policies-node/runtime/parser.ts) 具名导出 `parse(configuration: ConfigObject): PolicyConfigFields[]`。配置树由[配置解析器](configuration.md)提供；同一配置树可以分别交给策略与规则模块，不重复解析文本。
 
 数据集读取、格式兼容适配和通用字段转换分开处理：
 
@@ -10,7 +10,7 @@
 - 格式兼容适配负责各配方的跳过条件、默认值及字段消费差异，不修改传入配置树。
 - 内部 `transform(nodes)` 按字符串或对象处理，返回通用策略字段数组，不解析文件语法、不依赖原文件格式。
 
-配置节点、通用字段及输出类型以[模型定义](../../lib/workflow/nodes/configuration/nodes/policies/model/types.ts)和[字段定义](../../lib/workflow/nodes/configuration/nodes/policies/model/fields-types.ts)为准，不增加目标客户端专属属性。
+配置节点、通用字段及输出类型以[模型定义](../../lib/workflow/flows/configuration/policies-node/model/types.ts)和[字段定义](../../lib/subconverter/types/policies.ts)为准，不增加目标客户端专属属性。
 
 节点类型选择、严格数字处理和通用字段错误遵循[解析公共约束](README.md#解析公共约束)。缺失整个策略区域返回空数组；显式 null、嵌套列表或单值字段出现多值，均属于字段错误。
 

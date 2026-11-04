@@ -1,7 +1,7 @@
+import type { ConvertedNodes, OutputContext, OutputElements } from '../../types/output';
 import { fail } from '../shared/errors';
 import type { IniNodeProjection } from '../shared/ini';
 import { groupLine, projectPolicies } from '../shared/ini-policies';
-import type { ConvertedNodes, OutputContext, OutputElements } from '../types';
 
 export const transform = (
   policies: OutputElements['policies'],

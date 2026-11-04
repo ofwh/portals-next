@@ -1,6 +1,6 @@
 import type { Node } from '@xyflow/react';
 import type { CanvasNode, NodeRunState } from '@/lib/workflow/model';
-import type { NodeManifest } from '@/lib/workflow/nodes/types';
+import type { NodeManifest } from '@/lib/workflow/node/types';
 
 export const NODE_PREVIEW_SIZE = { width: 220, height: 46 } as const;
 

@@ -1,7 +1,7 @@
-import type { RuleSetConfigFields } from '@/lib/workflow/nodes/configuration/nodes/rulesets/model/types';
+import type { RuleSetConfigFields } from '@/lib/subconverter/types/rulesets';
 import type { IniRuleProjection } from './ini';
 import { boundRules, conditionText, validateRule } from './rules';
-import type { OutputContext } from '../types';
+import type { OutputContext } from '../../types/output';
 
 export const basicRuleTypes = [
   'MATCH',

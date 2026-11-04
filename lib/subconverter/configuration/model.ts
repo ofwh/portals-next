@@ -1,4 +1,4 @@
-import type { ConfigEntry, ConfigObject, ConfigValue } from './types';
+import type { ConfigEntry, ConfigObject, ConfigValue } from '../types/configuration';
 
 export function createObject(): ConfigObject {
   return { entries: [], isolated: [] };

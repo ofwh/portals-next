@@ -9,8 +9,8 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip
 import { useWorkflow } from '@/hooks/use-workflow';
 import type { useWorkflowCanvas } from '@/hooks/use-workflow-canvas';
 import { NODE_PREVIEW_SIZE } from '@/lib/types/workflow-canvas';
-import { nodeViewRegistry } from '@/lib/workflow/nodes/client';
-import type { NodeGroup } from '@/lib/workflow/nodes/types';
+import { nodeViewRegistry } from '@/lib/workflow/node/client';
+import type { NodeGroup } from '@/lib/workflow/node/types';
 
 export function NodePreview({ type, name }: { type: string; name: string }) {
   const Icon = nodeViewRegistry.getNodeView(type)?.icon ?? Blocks;

@@ -1,7 +1,7 @@
-import type { PolicyConfigFields } from '@/lib/workflow/nodes/configuration/nodes/policies/model/types';
+import type { PolicyConfigFields } from '@/lib/subconverter/types/policies';
 import { fail } from './errors';
+import type { ConvertedNodes, SymbolBinding } from '../../types/output';
 import type { ProxyNodeFields } from '../../types/proxy-node';
-import type { ConvertedNodes, SymbolBinding } from '../types';
 
 export interface ResolvedPolicy {
   definition: PolicyConfigFields;

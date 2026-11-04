@@ -12,9 +12,9 @@ import {
   ComboboxValue,
 } from '@/components/ui/combobox';
 import { Field, FieldContent, FieldDescription, FieldGroup, FieldLabel } from '@/components/ui/field';
-import type { ConfigType } from '@/lib/subconverter/configuration/types';
-import { configurationTypes, isConfigurationType } from '@/lib/workflow/nodes/configuration/utils/configuration';
-import type { ConfigIssue } from '@/lib/workflow/nodes/types';
+import type { ConfigType } from '@/lib/subconverter/types/configuration';
+import { configurationTypes, isConfigurationType } from '@/lib/workflow/flows/configuration/utils/configuration';
+import type { ConfigIssue } from '@/lib/workflow/node/types';
 
 interface ConfigurationTypeFormProps {
   value: ConfigType;

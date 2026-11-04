@@ -1,7 +1,7 @@
 import type { NodeProjection } from './nodes';
+import type { ConvertedNodes, NativeObject, OutputContext, OutputElements } from '../../types/output';
 import { fail } from '../shared/errors';
 import { resolvePolicies } from '../shared/policies';
-import type { ConvertedNodes, NativeObject, OutputContext, OutputElements } from '../types';
 
 export function transform(
   policies: OutputElements['policies'],

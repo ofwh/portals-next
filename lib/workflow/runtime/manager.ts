@@ -4,8 +4,8 @@ import type { Locale } from '@/lib/api';
 import { cloneJson, nonempty } from '@/lib/shared/data';
 import { buildExecutionPlan, executeFlow } from '../engine';
 import type { RunEvent, RunRequest } from '../model';
-import { nodeRegistry } from '../nodes';
-import type { NodeRegistry } from '../nodes/core/registry';
+import { nodeRegistry } from '../node';
+import type { NodeRegistry } from '../node/core/registry';
 
 export interface RunOptions {
   signal?: AbortSignal;

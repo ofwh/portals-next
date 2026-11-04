@@ -1,8 +1,8 @@
 import type { AST } from 'toml-eslint-parser';
 import { ParseError, parseTOML } from 'toml-eslint-parser';
+import type { ConfigObject, ConfigValue } from '../../types/configuration';
 import { ConfigSyntaxError } from '../errors';
 import { createObject, entryFor, isObject, valuesOf } from '../model';
-import type { ConfigObject, ConfigValue } from '../types';
 
 function objectAt(root: ConfigObject, path: (string | number)[]): ConfigObject {
   let current = root;

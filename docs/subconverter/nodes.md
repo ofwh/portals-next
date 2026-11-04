@@ -2,13 +2,13 @@
 
 ## 现有接口
 
-以[订阅解析节点](../../lib/workflow/nodes/subscription/nodes/extract-nodes/model/types.ts)为准：输入是订阅字符串，配置中的 `format` 为 `SubscriptionFormat`，输出 `ExtractNodesOutput = ProxyNodeFields[]`。节点不从外部配方的 `custom` 中推导，也不附带规则和策略。
+以[订阅解析节点](../../lib/workflow/flows/subscription/extract-nodes-node/model/types.ts)为准：输入是订阅字符串，配置中的 `format` 为 `SubscriptionFormat`，输出 `ExtractNodesOutput = ProxyNodeFields[]`。节点不从外部配方的 `custom` 中推导，也不附带规则和策略。
 
 `ProxyNodeFields` 是按 `type` 区分的协议联合，定义于 [proxy-node/fields.ts](../../lib/subconverter/types/proxy-node/fields.ts)，协议细节在同目录 `protocols` 中维护；本文不重复枚举协议或字段。基础名称与可选来源信息见 [common.ts](../../lib/subconverter/types/proxy-node/common.ts)。`id/sourceId/groupId/group` 可选，解析结果不能假设一定具有这些字段。
 
 ## 处理过程
 
-[parsing.ts](../../lib/workflow/nodes/subscription/runtime/parsing.ts) 去 BOM、首尾空白后按显式格式选择 provider。`load` 解析原生配置并提取节点，`transform('fields', provider.nodes)` 转为统一字段，经过 JSON 化与 `proxyNodesSchema` 校验后输出。
+[parsing.ts](../../lib/workflow/flows/subscription/runtime/parsing.ts) 去 BOM、首尾空白后按显式格式选择 provider。`load` 解析原生配置并提取节点，`transform('fields', provider.nodes)` 转为统一字段，经过 JSON 化与 `proxyNodesSchema` 校验后输出。
 
 ```mermaid
 flowchart LR

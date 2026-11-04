@@ -1,7 +1,7 @@
+import type { NativeObject, OutputContext, OutputElements } from '../../types/output';
 import { fail } from '../shared/errors';
 import { boundRules } from '../shared/rules';
 import type { RuleCondition } from '../shared/rules';
-import type { NativeObject, OutputContext, OutputElements } from '../types';
 
 export interface RuleProjection {
   rules: NativeObject[];

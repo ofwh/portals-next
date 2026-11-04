@@ -3,7 +3,7 @@ import { transform as transformNodes } from './nodes';
 import { transform as transformPolicies } from './policies';
 import { transform as transformRules } from './rules';
 import type { RuleProjection } from './rules';
-import type { NativeObject, OutputAdapter } from '../types';
+import type { NativeObject, OutputAdapter } from '../../types/output';
 
 export const adapter: OutputAdapter<NativeObject, RuleProjection, NativeObject[], NativeObject> = {
   target: 'clash',

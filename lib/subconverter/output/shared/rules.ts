@@ -1,9 +1,9 @@
 import { parse as parseYaml } from 'yaml';
-import type { RuleSetConfigFields } from '@/lib/workflow/nodes/configuration/nodes/rulesets/model/types';
+import type { RuleSetConfigFields } from '@/lib/subconverter/types/rulesets';
 import { fail } from './errors';
 import { resolveSymbol } from './policies';
 import { splitFields } from '../../providers/ini/parser';
-import type { MaterializedRuleSource, OutputContext, OutputTarget } from '../types';
+import type { MaterializedRuleSource, OutputContext, OutputTarget } from '../../types/output';
 
 export interface RuleCondition {
   type: string;

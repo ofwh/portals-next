@@ -1,8 +1,8 @@
 import { parseIni, parseToml, parseYaml } from './drivers';
 import { ConfigParameterError } from './errors';
-import type { ConfigObject, ConfigParser, ConfigType } from './types';
+import type { ConfigObject, ConfigParser, ConfigType } from '../types/configuration';
 
-export type * from './types';
+export type * from '../types/configuration';
 export { ConfigParameterError, ConfigSyntaxError } from './errors';
 
 export function parse(content: string, type: ConfigType): ConfigObject {

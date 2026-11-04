@@ -22,7 +22,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip
 import type { useWorkflowCanvas } from '@/hooks/use-workflow-canvas';
 import type { WorkflowCanvasNode } from '@/lib/types/workflow-canvas';
 import type { NodeRunState } from '@/lib/workflow/model';
-import { nodeViewRegistry } from '@/lib/workflow/nodes/client';
+import { nodeViewRegistry } from '@/lib/workflow/node/client';
 import { NodeConfig } from './node-config';
 import { NodePreview } from './node-list';
 import { NodeRunDetails } from './node-run-details';

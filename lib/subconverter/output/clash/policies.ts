@@ -1,8 +1,8 @@
-import type { PolicyGroupType } from '@/lib/workflow/nodes/configuration/nodes/policies/model/fields-types';
-import type { PolicyConfigFields } from '@/lib/workflow/nodes/configuration/nodes/policies/model/types';
+import type { PolicyGroupType } from '@/lib/subconverter/types/policies';
+import type { PolicyConfigFields } from '@/lib/subconverter/types/policies';
+import type { ConvertedNodes, NativeObject, OutputContext } from '../../types/output';
 import { fail } from '../shared/errors';
 import { resolvePolicies } from '../shared/policies';
-import type { ConvertedNodes, NativeObject, OutputContext } from '../types';
 
 export function transform(
   policies: readonly PolicyConfigFields[],

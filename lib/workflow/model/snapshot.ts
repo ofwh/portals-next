@@ -2,9 +2,9 @@ import { appError } from '@/lib/api';
 import { assertJson, isRecord, nonempty, positiveInteger } from '@/lib/shared/data';
 import type { CanvasNode, FlowSnapshot } from './index';
 import { parseEdge, parseNode } from './validation';
-import type { ManifestResolver } from '../nodes/core/connections';
-import { validateConnection } from '../nodes/core/connections';
-import type { TypeRegistry } from '../nodes/core/type-registry';
+import type { ManifestResolver } from '../node/core/connections';
+import { validateConnection } from '../node/core/connections';
+import type { TypeRegistry } from '../node/core/type-registry';
 
 export const SNAPSHOT_VERSION = 3;
 export type SnapshotMigration = (snapshot: unknown) => unknown;

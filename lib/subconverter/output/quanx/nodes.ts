@@ -1,7 +1,7 @@
 import { QuanXProvider } from '../../providers/quanx';
+import type { OutputElements } from '../../types/output';
 import { projectNode } from '../shared/ini';
 import { convertNodes } from '../shared/nodes';
-import type { OutputElements } from '../types';
 
 export function transform(nodes: OutputElements['nodes']) {
   const result = convertNodes(

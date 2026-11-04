@@ -9,8 +9,8 @@ import type { WorkflowCanvasNode } from '@/lib/types/workflow-canvas';
 import { NODE_PREVIEW_SIZE } from '@/lib/types/workflow-canvas';
 import { toWorkflow } from '@/lib/workflow/model/canvas';
 import { parseNode } from '@/lib/workflow/model/validation';
-import { nodeViewRegistry, typeRegistry } from '@/lib/workflow/nodes/client';
-import { validateConnection } from '@/lib/workflow/nodes/core/connections';
+import { nodeViewRegistry, typeRegistry } from '@/lib/workflow/node/client';
+import { validateConnection } from '@/lib/workflow/node/core/connections';
 import { useWorkflow } from './use-workflow';
 
 const NODE_CLIPBOARD_MIME = 'application/x-workflow-node';

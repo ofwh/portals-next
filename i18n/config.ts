@@ -1,4 +1,4 @@
-import { nodeMessages } from '@/lib/workflow/nodes/messages';
+import { nodeMessages } from '@/lib/workflow/node/messages';
 import en from '@/messages/en.json';
 import zhCN from '@/messages/zh-CN.json';
 

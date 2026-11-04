@@ -1,7 +1,7 @@
 import { appError } from '@/lib/api';
 import { cloneJson, nonempty } from '@/lib/shared/data';
 import type { CanvasNode, FlowSnapshot, WorkflowDefinition } from './index';
-import type { NodeManifest } from '../nodes/types';
+import type { NodeManifest } from '../node/types';
 
 export const NODE_TYPE_MIME = 'application/x-workflow-node-type';
 

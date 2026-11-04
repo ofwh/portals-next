@@ -1,8 +1,8 @@
+import type { ConvertedNodes, OutputContext, OutputElements } from '../../types/output';
 import { fail } from '../shared/errors';
 import type { IniNodeProjection } from '../shared/ini';
 import { token } from '../shared/ini';
 import { projectPolicies } from '../shared/ini-policies';
-import type { ConvertedNodes, OutputContext, OutputElements } from '../types';
 
 const behaviors = {
   select: 'static',

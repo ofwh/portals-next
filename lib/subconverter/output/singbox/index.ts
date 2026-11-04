@@ -3,7 +3,7 @@ import type { NodeProjection } from './nodes';
 import { transform as policies } from './policies';
 import { transform as rules } from './rules';
 import type { RuleProjection } from './rules';
-import type { NativeObject, OutputAdapter } from '../types';
+import type { NativeObject, OutputAdapter } from '../../types/output';
 
 export const adapter: OutputAdapter<NodeProjection, RuleProjection, NativeObject[], NativeObject> = {
   target: 'singbox',

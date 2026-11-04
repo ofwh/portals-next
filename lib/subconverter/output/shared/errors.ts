@@ -1,4 +1,4 @@
-import type { OutputIssue } from '../types';
+import type { OutputIssue } from '../../types/output';
 
 export class OutputError extends Error {
   constructor(

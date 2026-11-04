@@ -4,7 +4,7 @@ import repository from '@/lib/repositories/subscriptions';
 import { validateArrangement } from '@/lib/workflow/model/arrangement';
 import { toWorkflow } from '@/lib/workflow/model/canvas';
 import { restoreSnapshot } from '@/lib/workflow/model/snapshot';
-import { nodeRegistry } from '@/lib/workflow/nodes';
+import { nodeRegistry } from '@/lib/workflow/node';
 import { createService } from './shared/crud';
 import * as v from './shared/validation';
 

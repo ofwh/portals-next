@@ -1,4 +1,4 @@
-import type { ConfigType } from './types';
+import type { ConfigType } from '../types/configuration';
 
 export class ConfigParameterError extends TypeError {
   constructor(message: string) {

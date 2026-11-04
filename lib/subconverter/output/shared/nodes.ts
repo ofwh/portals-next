@@ -1,6 +1,6 @@
 import { fail } from './errors';
+import type { ConvertedNodes, NativeObject } from '../../types/output';
 import type { ProxyNodeFields } from '../../types/proxy-node';
-import type { ConvertedNodes, NativeObject } from '../types';
 
 export function convertNodes<N>(
   nodes: readonly ProxyNodeFields[],

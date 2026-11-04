@@ -1,6 +1,6 @@
-import { errorMessages as commonMessages } from '@/lib/workflow/nodes/common/i18n/errors';
-import { errorMessages as configurationMessages } from '@/lib/workflow/nodes/configuration/i18n/errors';
-import { errorMessages as subscriptionMessages } from '@/lib/workflow/nodes/subscription/i18n/errors';
+import { errorMessages as configurationMessages } from '@/lib/workflow/flows/configuration/i18n/errors';
+import { errorMessages as commonMessages } from '@/lib/workflow/flows/general/i18n/errors';
+import { errorMessages as subscriptionMessages } from '@/lib/workflow/flows/subscription/i18n/errors';
 
 export const codes = {
   DUPLICATE_TYPE: 1301000,

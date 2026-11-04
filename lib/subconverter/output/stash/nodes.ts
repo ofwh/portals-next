@@ -1,6 +1,6 @@
+import type { NativeObject, OutputElements } from '../../types/output';
 import { transform as clashNodes } from '../clash/nodes';
 import { fail } from '../shared/errors';
-import type { NativeObject, OutputElements } from '../types';
 
 const common = ['type', 'name', 'id', 'sourceId', 'groupId', 'group', 'server', 'port', 'udp', 'tcpFastOpen'];
 const tls = ['tls', 'serverName', 'allowInsecure', 'alpn'];

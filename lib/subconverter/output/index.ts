@@ -9,7 +9,7 @@ import { adapter as singbox } from './singbox';
 import { adapter as stash } from './stash';
 import { adapter as surfboard } from './surfboard';
 import { adapter as surge } from './surge';
-import type { ConfigArtifact, OutputAdapter, OutputContext, OutputElements, OutputTarget } from './types';
+import type { ConfigArtifact, OutputAdapter, OutputContext, OutputElements, OutputTarget } from '../types/output';
 
 async function render<N, R, P, D extends object>(
   adapter: OutputAdapter<N, R, P, D>,

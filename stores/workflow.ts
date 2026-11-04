@@ -8,9 +8,9 @@ import type { FlowSnapshot, NodeRunState } from '@/lib/workflow/model';
 import { validateArrangement } from '@/lib/workflow/model/arrangement';
 import { createNodeInstance, toWorkflow, updateNodeConfig } from '@/lib/workflow/model/canvas';
 import { migrateSnapshot, restoreSnapshot, serializeSnapshot, SNAPSHOT_VERSION } from '@/lib/workflow/model/snapshot';
-import { typeRegistry } from '@/lib/workflow/nodes/client';
-import { validateConnection } from '@/lib/workflow/nodes/core/connections';
-import type { NodeManifest } from '@/lib/workflow/nodes/types';
+import { typeRegistry } from '@/lib/workflow/node/client';
+import { validateConnection } from '@/lib/workflow/node/core/connections';
+import type { NodeManifest } from '@/lib/workflow/node/types';
 
 export interface WorkflowState {
   subscriptionId: string;

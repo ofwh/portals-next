@@ -2,11 +2,11 @@
 
 ## 契约与边界
 
-[规则 parser](../../lib/workflow/nodes/configuration/nodes/rulesets/runtime/parser.ts) 具名导出 `parse(configuration: ConfigObject): RuleSetConfigFields[]`。配置树由[配置解析器](configuration.md)提供；同一配置树可以分别交给规则与策略模块。
+[规则 parser](../../lib/workflow/flows/configuration/rulesets-node/runtime/parser.ts) 具名导出 `parse(configuration: ConfigObject): RuleSetConfigFields[]`。配置树由[配置解析器](configuration.md)提供；同一配置树可以分别交给规则与策略模块。
 
 数据集读取负责路径、别名和字段形状，产出字符串或 `RuleSetConfigNode`；格式兼容适配负责来源选择和格式默认值；内部 `transform(nodes)` 将字符串或对象直接转换为通用规则定义，不重新解析文件语法、不修改输入。
 
-配置节点和通用输出以[模型定义](../../lib/workflow/nodes/configuration/nodes/rulesets/model/types.ts)和[字段定义](../../lib/workflow/nodes/configuration/nodes/rulesets/model/fields-types.ts)为准。inline 输出单条规则条件，不附加目标策略；remote 输出资源引用及其来源格式，不增加规则正文 AST、下载状态、策略 ID 或目标客户端字段。
+配置节点和通用输出以[模型定义](../../lib/workflow/flows/configuration/rulesets-node/model/types.ts)和[字段定义](../../lib/subconverter/types/rulesets.ts)为准。inline 输出单条规则条件，不附加目标策略；remote 输出资源引用及其来源格式，不增加规则正文 AST、下载状态、策略 ID 或目标客户端字段。
 
 节点类型选择、严格数字处理和字段错误遵循[解析公共约束](README.md#解析公共约束)。缺失整个规则区域返回空数组；显式 null、错误对象形状和单值字段出现多值属于字段错误。集合顺序遵循 `ConfigObject`，重复绑定不去重。
 

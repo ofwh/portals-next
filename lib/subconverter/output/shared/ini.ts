@@ -1,7 +1,7 @@
 import { fail } from './errors';
 import { camelCase } from '../../providers/schema';
+import type { OutputParts } from '../../types/output';
 import type { IniNode, IniSection } from '../../types/providers/ini';
-import type { OutputParts } from '../types';
 
 const optionNames =
   'uuid ws over-tls protocol protocol-param congestion-controller udp-relay-mode aead alpn alterid block-quic custom direct dns dns-server dnsv6 download-bandwidth encrypt-method fast-open fingerprint flow fp grpc-mode host interface-ip interface-ip-v6 interface-ipv6 keepalive method mode mtu obfs obfs-host obfs-uri password path peer peers pre-shared-key preshared-key private-key psk public-key reality-base64-pubkey reality-hex-shortid reject reject-tinygif reuse salamander-password section-name self-ip self-ipv6 self-ip-v6 service-name shadow-tls-password shadow-tls-sni shadow-tls-version short-id skip-cert-verify sni ssr-protocol ssr-protocol-param tag test-url tfo tls tls-alpn tls-cert-sha256 tls-host tls-name tls-profile tls-pubkey-sha256 tls-verification tls13 transport udp udp-port udp-relay username version vless-flow vmess-aead ws-headers ws-path'.split(

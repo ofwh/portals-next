@@ -10,7 +10,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from '@/components/ui/resizable';
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 import type { NodeRunState } from '@/lib/workflow/model';
-import type { NodeManifest } from '@/lib/workflow/nodes/types';
+import type { NodeManifest } from '@/lib/workflow/node/types';
 
 export function NodeRunDetails({
   name,

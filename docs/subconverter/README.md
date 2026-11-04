@@ -1,5 +1,7 @@
 # Subconverter 解析与输出契约
 
+转换模块与工作流节点共用的数据契约定义在 `lib/subconverter/types/`；转换模块不得依赖 `lib/workflow/flows/` 下的节点实现或类型。
+
 本文档组以本仓库当前工作区源码和 SubConverter-Extended 源码为依据。`SCE` 在文中指 `/Users/larify/Documents/github/SubConverter-Extended`；引用路径均相对其仓库根目录。既有分析见 [subconverter-extend](../subconverter-extend/README.md)。
 
 ## 实现边界
@@ -52,25 +54,20 @@ flowchart TD
 
 SCE 另外注册的目标对应：[clashr](outputs/clashr.md)、[stash](outputs/stash.md)、[quan](outputs/quan.md)、[mellow](outputs/mellow.md)、[ssd](outputs/ssd.md)、[sssub](outputs/sssub.md)、[v2rayn](outputs/v2rayn.md)、[v2rayng](outputs/v2rayng.md)、[shadowrocket](outputs/shadowrocket.md)、[trojan](outputs/trojan.md)、[vless](outputs/vless.md)、[hysteria2](outputs/hysteria2.md)、[mixed](outputs/mixed.md)。这些目标在本仓库没有独立 provider，不得以本仓库已支持的名义调用。SCE 的 `singbox` 对应本文的 `sing-box`。
 
-依据：本仓库 [SubscriptionFormat](../../lib/workflow/nodes/subscription/types.ts)、[SubscriptionProvider](../../lib/subconverter/providers/provider.ts)；SCE `src/handler/interfaces.cpp::kTargetDescriptors`。
+依据：本仓库 [SubscriptionFormat](../../lib/subconverter/types/subscription.ts)、[SubscriptionProvider](../../lib/subconverter/providers/provider.ts)；SCE `src/handler/interfaces.cpp::kTargetDescriptors`。
 
 ## 输出公共契约（目标）
 
 以下契约描述包含底稿、选项和扩展资源的完整输出目标；当前工作流入口及实现边界见[订阅生成节点](output-adapter.md#订阅生成节点)。三要素的字段定义仅以源码为准，不另建替代领域模型。
 
 ```ts
-import type { RuleGroupsOutput } from '@/lib/workflow/nodes/configuration/nodes/rulesets/model/types';
-import type { PolicyGroupsOutput } from '@/lib/workflow/nodes/configuration/nodes/policies/model/types';
-import type { ExtractNodesOutput } from '@/lib/workflow/nodes/subscription/nodes/extract-nodes/model/types';
-
-type RuleSetConfigFields = RuleGroupsOutput[number];
-type PolicyConfigFields = PolicyGroupsOutput[number];
+import type { PolicyConfigFields, ProxyNodeFields, RuleSetConfigFields } from '@/lib/subconverter/types';
 type JsonValue = null | boolean | number | string | JsonValue[] | { [key: string]: JsonValue };
 type NativeObject = { [key: string]: JsonValue };
 interface OutputInput<B, O> {
   rules: RuleSetConfigFields[];
   policies: PolicyConfigFields[];
-  nodes: ExtractNodesOutput;
+  nodes: ProxyNodeFields[];
   base: B;
   options: O;
 }
@@ -116,7 +113,7 @@ interface ConfigArtifact<D> {
 
 `base` 是已经加载并完成模板渲染的原生底稿，不是外部配方。完整配置目标必须保留底稿中未由本目标接管的字段。`NativeObject` 用于这些未接管区域；各目标的三要素区域另行收窄类型。原生节点的完整协议联合直接引用现有源码；文档中的结构不声称覆盖客户端全部配置项。
 
-现有 `RuleGroupsOutput/PolicyGroupsOutput` 分别与 `RuleSetConfigFields[]/PolicyConfigFields[]` 结构等价；各输出文档统一使用后者，表示 transform 转换后的通用字段数组。通用类型直接引用规则和策略模块的模型定义。
+现有 `RuleGroupsOutput/PolicyGroupsOutput` 分别与 `RuleSetConfigFields[]/PolicyConfigFields[]` 结构等价；各输出文档统一使用后者，表示 transform 转换后的通用字段数组。通用业务类型由 `lib/subconverter/types/` 声明，转换模块、相关 service 和 workflow 直接引用；节点专属配置与运行类型保留在节点模块，通用编排类型保留在 `lib/types/workflow.ts`。
 
 节点订阅目标使用 `NodeOnlyOptions`：规则或策略数组非空时，默认拒绝；只有 `nonNodeElements=ignore` 才明确舍弃并返回诊断，不下载规则源、不展开策略成员。协议过滤与三要素舍弃是两个独立决定。目标文档中的原生行、链接与 JSON 对象均为装配结构定义，不表示现有 provider 已有文本序列化方法。
 

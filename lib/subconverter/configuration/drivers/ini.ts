@@ -1,7 +1,7 @@
 import { parse, ParsingError } from 'js-ini';
+import type { ConfigObject } from '../../types/configuration';
 import { ConfigSyntaxError } from '../errors';
 import { createObject, entryFor } from '../model';
-import type { ConfigObject } from '../types';
 
 function decode(value: string, line: number, column: number): string {
   const quote = value[0];

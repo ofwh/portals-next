@@ -1,7 +1,7 @@
-import type { RuleSetConfigFields } from '@/lib/workflow/nodes/configuration/nodes/rulesets/model/types';
+import type { RuleSetConfigFields } from '@/lib/subconverter/types/rulesets';
+import type { NativeObject, OutputContext, OutputTarget } from '../../types/output';
 import { fail } from '../shared/errors';
 import { boundRules, conditionText, nativeRuleProvider, validateRule } from '../shared/rules';
-import type { NativeObject, OutputContext, OutputTarget } from '../types';
 
 export interface RuleProjection {
   rules: string[];

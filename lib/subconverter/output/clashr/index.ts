@@ -1,9 +1,9 @@
+import type { OutputElements } from '../../types/output';
 import { adapter as clash } from '../clash';
 import { transform as transformNodes } from '../clash/nodes';
 import { transform as transformPolicies } from '../clash/policies';
 import { transform as transformRules } from '../clash/rules';
 import { fail } from '../shared/errors';
-import type { OutputElements } from '../types';
 
 const protocols = ['ss', 'ssr', 'vmess', 'trojan', 'http', 'https', 'socks5', 'snell'];
 const fields = new Set([

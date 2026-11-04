@@ -1,8 +1,8 @@
 import { isAlias, isMap, isNode, isScalar, isSeq, LineCounter, parseAllDocuments, Scalar } from 'yaml';
 import type { Node } from 'yaml';
+import type { ConfigObject, ConfigValue } from '../../types/configuration';
 import { ConfigSyntaxError } from '../errors';
 import { createObject, isObject, valuesOf } from '../model';
-import type { ConfigObject, ConfigValue } from '../types';
 
 const prefix = 'tag:yaml.org,2002:';
 const allowedTags = new Set(['map', 'seq', 'str', 'null', 'bool', 'int', 'float'].map((tag) => prefix + tag));

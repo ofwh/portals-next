@@ -1,8 +1,8 @@
 import { toNative } from '../../providers/schema';
 import { SingBoxProvider } from '../../providers/sing-box';
 import { singBoxNode, singBoxWireGuardEndpoint } from '../../providers/sing-box/parser';
+import type { NativeObject, OutputElements } from '../../types/output';
 import { convertNodes, nativeObject } from '../shared/nodes';
-import type { NativeObject, OutputElements } from '../types';
 
 export interface NodeProjection {
   region: 'outbounds' | 'endpoints';
