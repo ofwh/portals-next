@@ -3,8 +3,8 @@
 import { useTranslations } from 'next-intl';
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
-import { OriginalForm } from '@/components/app/routes/original-form';
-import { OriginalTable } from '@/components/app/routes/original-table';
+import { OriginalForm } from '@/components/app/routes/originals/form';
+import { OriginalTable } from '@/components/app/routes/originals/table';
 import { RouteDrawer } from '@/components/app/routes/route-drawer';
 import type { RouteDrawerProps } from '@/components/app/routes/route-drawer';
 import { RouteHeader } from '@/components/app/routes/route-header';

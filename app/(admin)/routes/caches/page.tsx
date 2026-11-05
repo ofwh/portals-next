@@ -3,8 +3,8 @@
 import { useTranslations } from 'next-intl';
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
-import { CacheForm } from '@/components/app/routes/cache-form';
-import { CacheTable } from '@/components/app/routes/cache-table';
+import { CacheForm } from '@/components/app/routes/caches/form';
+import { CacheTable } from '@/components/app/routes/caches/table';
 import { RouteDrawer } from '@/components/app/routes/route-drawer';
 import type { RouteDrawerProps } from '@/components/app/routes/route-drawer';
 import { RouteHeader } from '@/components/app/routes/route-header';

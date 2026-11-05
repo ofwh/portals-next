@@ -4,7 +4,9 @@ import { cookies } from 'next/headers';
 import type { ReactNode } from 'react';
 import { Suspense } from 'react';
 import { PreferencesProvider } from '@/components/app/settings/system/preferences-provider';
+import { ShortcutsProvider } from '@/components/app/settings/system/shortcuts-provider';
 import { AdminShell } from '@/components/app/shell/admin-shell';
+import { getAppContext } from '@/lib/context';
 import { getRequestPreferences } from '@/lib/services/preferences/server';
 
 async function AdminLayoutContent({ children }: { children: ReactNode }) {
@@ -18,7 +20,9 @@ async function AdminLayoutContent({ children }: { children: ReactNode }) {
   return (
     <NextIntlClientProvider locale={locale} messages={messages}>
       <PreferencesProvider initialPreferences={preferences}>
-        <AdminShell defaultOpen={cookieStore.get('sidebar_state')?.value !== 'false'}>{children}</AdminShell>
+        <ShortcutsProvider initialShortcuts={getAppContext().config.shortcuts}>
+          <AdminShell defaultOpen={cookieStore.get('sidebar_state')?.value !== 'false'}>{children}</AdminShell>
+        </ShortcutsProvider>
       </PreferencesProvider>
     </NextIntlClientProvider>
   );

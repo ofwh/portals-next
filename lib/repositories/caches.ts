@@ -102,6 +102,16 @@ export function remove(id: string): CacheRow | undefined {
   });
 }
 
-const repository = { pagination, findById, findByPath, findTagIds, create, update, remove };
+export function markCached(id: string, updatedAt: Date, cachedAt: Date): boolean {
+  return (
+    db
+      .update(caches)
+      .set({ cachedAt, updatedAt })
+      .where(and(eq(caches.id, id), eq(caches.updatedAt, updatedAt)))
+      .run().changes === 1
+  );
+}
+
+const repository = { pagination, findById, findByPath, findTagIds, create, update, remove, markCached };
 
 export default repository;

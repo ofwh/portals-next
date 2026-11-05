@@ -1,8 +1,11 @@
 import { createStore } from 'zustand/vanilla';
 import { listShortcuts, updateShortcut } from '@/lib/client/shortcuts';
+import { DEFAULT_SHORTCUTS } from '@/lib/constants/shortcuts';
+import type { ApplicationConfig } from '@/lib/types/route';
 import type { Shortcut, ShortcutInput, ShortcutType } from '@/lib/types/shortcuts';
 
 interface ShortcutsState {
+  prefixes: ApplicationConfig['shortcuts'];
   items: Partial<Record<ShortcutType, Shortcut>>;
   loading: boolean;
   loaded: boolean;
@@ -12,9 +15,10 @@ interface ShortcutsState {
   save: (input: ShortcutInput[]) => Promise<void>;
 }
 
-export function createShortcutsStore() {
+export function createShortcutsStore(initialShortcuts: ApplicationConfig['shortcuts'] = DEFAULT_SHORTCUTS) {
   return createStore<ShortcutsState>()((set, get) => ({
     items: {},
+    prefixes: initialShortcuts,
     loading: true,
     loaded: false,
     saving: false,
@@ -26,7 +30,12 @@ export function createShortcutsStore() {
         const result = await listShortcuts(signal);
 
         if (!signal.aborted) {
-          set({ items: Object.fromEntries(result.data.map((item) => [item.type, item])), loaded: true });
+          const prefixes = result.data.reduce<ApplicationConfig['shortcuts']>(
+            (current, item) => ({ ...current, [item.type]: { pathname: item.pathname, status: item.status } }),
+            DEFAULT_SHORTCUTS,
+          );
+
+          set({ items: Object.fromEntries(result.data.map((item) => [item.type, item])), prefixes, loaded: true });
         }
       } catch (reason) {
         if (!signal.aborted) {
@@ -49,7 +58,10 @@ export function createShortcutsStore() {
         for (const values of input) {
           const item = await updateShortcut(values);
 
-          set((state) => ({ items: { ...state.items, [item.type]: item } }));
+          set((state) => ({
+            items: { ...state.items, [item.type]: item },
+            prefixes: { ...state.prefixes, [item.type]: { pathname: item.pathname, status: item.status } },
+          }));
         }
       } finally {
         set({ saving: false });

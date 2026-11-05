@@ -20,10 +20,11 @@ import { TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/compon
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { usePreferences } from '@/hooks/use-preferences';
 import type { RouteStatusActions } from '@/hooks/use-route-list';
+import { useRouteUrl } from '@/hooks/use-route-url';
 import type { RedirectListItem } from '@/lib/types/routes';
-import type { RouteDrawerProps } from './route-drawer';
-import { RouteStatus } from './route-status';
-import { RouteTable } from './route-table';
+import type { RouteDrawerProps } from '../route-drawer';
+import { RouteStatus } from '../route-status';
+import { RouteTable } from '../route-table';
 
 export function RedirectTable({
   drawer: Drawer,
@@ -55,11 +56,11 @@ export function RedirectTable({
   const t = useTranslations();
 
   const formatDateTime = usePreferences((state) => state.formatDateTime);
-  const [origin, setOrigin] = useState('');
+  const getRouteUrl = useRouteUrl('redirect');
 
   async function copyPath(pathname: string) {
     try {
-      await navigator.clipboard.writeText(`${window.location.origin}${pathname}`);
+      await navigator.clipboard.writeText(getRouteUrl(pathname));
       toast.success(t('admin.routes.shared.copySuccess'));
     } catch {
       toast.error(t('shared.copyError'));
@@ -136,19 +137,21 @@ export function RedirectTable({
             </TableCell>
             <TableCell>
               <div className="group inline-flex w-fit items-center gap-1.5">
-                <Tooltip
-                  onOpenChange={(open) => {
-                    if (open) {
-                      setOrigin(window.location.origin);
+                <Tooltip>
+                  <TooltipTrigger
+                    render={
+                      <a
+                        href={getRouteUrl(redirect.pathname)}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-primary focus-visible:ring-ring inline-flex h-8 items-center rounded-sm text-sm font-medium no-underline outline-none hover:no-underline focus-visible:ring-2"
+                      />
                     }
-                  }}
-                >
-                  <TooltipTrigger render={<Button variant="link" size="sm" className="px-0 hover:no-underline" />}>
+                  >
                     {redirect.pathname}
                   </TooltipTrigger>
                   <TooltipContent side="top" className="break-all">
-                    {origin}
-                    {redirect.pathname}
+                    {getRouteUrl(redirect.pathname)}
                   </TooltipContent>
                 </Tooltip>
                 <Tooltip>

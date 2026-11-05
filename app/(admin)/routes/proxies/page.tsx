@@ -3,8 +3,8 @@
 import { useTranslations } from 'next-intl';
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
-import { ProxyForm } from '@/components/app/routes/proxy-form';
-import { ProxyTable } from '@/components/app/routes/proxy-table';
+import { ProxyForm } from '@/components/app/routes/proxies/form';
+import { ProxyTable } from '@/components/app/routes/proxies/table';
 import { RouteDrawer } from '@/components/app/routes/route-drawer';
 import type { RouteDrawerProps } from '@/components/app/routes/route-drawer';
 import { RouteHeader } from '@/components/app/routes/route-header';

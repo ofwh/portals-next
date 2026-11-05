@@ -1,11 +1,17 @@
 'use client';
 
-import { useState } from 'react';
+import { createContext, useContext } from 'react';
 import { useStore } from 'zustand';
-import { createShortcutsStore } from '@/stores/shortcuts';
+import type { createShortcutsStore } from '@/stores/shortcuts';
+
+export const ShortcutsContext = createContext<ReturnType<typeof createShortcutsStore> | null>(null);
 
 export function useShortcuts() {
-  const [store] = useState(createShortcutsStore);
+  const store = useContext(ShortcutsContext);
+
+  if (!store) {
+    throw new Error('ShortcutsProvider is required');
+  }
 
   return useStore(store);
 }

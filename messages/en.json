@@ -70,7 +70,7 @@
     "routes": {
       "shared": {
         "columns": {
-          "pathname": "Path"
+          "pathname": "Pathname"
         },
         "copyPath": "Copy full URL",
         "copySuccess": "Route URL copied",
@@ -482,7 +482,7 @@
         "deleteSelectedError": "Deleted {deleted} subscriptions; {failed} failed. Please try again",
         "statusError": "Failed to update subscription status",
         "columns": {
-          "pathname": "Path"
+          "pathname": "Pathname"
         },
         "deleteSelectedSuccess": "Deleted {count} subscriptions",
         "configure": "Configure",

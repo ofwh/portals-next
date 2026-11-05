@@ -1,6 +1,8 @@
 import 'server-only';
 import { ROUTE_TYPE } from '@/lib/constants';
 import proxies from '@/lib/repositories/proxies';
+import type { ConsumerRequest } from '@/lib/types/route';
+import { proxies as consumer } from './consumers/proxies';
 import { createRouteService } from './service';
 import { validateProxy } from './validation';
 
@@ -11,4 +13,10 @@ const service = createRouteService(ROUTE_TYPE.PROXY, proxies, validateProxy, {
 
 export const { list, get, update, remove } = service;
 
-export default service;
+export function handle(input: ConsumerRequest): Promise<Response> {
+  return consumer.handle(input);
+}
+
+const routeService = { ...service, handle };
+
+export default routeService;

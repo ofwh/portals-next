@@ -54,7 +54,11 @@ function validateRequest(params: Record<string, unknown>) {
 export const validateProxy = validateRequest;
 
 export function validateCache(params: Record<string, unknown>) {
-  const ttl = Number(params.ttl ?? 0);
+  const ttl = params.ttl ?? 0;
+
+  if (typeof ttl !== 'number' || !Number.isFinite(ttl) || ttl < 0 || !Number.isSafeInteger(Math.ceil(ttl * 86400))) {
+    throw appError('common.INVALID_PARAMS');
+  }
 
   return { ...validateRequest(params), ttl };
 }

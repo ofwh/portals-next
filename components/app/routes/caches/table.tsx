@@ -20,12 +20,13 @@ import { TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/compon
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { usePreferences } from '@/hooks/use-preferences';
 import type { RouteStatusActions } from '@/hooks/use-route-list';
-import type { ProxyListItem } from '@/lib/types/routes';
-import type { RouteDrawerProps } from './route-drawer';
-import { RouteStatus } from './route-status';
-import { RouteTable } from './route-table';
+import { useRouteUrl } from '@/hooks/use-route-url';
+import type { CacheListItem } from '@/lib/types/routes';
+import type { RouteDrawerProps } from '../route-drawer';
+import { RouteStatus } from '../route-status';
+import { RouteTable } from '../route-table';
 
-export function ProxyTable({
+export function CacheTable({
   drawer: Drawer,
   items,
   loading,
@@ -39,7 +40,7 @@ export function ProxyTable({
   actionsDisabled,
 }: {
   drawer: ComponentType<RouteDrawerProps>;
-  items: readonly ProxyListItem[];
+  items: readonly CacheListItem[];
   loading: boolean;
   initialLoading: boolean;
   filtered: boolean;
@@ -53,11 +54,11 @@ export function ProxyTable({
   const t = useTranslations();
 
   const formatDateTime = usePreferences((state) => state.formatDateTime);
-  const [origin, setOrigin] = useState('');
+  const getRouteUrl = useRouteUrl('cache');
 
   async function copyPath(pathname: string) {
     try {
-      await navigator.clipboard.writeText(`${window.location.origin}${pathname}`);
+      await navigator.clipboard.writeText(getRouteUrl(pathname));
       toast.success(t('admin.routes.shared.copySuccess'));
     } catch {
       toast.error(t('shared.copyError'));
@@ -65,13 +66,13 @@ export function ProxyTable({
   }
 
   return (
-    <RouteTable mode="proxies" loading={loading} initialLoading={initialLoading}>
+    <RouteTable mode="caches" loading={loading} initialLoading={initialLoading}>
       <TableHeader className="bg-muted/50">
         <TableRow>
           <TableHead className="w-12 px-4">
             <Checkbox
               aria-label={t('shared.selectAll')}
-              checked={items.length > 0 && items.every((proxy) => selectedIds.includes(proxy.id))}
+              checked={items.length > 0 && items.every((cache) => selectedIds.includes(cache.id))}
               indeterminate={selectedIds.length > 0 && selectedIds.length < items.length}
               disabled={actionsDisabled || items.length === 0}
               onCheckedChange={onSelectAll}
@@ -79,8 +80,8 @@ export function ProxyTable({
           </TableHead>
           <TableHead className="w-44">{t('shared.name')}</TableHead>
           <TableHead className="w-48">{t('admin.routes.shared.columns.pathname')}</TableHead>
-          <TableHead>{t('admin.routes.proxies.columns.upstream')}</TableHead>
-          <TableHead className="w-20">{t('admin.routes.proxies.columns.method')}</TableHead>
+          <TableHead>{t('admin.routes.caches.columns.upstream')}</TableHead>
+          <TableHead className="w-20">{t('admin.routes.caches.columns.method')}</TableHead>
           <TableHead className="w-48">{t('shared.tags')}</TableHead>
           <TableHead className="w-24 text-center">{t('shared.status')}</TableHead>
           <TableHead className="w-44">{t('shared.updatedAt')}</TableHead>
@@ -92,28 +93,28 @@ export function ProxyTable({
           <TableRow>
             <TableCell colSpan={9} className="h-24 text-center">
               <p role="status" className="font-medium">
-                {t(filtered ? 'admin.routes.proxies.emptyFiltered' : 'admin.routes.proxies.empty')}
+                {t(filtered ? 'admin.routes.caches.emptyFiltered' : 'admin.routes.caches.empty')}
               </p>
             </TableCell>
           </TableRow>
         ) : null}
-        {items.map((proxy) => (
-          <TableRow key={proxy.id}>
+        {items.map((cache) => (
+          <TableRow key={cache.id}>
             <TableCell className="px-4">
               <Checkbox
-                aria-label={t('shared.selectRow', { name: proxy.name })}
-                checked={selectedIds.includes(proxy.id)}
+                aria-label={t('shared.selectRow', { name: cache.name })}
+                checked={selectedIds.includes(cache.id)}
                 disabled={actionsDisabled}
-                onCheckedChange={(checked) => onSelect(proxy.id, checked)}
+                onCheckedChange={(checked) => onSelect(cache.id, checked)}
               />
             </TableCell>
             <TableCell>
-              <Tooltip disabled={!proxy.description}>
+              <Tooltip disabled={!cache.description}>
                 <Drawer
-                  id={proxy.id}
+                  id={cache.id}
                   onSaved={onUpdated}
                   disabled={actionsDisabled}
-                  triggerLabel={proxy.name}
+                  triggerLabel={cache.name}
                   trigger={
                     <TooltipTrigger
                       render={
@@ -128,25 +129,27 @@ export function ProxyTable({
                   }
                 />
                 <TooltipContent side="top" className="break-words whitespace-pre-wrap">
-                  {proxy.description}
+                  {cache.description}
                 </TooltipContent>
               </Tooltip>
             </TableCell>
             <TableCell>
               <div className="group inline-flex w-fit items-center gap-1.5">
-                <Tooltip
-                  onOpenChange={(open) => {
-                    if (open) {
-                      setOrigin(window.location.origin);
+                <Tooltip>
+                  <TooltipTrigger
+                    render={
+                      <a
+                        href={getRouteUrl(cache.pathname)}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-primary focus-visible:ring-ring inline-flex h-8 items-center rounded-sm text-sm font-medium no-underline outline-none hover:no-underline focus-visible:ring-2"
+                      />
                     }
-                  }}
-                >
-                  <TooltipTrigger render={<Button variant="link" size="sm" className="px-0 hover:no-underline" />}>
-                    {proxy.pathname}
+                  >
+                    {cache.pathname}
                   </TooltipTrigger>
                   <TooltipContent side="top" className="break-all">
-                    {origin}
-                    {proxy.pathname}
+                    {getRouteUrl(cache.pathname)}
                   </TooltipContent>
                 </Tooltip>
                 <Tooltip>
@@ -157,7 +160,7 @@ export function ProxyTable({
                         size="icon-xs"
                         className="shrink-0 opacity-0 group-hover:opacity-100 focus-visible:opacity-100"
                         aria-label={t('admin.routes.shared.copyPath')}
-                        onClick={() => void copyPath(proxy.pathname)}
+                        onClick={() => void copyPath(cache.pathname)}
                       />
                     }
                   >
@@ -169,14 +172,14 @@ export function ProxyTable({
             </TableCell>
             <TableCell>
               <a
-                href={proxy.url}
+                href={cache.url}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="group/upstream focus-visible:ring-ring inline-flex max-w-64 items-center gap-1 rounded-sm text-sm outline-none focus-visible:ring-2"
-                title={proxy.url}
-                aria-label={t('admin.routes.proxies.openUpstream', { url: proxy.url })}
+                title={cache.url}
+                aria-label={t('admin.routes.caches.openUpstream', { url: cache.url })}
               >
-                <span className="min-w-0 truncate">{proxy.url}</span>
+                <span className="min-w-0 truncate">{cache.url}</span>
                 <ExternalLink
                   aria-hidden="true"
                   className="size-3.5 shrink-0 opacity-0 transition-opacity group-hover/upstream:opacity-100 group-focus-visible/upstream:opacity-100"
@@ -184,21 +187,21 @@ export function ProxyTable({
               </a>
             </TableCell>
             <TableCell>
-              <Badge variant="outline">{proxy.method}</Badge>
+              <Badge variant="outline">{cache.method}</Badge>
             </TableCell>
             <TableCell>
-              <TagList tags={proxy.tags} />
+              <TagList tags={cache.tags} />
             </TableCell>
             <TableCell className="text-center">
-              <RouteStatus enabled={proxy.status} label={t(proxy.status ? 'shared.enabled' : 'shared.disabled')} />
+              <RouteStatus enabled={cache.status} label={t(cache.status ? 'shared.enabled' : 'shared.disabled')} />
             </TableCell>
             <TableCell className="text-muted-foreground text-sm tabular-nums">
-              {formatDateTime(proxy.updatedAt)}
+              {formatDateTime(cache.updatedAt)}
             </TableCell>
             <TableCell>
               <div className="flex items-center justify-center gap-1">
-                <Drawer id={proxy.id} onSaved={onUpdated} disabled={actionsDisabled} />
-                <ProxyStatusAction proxy={proxy} statusActions={statusActions} disabled={actionsDisabled} />
+                <Drawer id={cache.id} onSaved={onUpdated} disabled={actionsDisabled} />
+                <CacheStatusAction cache={cache} statusActions={statusActions} disabled={actionsDisabled} />
                 <Tooltip>
                   <TooltipTrigger
                     render={
@@ -224,34 +227,34 @@ export function ProxyTable({
   );
 }
 
-function ProxyStatusAction({
-  proxy,
+function CacheStatusAction({
+  cache,
   statusActions,
   disabled,
 }: {
-  proxy: ProxyListItem;
+  cache: CacheListItem;
   statusActions: RouteStatusActions;
   disabled: boolean;
 }) {
   const t = useTranslations();
 
   const [open, setOpen] = useState(false);
-  const submitting = statusActions.pendingIds.has(proxy.id);
-  const error = statusActions.errors[proxy.id] ?? '';
+  const submitting = statusActions.pendingIds.has(cache.id);
+  const error = statusActions.errors[cache.id] ?? '';
 
   function clearError() {
-    statusActions.clearError(proxy.id);
+    statusActions.clearError(cache.id);
   }
 
   async function changeStatus() {
-    if (await statusActions.changeStatus(proxy.id)) {
+    if (await statusActions.changeStatus(cache.id)) {
       setOpen(false);
     }
   }
 
   return (
     <div className="relative">
-      {proxy.status ? (
+      {cache.status ? (
         <Popover
           open={open}
           onOpenChange={(nextOpen) => {
@@ -279,7 +282,7 @@ function ProxyStatusAction({
             <PopoverHeader>
               <PopoverTitle>{t('admin.routes.shared.disableTitle')}</PopoverTitle>
               <PopoverDescription className="break-words">
-                {t('admin.routes.shared.disableConfirmation', { name: proxy.name })}
+                {t('admin.routes.shared.disableConfirmation', { name: cache.name })}
               </PopoverDescription>
             </PopoverHeader>
             {error && (
