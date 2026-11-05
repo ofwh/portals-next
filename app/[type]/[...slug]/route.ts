@@ -8,6 +8,7 @@ const services = {
   [ROUTE_TYPE.REDIRECT]: () => import('@/lib/services/routes/redirects'),
   [ROUTE_TYPE.CACHE]: () => import('@/lib/services/routes/caches'),
   [ROUTE_TYPE.ORIGINAL]: () => import('@/lib/services/routes/originals'),
+  [ROUTE_TYPE.SUBSCRIPTION]: () => import('@/lib/services/subscriptions'),
 };
 
 async function handle(req: Request, context: RouteHandlerContext): Promise<Response> {

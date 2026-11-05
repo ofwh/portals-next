@@ -314,6 +314,10 @@
           "original": {
             "pathnameHelp": "Original route prefix",
             "statusHelp": "Turn off to pause original content shortcut access"
+          },
+          "subscription": {
+            "pathnameHelp": "Subscription route prefix",
+            "statusHelp": "Turn off to pause subscription access"
           }
         },
         "preferences": {
@@ -501,9 +505,7 @@
           "canvas": "Workflow canvas",
           "emptyCanvas": "Drag nodes from the left to start building",
           "backToList": "Back to list",
-          "draftSaveSuccess": "Workflow saved to draft",
-          "publish": "Publish",
-          "publishSuccess": "Workflow published",
+          "saveSuccess": "Workflow saved",
           "actions": "Workflow actions",
           "saveError": "Failed to save workflow",
           "nodesError": "Failed to load workflow nodes",

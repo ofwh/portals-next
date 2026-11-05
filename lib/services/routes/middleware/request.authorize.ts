@@ -1,8 +1,8 @@
 import { timingSafeEqual } from 'node:crypto';
-import type { RouteMode } from '@/lib/constants/routes';
+import type { RouteType } from '@/lib/constants/routes';
 import type { Middleware } from '@/lib/types/route';
 
-export function authorize<K extends RouteMode>(): Middleware<K> {
+export function authorize<K extends RouteType>(): Middleware<K> {
   return async (context, next) => {
     if (!context.parameters) {
       throw new Error();

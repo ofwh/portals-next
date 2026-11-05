@@ -3,7 +3,7 @@ import type { Shortcut, ShortcutInput } from '@/lib/types/shortcuts';
 import { request } from './request';
 
 export function listShortcuts(signal?: AbortSignal): Promise<Pagination<Shortcut>> {
-  return request('/api/shortcuts/list', { page: 1, size: 4 }, signal);
+  return request('/api/shortcuts/list', {}, signal);
 }
 
 export function updateShortcut(input: ShortcutInput): Promise<Shortcut> {

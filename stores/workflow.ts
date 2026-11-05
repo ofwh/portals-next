@@ -38,7 +38,6 @@ export interface WorkflowState {
   removeEdge(id: string): void;
   updateNode(id: string, value: Partial<Pick<NodeInstance, 'config' | 'displayName'>>): void;
   save(): Promise<void>;
-  publish(): Promise<void>;
   loadNodes(): Promise<void>;
   loadDetail(): Promise<void>;
   reload(): Promise<void>;
@@ -84,7 +83,7 @@ export function createWorkflowStore(subscriptionId: string) {
       return node;
     }
 
-    async function persist(publish: boolean): Promise<void> {
+    async function persist(): Promise<void> {
       const state = get();
       const flow = currentFlow();
 
@@ -97,12 +96,10 @@ export function createWorkflowStore(subscriptionId: string) {
 
       set({ saving: true });
       try {
-        await saveWorkflowDraft(subscriptionId, raw);
-        set((state) => ({ subscription: state.subscription ? { ...state.subscription, flowDraft: raw } : null }));
-        if (publish) {
-          await updateSubscription({ id: subscriptionId, flow: raw });
-          set((state) => ({ subscription: state.subscription ? { ...state.subscription, flow: raw } : null }));
-        }
+        await updateSubscription({ id: subscriptionId, flow: raw });
+        set((state) => ({
+          subscription: state.subscription ? { ...state.subscription, flow: raw, flowDraft: null } : null,
+        }));
       } finally {
         set({ saving: false });
       }
@@ -144,7 +141,7 @@ export function createWorkflowStore(subscriptionId: string) {
       set({ detailLoading: true, detailError: null });
       try {
         const subscription = await getSubscription(subscriptionId, controller.signal);
-        const raw = subscription.flowDraft ?? subscription.flow;
+        const raw = subscription.flow;
         const flow =
           raw === null
             ? { schemaVersion: SNAPSHOT_VERSION, workflowId: subscriptionId, nodes: [], edges: [] }
@@ -186,8 +183,11 @@ export function createWorkflowStore(subscriptionId: string) {
         runController = controller;
         set({ running: true, runId, runStatus: 'running', runError: null, nodeStates: {} });
         try {
-          await saveWorkflowDraft(subscriptionId, serializeSnapshot(flow), controller.signal);
+          const raw = serializeSnapshot(flow);
+
+          await saveWorkflowDraft(subscriptionId, raw, controller.signal);
           controller.signal.throwIfAborted();
+          set((state) => ({ subscription: state.subscription ? { ...state.subscription, flowDraft: raw } : null }));
           await runWorkflow(
             subscriptionId,
             runId,
@@ -295,10 +295,7 @@ export function createWorkflowStore(subscriptionId: string) {
         set({ flow: updateNode(currentFlow(), id, value) });
       },
       save() {
-        return persist(false);
-      },
-      publish() {
-        return persist(true);
+        return persist();
       },
       loadNodes,
       loadDetail,

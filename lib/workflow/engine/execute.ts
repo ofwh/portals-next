@@ -108,6 +108,8 @@ export async function executeFlow(
           ...(registered.manifest.output ? { output: result } : {}),
         });
       } catch (error) {
+        console.error('工作流节点执行失败', { runId: context.runId, nodeId: id }, error);
+
         const failure = context.signal.aborted
           ? appError('workflow.CANCELLED')
           : error instanceof AppError
@@ -130,6 +132,8 @@ export async function executeFlow(
 
     context.emit({ type: 'run.completed', runId: context.runId, outputs: terminal });
   } catch (error) {
+    console.error('工作流执行失败', { runId: context.runId }, error);
+
     finishRemaining();
     const failure = context.signal.aborted
       ? appError('workflow.CANCELLED')

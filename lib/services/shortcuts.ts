@@ -5,13 +5,14 @@ import { getAppContext } from '@/lib/context';
 import repository from '@/lib/repositories/shortcuts';
 import type { ShortcutRow, ShortcutValues } from '@/lib/repositories/shortcuts';
 import type { RouteMatch } from '@/lib/types/route';
+import type { ShortcutType } from '@/lib/types/shortcuts';
 import config from './config';
 import { createService } from './shared/crud';
 import * as v from './shared/validation';
 
 function validate(params: Record<string, unknown>) {
   return {
-    type: v.choice(params.type, ['proxy', 'redirect', 'cache', 'original']),
+    type: v.choice(params.type, Object.keys(SHORTCUT_ROUTES) as ShortcutType[]),
     pathname: v.pathname(params.pathname),
     status: v.boolean(params.status),
   };

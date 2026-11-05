@@ -1,6 +1,6 @@
 import type { Dispatcher } from 'undici';
-import type { RouteMode } from '@/lib/constants/routes';
-import type { caches, originals, proxies, redirects } from '@/lib/db/schema';
+import type { RouteType } from '@/lib/constants/routes';
+import type { caches, originals, proxies, redirects, subscriptions } from '@/lib/db/schema';
 import type { ShortcutType } from '@/lib/types/shortcuts';
 
 export interface ConfigMap {
@@ -8,6 +8,7 @@ export interface ConfigMap {
   redirects: typeof redirects.$inferSelect;
   caches: typeof caches.$inferSelect;
   originals: typeof originals.$inferSelect;
+  subscriptions: typeof subscriptions.$inferSelect;
 }
 
 export interface RouteParams {
@@ -20,7 +21,7 @@ export interface RouteHandlerContext {
 }
 
 export interface RouteMatch {
-  type: RouteMode;
+  type: RouteType;
   pathname: string;
 }
 
@@ -66,7 +67,7 @@ export interface CacheKey {
   revision: string;
 }
 
-export interface RouteContext<K extends RouteMode> extends ConsumerRequest {
+export interface RouteContext<K extends RouteType> extends ConsumerRequest {
   config: ConfigMap[K];
   now: Date;
   parameters: Parameters | null;
@@ -77,15 +78,15 @@ export interface RouteContext<K extends RouteMode> extends ConsumerRequest {
 }
 
 export type Next = () => Promise<void>;
-export type Middleware<K extends RouteMode> = (context: RouteContext<K>, next: Next) => Promise<void>;
+export type Middleware<K extends RouteType> = (context: RouteContext<K>, next: Next) => Promise<void>;
 export type ForwardMode = 'proxies' | 'caches';
 
-export interface ConsumerMiddleware<K extends RouteMode> {
+export interface ConsumerMiddleware<K extends RouteType> {
   request: readonly Middleware<K>[];
   response: readonly Middleware<K>[];
 }
 
-export interface RouteConsumer<K extends RouteMode> {
+export interface RouteConsumer<K extends RouteType> {
   readonly mode: K;
   handle(input: ConsumerRequest): Promise<Response>;
 }

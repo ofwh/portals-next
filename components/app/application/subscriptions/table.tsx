@@ -20,6 +20,7 @@ import {
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { usePreferences } from '@/hooks/use-preferences';
+import { useRouteUrl } from '@/hooks/use-route-url';
 import type { SubscriptionListItem, SubscriptionStatusActions } from '@/lib/types/subscriptions';
 
 export interface SubscriptionDrawerProps {
@@ -60,11 +61,11 @@ export function SubscriptionTable({
   const t = useTranslations();
 
   const formatDateTime = usePreferences((state) => state.formatDateTime);
-  const [origin, setOrigin] = useState('');
+  const routeUrl = useRouteUrl('subscription');
 
   async function copyPath(pathname: string) {
     try {
-      await navigator.clipboard.writeText(`${window.location.origin}${pathname}`);
+      await navigator.clipboard.writeText(routeUrl(pathname));
       toast.success(t('admin.application.subscriptions.copySuccess'));
     } catch {
       toast.error(t('shared.copyError'));
@@ -139,19 +140,12 @@ export function SubscriptionTable({
             </TableCell>
             <TableCell>
               <div className="group inline-flex w-fit items-center gap-1.5">
-                <Tooltip
-                  onOpenChange={(open) => {
-                    if (open) {
-                      setOrigin(window.location.origin);
-                    }
-                  }}
-                >
+                <Tooltip>
                   <TooltipTrigger render={<Button variant="link" size="sm" className="px-0 hover:no-underline" />}>
                     {subscription.pathname}
                   </TooltipTrigger>
                   <TooltipContent side="top" className="break-all">
-                    {origin}
-                    {subscription.pathname}
+                    {routeUrl(subscription.pathname)}
                   </TooltipContent>
                 </Tooltip>
                 <Tooltip>

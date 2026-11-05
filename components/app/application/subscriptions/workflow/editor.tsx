@@ -25,7 +25,6 @@ function Header({ name, description }: { name: string; description: string | nul
     run,
     stop,
     save: saveFlow,
-    publish: publishFlow,
     notifyError,
   } = useWorkflow((state) => ({
     saving: state.saving,
@@ -33,20 +32,13 @@ function Header({ name, description }: { name: string; description: string | nul
     run: state.run,
     stop: state.stop,
     save: state.save,
-    publish: state.publish,
     notifyError: state.notifyError,
   }));
 
-  async function save(publish = false) {
+  async function save() {
     try {
-      await (publish ? publishFlow() : saveFlow());
-      toast.success(
-        t(
-          publish
-            ? 'admin.application.subscriptions.flowEditor.publishSuccess'
-            : 'admin.application.subscriptions.flowEditor.draftSaveSuccess',
-        ),
-      );
+      await saveFlow();
+      toast.success(t('admin.application.subscriptions.flowEditor.saveSuccess'));
     } catch (error) {
       notifyError(error);
     }
@@ -99,15 +91,6 @@ function Header({ name, description }: { name: string; description: string | nul
         </Tooltip>
         <Button type="button" variant="outline" size="sm" disabled={saving || running} onClick={() => void save()}>
           {t('shared.save')}
-        </Button>
-        <Button
-          type="button"
-          size="sm"
-          className="bg-success text-success-foreground hover:bg-success/80 focus-visible:border-success focus-visible:ring-success/50"
-          disabled={saving || running}
-          onClick={() => void save(true)}
-        >
-          {t('admin.application.subscriptions.flowEditor.publish')}
         </Button>
       </div>
     </PageHeader>

@@ -314,6 +314,10 @@
           "original": {
             "pathnameHelp": "内容路由前缀",
             "statusHelp": "关闭后暂停原始内容快捷访问"
+          },
+          "subscription": {
+            "pathnameHelp": "订阅路由前缀",
+            "statusHelp": "关闭后暂停订阅访问"
           }
         },
         "preferences": {
@@ -501,9 +505,7 @@
           "canvas": "工作流画布",
           "emptyCanvas": "拖拽左侧节点至这里开始创建",
           "backToList": "返回列表",
-          "draftSaveSuccess": "工作流草稿已保存",
-          "publish": "发布",
-          "publishSuccess": "工作流已发布",
+          "saveSuccess": "工作流已保存",
           "actions": "工作流操作",
           "saveError": "保存工作流失败",
           "nodesError": "加载工作流节点失败",

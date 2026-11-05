@@ -2,10 +2,12 @@ import 'server-only';
 import { appError } from '@/lib/api';
 import { SUBSCRIPTION_TAG_GROUP } from '@/lib/constants/tags';
 import repository from '@/lib/repositories/subscriptions';
+import type { ConsumerRequest } from '@/lib/types/route';
 import { validateArrangement } from '@/lib/workflow/model/arrangement';
 import { toWorkflow } from '@/lib/workflow/model/canvas';
 import { restoreSnapshot } from '@/lib/workflow/model/snapshot';
 import { nodeRegistry } from '@/lib/workflow/node';
+import consumer from './routes/consumers/subscriptions';
 import { createService } from './shared/crud';
 import { validateTagIds } from './shared/tags';
 import * as v from './shared/validation';
@@ -35,10 +37,19 @@ function validate(params: Record<string, unknown>) {
   };
 }
 
-const crud = createService(repository, validate, {
-  notFound: 'subscriptions.NOT_FOUND',
-  pathExist: 'subscriptions.PATH_EXIST',
-});
+const crud = createService(
+  {
+    ...repository,
+    update(id, values) {
+      return repository.update(id, Object.hasOwn(values, 'flow') ? { ...values, flowDraft: null } : values);
+    },
+  },
+  validate,
+  {
+    notFound: 'subscriptions.NOT_FOUND',
+    pathExist: 'subscriptions.PATH_EXIST',
+  },
+);
 
 export function list(input: unknown) {
   const params = v.record(input);
@@ -104,6 +115,10 @@ export function remove(input: unknown) {
   return crud.remove(identifier(input));
 }
 
-const service = { list, detail, update, remove };
+export function handle(input: ConsumerRequest): Promise<Response> {
+  return consumer.handle(input);
+}
+
+const service = { list, detail, update, remove, handle };
 
 export default service;

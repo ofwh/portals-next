@@ -5,7 +5,7 @@ import Busboy from 'busboy';
 import coBody from 'co-body';
 import qs from 'qs';
 import getRawBody from 'raw-body';
-import type { RouteMode } from '@/lib/constants/routes';
+import type { RouteType } from '@/lib/constants/routes';
 import type {
   ConfigMap,
   ForwardMode,
@@ -162,7 +162,7 @@ async function parseConfiguredBody(config: ConfigMap['proxies'] | ConfigMap['cac
   return (await coBody.text(source(config.body), { limit: BODY_LIMIT })) as string;
 }
 
-export function parameters<K extends RouteMode>(): Middleware<K> {
+export function parameters<K extends RouteType>(): Middleware<K> {
   return async (context, next) => {
     try {
       context.parameters = await parse(context.req.clone(), context.params);

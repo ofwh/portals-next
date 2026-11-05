@@ -1,12 +1,16 @@
 import 'server-only';
-import { DEFAULT_SHORTCUTS } from '@/lib/constants/shortcuts';
+import { DEFAULT_SHORTCUTS, SHORTCUT_ROUTES } from '@/lib/constants/shortcuts';
 import type { AppContext, ApplicationConfig } from '@/lib/types/route';
+import type { ShortcutType } from '@/lib/types/shortcuts';
 
 const globalForContext = globalThis as typeof globalThis & { portalsContext?: AppContext };
 
 function createContext(): AppContext {
   const shortcuts = Object.fromEntries(
-    Object.entries(DEFAULT_SHORTCUTS).map(([type, value]) => [type, Object.freeze({ ...value })]),
+    (Object.keys(SHORTCUT_ROUTES) as ShortcutType[]).map((type) => [
+      type,
+      Object.freeze({ ...DEFAULT_SHORTCUTS[type] }),
+    ]),
   ) as ApplicationConfig['shortcuts'];
 
   return { config: Object.freeze({ shortcuts: Object.freeze(shortcuts) }) };

@@ -8,15 +8,10 @@ import { Button } from '@/components/ui/button';
 import { Field, FieldContent, FieldDescription, FieldGroup, FieldLabel } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
-import { DEFAULT_SHORTCUTS } from '@/lib/constants/shortcuts';
+import { DEFAULT_SHORTCUTS, SHORTCUT_ROUTES } from '@/lib/constants/shortcuts';
 import type { Shortcut, ShortcutInput, ShortcutType } from '@/lib/types/shortcuts';
 
-const shortcutTypes = [
-  { type: 'proxy', label: 'proxies' },
-  { type: 'redirect', label: 'redirects' },
-  { type: 'cache', label: 'caches' },
-  { type: 'original', label: 'originals' },
-] as const satisfies ReadonlyArray<{ type: ShortcutType; label: string }>;
+const shortcutTypes = Object.keys(SHORTCUT_ROUTES) as ShortcutType[];
 
 type ShortcutValues = Pick<ShortcutInput, 'pathname' | 'status'>;
 
@@ -52,7 +47,7 @@ export function ShortcutForm({ items, disabled, saving, save }: ShortcutFormProp
 
     try {
       await save(
-        shortcutTypes.map(({ type }) => ({
+        shortcutTypes.map((type) => ({
           ...values(type),
           pathname: values(type).pathname.trim(),
           type,
@@ -72,7 +67,8 @@ export function ShortcutForm({ items, disabled, saving, save }: ShortcutFormProp
   return (
     <form onSubmit={submit} aria-busy={saving} noValidate>
       <FieldGroup>
-        {shortcutTypes.map(({ type, label }) => {
+        {shortcutTypes.map((type) => {
+          const label = SHORTCUT_ROUTES[type];
           const value = values(type);
           const pathnameId = `shortcut-${type}-pathname`;
           const labelId = `shortcut-${type}-label`;
