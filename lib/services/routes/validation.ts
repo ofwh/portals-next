@@ -1,6 +1,4 @@
 import { appError } from '@/lib/api';
-import type { RouteMode } from '@/lib/constants/routes';
-import tags from '@/lib/repositories/tags';
 import { parseHeaders } from '@/lib/shared/headers';
 import { validJson } from '@/lib/shared/validation';
 import type { RouteListParams } from '@/lib/types/routes';
@@ -78,29 +76,6 @@ export function validateOriginal(params: Record<string, unknown>) {
     contentType: v.string(params.contentType === undefined ? 'application/json' : params.contentType),
     language: v.string(params.language === undefined ? 'plaintext' : params.language),
   };
-}
-
-export function validateTagIds(value: unknown, type: RouteMode): string[] | undefined {
-  if (value === undefined) {
-    return undefined;
-  }
-
-  if (value === null) {
-    return [];
-  }
-
-  if (!Array.isArray(value)) {
-    throw appError('common.INVALID_PARAMS');
-  }
-
-  const ids = [...new Set(value.map((id: unknown) => v.string(id)))];
-  const selected = tags.findByIds(ids);
-
-  if (selected.length !== ids.length || selected.some((tag) => tag.group !== type)) {
-    throw appError('common.INVALID_PARAMS');
-  }
-
-  return ids;
 }
 
 export function validateList(input: unknown): RouteListParams {

@@ -27,6 +27,7 @@ export class NodeRegistry {
       !nonempty(node.type) ||
       !nonempty(node.name) ||
       !positiveInteger(node.version) ||
+      (node.singleton !== undefined && typeof node.singleton !== 'boolean') ||
       (node.input !== null && (typeof node.input.required !== 'boolean' || typeof node.input.multiple !== 'boolean')) ||
       (node.output !== null && typeof node.output.multiple !== 'boolean')
     ) {
@@ -42,6 +43,7 @@ export class NodeRegistry {
         name: node.name,
         ...(node.nameKey ? { nameKey: node.nameKey } : {}),
         version: node.version,
+        ...(node.singleton !== undefined ? { singleton: node.singleton } : {}),
         input: input ? { type: input.schema.descriptor, required: input.required, multiple: input.multiple } : null,
         output: output
           ? {

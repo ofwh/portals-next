@@ -3,9 +3,10 @@ import type { RouteMode } from '@/lib/constants/routes';
 import type { BusinessErrorCode } from '@/lib/errors';
 import type { Pagination } from '@/lib/types/pagination';
 import type { RouteListParams } from '@/lib/types/routes';
-import { validateList, validateTagIds } from './validation';
+import { validateList } from './validation';
 import { createService } from '../shared/crud';
 import type { Repository } from '../shared/crud';
+import { validateTagIds } from '../shared/tags';
 
 interface RouteRepository<Row, Values, Item extends Row> extends Repository<Row, Values> {
   pagination(params: RouteListParams): Pagination<Item>;

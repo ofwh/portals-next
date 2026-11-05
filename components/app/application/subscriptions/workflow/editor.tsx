@@ -1,7 +1,7 @@
 'use client';
 
 import { ReactFlowProvider } from '@xyflow/react';
-import { ArrowLeft, Play, Square } from 'lucide-react';
+import { ArrowLeft, Pause, Play } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
@@ -10,6 +10,7 @@ import { createPortal } from 'react-dom';
 import { toast } from 'sonner';
 import { PageHeader } from '@/components/business/page-header';
 import { Button } from '@/components/ui/button';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { useWorkflow, WorkflowContext } from '@/hooks/use-workflow';
 import { useWorkflowCanvas } from '@/hooks/use-workflow-canvas';
 import { createWorkflowStore } from '@/stores/workflow';
@@ -24,6 +25,7 @@ function Header({ name, description }: { name: string; description: string | nul
     run,
     stop,
     save: saveFlow,
+    publish: publishFlow,
     notifyError,
   } = useWorkflow((state) => ({
     saving: state.saving,
@@ -31,13 +33,20 @@ function Header({ name, description }: { name: string; description: string | nul
     run: state.run,
     stop: state.stop,
     save: state.save,
+    publish: state.publish,
     notifyError: state.notifyError,
   }));
 
-  async function save() {
+  async function save(publish = false) {
     try {
-      await saveFlow();
-      toast.success(t('admin.application.subscriptions.flowEditor.saveSuccess'));
+      await (publish ? publishFlow() : saveFlow());
+      toast.success(
+        t(
+          publish
+            ? 'admin.application.subscriptions.flowEditor.publishSuccess'
+            : 'admin.application.subscriptions.flowEditor.draftSaveSuccess',
+        ),
+      );
     } catch (error) {
       notifyError(error);
     }
@@ -61,22 +70,44 @@ function Header({ name, description }: { name: string; description: string | nul
       }
     >
       <div className="flex shrink-0 items-center gap-2">
+        <Tooltip>
+          <TooltipTrigger
+            render={
+              <Button
+                type="button"
+                variant="outline"
+                size="icon-sm"
+                disabled={saving}
+                aria-label={t(
+                  running
+                    ? 'admin.application.subscriptions.flowEditor.stop'
+                    : 'admin.application.subscriptions.flowEditor.run',
+                )}
+                onClick={() => (running ? stop() : void run().catch(notifyError))}
+              />
+            }
+          >
+            {running ? <Pause /> : <Play />}
+          </TooltipTrigger>
+          <TooltipContent side="top">
+            {t(
+              running
+                ? 'admin.application.subscriptions.flowEditor.stop'
+                : 'admin.application.subscriptions.flowEditor.run',
+            )}
+          </TooltipContent>
+        </Tooltip>
+        <Button type="button" variant="outline" size="sm" disabled={saving || running} onClick={() => void save()}>
+          {t('shared.save')}
+        </Button>
         <Button
           type="button"
-          variant="outline"
           size="sm"
-          disabled={saving}
-          onClick={() => (running ? stop() : void run().catch(notifyError))}
+          className="bg-success text-success-foreground hover:bg-success/80 focus-visible:border-success focus-visible:ring-success/50"
+          disabled={saving || running}
+          onClick={() => void save(true)}
         >
-          {running ? <Square /> : <Play />}
-          {t(
-            running
-              ? 'admin.application.subscriptions.flowEditor.stop'
-              : 'admin.application.subscriptions.flowEditor.run',
-          )}
-        </Button>
-        <Button type="button" size="sm" disabled={saving || running} onClick={() => void save()}>
-          {t('shared.save')}
+          {t('admin.application.subscriptions.flowEditor.publish')}
         </Button>
       </div>
     </PageHeader>

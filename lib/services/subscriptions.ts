@@ -1,11 +1,13 @@
 import 'server-only';
 import { appError } from '@/lib/api';
+import { SUBSCRIPTION_TAG_GROUP } from '@/lib/constants/tags';
 import repository from '@/lib/repositories/subscriptions';
 import { validateArrangement } from '@/lib/workflow/model/arrangement';
 import { toWorkflow } from '@/lib/workflow/model/canvas';
 import { restoreSnapshot } from '@/lib/workflow/model/snapshot';
 import { nodeRegistry } from '@/lib/workflow/node';
 import { createService } from './shared/crud';
+import { validateTagIds } from './shared/tags';
 import * as v from './shared/validation';
 
 function validate(params: Record<string, unknown>) {
@@ -29,6 +31,7 @@ function validate(params: Record<string, unknown>) {
     flow: flow?.trim() ? flow : null,
     token: v.nullableString(params.token),
     expiredAt: v.date(params.expiredAt),
+    tagIds: validateTagIds(params.tagIds, SUBSCRIPTION_TAG_GROUP),
   };
 }
 
@@ -60,6 +63,7 @@ export function list(input: unknown) {
       status: row.status,
       updatedAt: row.updatedAt,
       hasFlow: row.flow !== null,
+      tags: row.tags,
     })),
   };
 }
@@ -75,7 +79,9 @@ function identifier(input: unknown) {
 }
 
 export function detail(input: unknown) {
-  return crud.get(identifier(input));
+  const row = crud.get(identifier(input));
+
+  return { ...row, tagIds: repository.findTagIds(row.id) };
 }
 
 export function update(input: unknown) {

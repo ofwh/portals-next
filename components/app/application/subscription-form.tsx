@@ -5,6 +5,7 @@ import { CalendarIcon, Clock2, Eye, EyeOff } from 'lucide-react';
 import { useLocale, useTranslations } from 'next-intl';
 import { type ReactNode, useId, useState } from 'react';
 import { enUS, zhCN } from 'react-day-picker/locale';
+import { TagSelect } from '@/components/business/tag-select';
 import { Button } from '@/components/ui/button';
 import { ButtonGroup } from '@/components/ui/button-group';
 import { Calendar } from '@/components/ui/calendar';
@@ -22,6 +23,7 @@ import { InputGroup, InputGroupAddon, InputGroupButton, InputGroupInput } from '
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
+import { SUBSCRIPTION_TAG_GROUP } from '@/lib/constants/tags';
 import type { SubscriptionFormChange, SubscriptionFormState } from '@/lib/types/subscriptions';
 
 interface FormItem {
@@ -130,6 +132,22 @@ export function SubscriptionForm({
               checked={form.status}
               onCheckedChange={(checked) => onChange('status', checked)}
               aria-describedby={`${id}-status-help`}
+            />
+          ),
+        },
+        {
+          key: 'tags',
+          label: t('shared.tags'),
+          htmlFor: `${id}-tags`,
+          description: t('admin.application.subscriptions.form.tagsHelp'),
+          descriptionId: `${id}-tags-help`,
+          content: (
+            <TagSelect
+              id={`${id}-tags`}
+              group={SUBSCRIPTION_TAG_GROUP}
+              value={form.tagIds}
+              onChange={(ids) => onChange('tagIds', ids)}
+              descriptionId={`${id}-tags-help`}
             />
           ),
         },

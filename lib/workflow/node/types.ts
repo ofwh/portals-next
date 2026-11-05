@@ -35,6 +35,7 @@ export interface NodeLabel {
 export interface NodeModule<I, C, O, RunInput = I> extends NodeLabel {
   type: string;
   version: number;
+  singleton?: boolean;
   input: InputPort<I> | null;
   output: OutputPort<O> | null;
   configSchema: Parser<C>;
@@ -46,6 +47,7 @@ export interface NodeModule<I, C, O, RunInput = I> extends NodeLabel {
 export interface NodeManifest extends NodeLabel {
   type: string;
   version: number;
+  singleton?: boolean;
   input: { type: TypeDescriptor; required: boolean; multiple: boolean } | null;
   output: { type: TypeDescriptor; multiple: boolean; typeByConfig?: ConfiguredType } | null;
 }

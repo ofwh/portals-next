@@ -38,6 +38,7 @@ export interface WorkflowState {
   removeEdge(id: string): void;
   updateNode(id: string, value: Partial<Pick<NodeInstance, 'config' | 'displayName'>>): void;
   save(): Promise<void>;
+  publish(): Promise<void>;
   loadNodes(): Promise<void>;
   loadDetail(): Promise<void>;
   reload(): Promise<void>;
@@ -83,6 +84,30 @@ export function createWorkflowStore(subscriptionId: string) {
       return node;
     }
 
+    async function persist(publish: boolean): Promise<void> {
+      const state = get();
+      const flow = currentFlow();
+
+      if (!state.nodesLoaded || state.nodesLoading || state.nodesError !== null) {
+        throw appError('workflow.NODE_NOT_FOUND');
+      }
+
+      validateArrangement(toWorkflow(flow), resolve, typeRegistry);
+      const raw = serializeSnapshot(flow);
+
+      set({ saving: true });
+      try {
+        await saveWorkflowDraft(subscriptionId, raw);
+        set((state) => ({ subscription: state.subscription ? { ...state.subscription, flowDraft: raw } : null }));
+        if (publish) {
+          await updateSubscription({ id: subscriptionId, flow: raw });
+          set((state) => ({ subscription: state.subscription ? { ...state.subscription, flow: raw } : null }));
+        }
+      } finally {
+        set({ saving: false });
+      }
+    }
+
     async function loadNodes(): Promise<void> {
       nodesController?.abort();
       const controller = new AbortController();
@@ -119,10 +144,11 @@ export function createWorkflowStore(subscriptionId: string) {
       set({ detailLoading: true, detailError: null });
       try {
         const subscription = await getSubscription(subscriptionId, controller.signal);
+        const raw = subscription.flowDraft ?? subscription.flow;
         const flow =
-          subscription.flow === null
+          raw === null
             ? { schemaVersion: SNAPSHOT_VERSION, workflowId: subscriptionId, nodes: [], edges: [] }
-            : restoreSnapshot(subscription.flow);
+            : restoreSnapshot(raw);
 
         if (flow.workflowId !== subscriptionId) {
           throw appError('workflow.INVALID_SNAPSHOT');
@@ -228,6 +254,11 @@ export function createWorkflowStore(subscriptionId: string) {
         const flow = currentFlow();
         const state = get();
         const manifest = resolve(type);
+
+        if (manifest.singleton && flow.nodes.some((node) => node.type === type)) {
+          return;
+        }
+
         const node = createNodeInstance(manifest, state.catalog.defaults[type], position);
 
         set({ flow: { ...flow, nodes: [...flow.nodes, node] } });
@@ -263,24 +294,11 @@ export function createWorkflowStore(subscriptionId: string) {
       updateNode(id, value) {
         set({ flow: updateNode(currentFlow(), id, value) });
       },
-      async save() {
-        const state = get();
-        const flow = currentFlow();
-
-        if (!state.nodesLoaded || state.nodesLoading || state.nodesError !== null) {
-          throw appError('workflow.NODE_NOT_FOUND');
-        }
-
-        validateArrangement(toWorkflow(flow), resolve, typeRegistry);
-        const raw = serializeSnapshot(flow);
-
-        set({ saving: true });
-        try {
-          await updateSubscription({ id: subscriptionId, flow: raw });
-          set((state) => ({ subscription: state.subscription ? { ...state.subscription, flow: raw } : null }));
-        } finally {
-          set({ saving: false });
-        }
+      save() {
+        return persist(false);
+      },
+      publish() {
+        return persist(true);
       },
       loadNodes,
       loadDetail,

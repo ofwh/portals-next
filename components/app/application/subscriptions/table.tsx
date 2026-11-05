@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { useRef, useState } from 'react';
 import type { ComponentType, ReactElement, ReactNode } from 'react';
 import { toast } from 'sonner';
+import { TagList } from '@/components/business/tag-list';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import {
@@ -85,6 +86,7 @@ export function SubscriptionTable({
           </TableHead>
           <TableHead className="w-44">{t('shared.name')}</TableHead>
           <TableHead className="w-48">{t('admin.application.subscriptions.columns.pathname')}</TableHead>
+          <TableHead className="w-48">{t('shared.tags')}</TableHead>
           <TableHead className="w-24 text-center">{t('shared.status')}</TableHead>
           <TableHead className="w-44">{t('shared.updatedAt')}</TableHead>
           <TableHead className="w-44 text-center">{t('shared.actions')}</TableHead>
@@ -93,7 +95,7 @@ export function SubscriptionTable({
       <TableBody>
         {items.length === 0 ? (
           <TableRow>
-            <TableCell colSpan={6} className="h-24 text-center">
+            <TableCell colSpan={7} className="h-24 text-center">
               <p role="status" className="font-medium">
                 {t(
                   filtered ? 'admin.application.subscriptions.emptyFiltered' : 'admin.application.subscriptions.empty',
@@ -169,6 +171,9 @@ export function SubscriptionTable({
                   <TooltipContent side="top">{t('admin.application.subscriptions.copyPath')}</TooltipContent>
                 </Tooltip>
               </div>
+            </TableCell>
+            <TableCell>
+              <TagList tags={subscription.tags} />
             </TableCell>
             <TableCell className="text-center">
               <SubscriptionStatus

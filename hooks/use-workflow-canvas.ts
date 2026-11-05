@@ -259,6 +259,11 @@ export function useWorkflowCanvas() {
       const raw: unknown = JSON.parse(value);
       const source = parseNode(raw);
       const manifest = current.catalog.nodes.find((node) => node.type === source.type);
+
+      if (manifest?.singleton && flow.nodes.some((node) => node.type === source.type)) {
+        return;
+      }
+
       const available = manifest?.version === source.definitionVersion;
       const display = available ? nodeViewRegistry.getNodeView(source.type)?.display : undefined;
       const size =
@@ -362,6 +367,15 @@ export function useWorkflowCanvas() {
     const current = store.getState();
 
     if (!current.flow || current.saving || current.running || !event.isPrimary || event.button !== 0) {
+      return;
+    }
+
+    const manifest = current.catalog.nodes.find((node) => node.type === type);
+
+    if (
+      event.currentTarget.disabled ||
+      (manifest?.singleton && current.flow.nodes.some((node) => node.type === type))
+    ) {
       return;
     }
 

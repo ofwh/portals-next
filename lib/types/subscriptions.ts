@@ -1,5 +1,6 @@
 import type { subscriptions } from '@/lib/db/schema';
 import type { PaginationParams } from './pagination';
+import type { TagOption } from './tag';
 
 type SubscriptionRow = typeof subscriptions.$inferSelect;
 export interface SubscriptionListParams extends PaginationParams {
@@ -8,6 +9,7 @@ export interface SubscriptionListParams extends PaginationParams {
 }
 export type SubscriptionListItem = Pick<SubscriptionRow, 'id' | 'name' | 'description' | 'status' | 'pathname'> & {
   hasFlow: boolean;
+  tags: TagOption[];
   updatedAt: string;
 };
 export type SubscriptionCreateInput = Omit<
@@ -15,6 +17,7 @@ export type SubscriptionCreateInput = Omit<
   'id' | 'createdAt' | 'updatedAt' | 'expiredAt' | 'flow' | 'flowDraft'
 > & {
   flow?: string | null;
+  tagIds?: string[] | null;
   expiredAt: string | null;
 };
 export type SubscriptionUpdateInput =
@@ -22,6 +25,8 @@ export type SubscriptionUpdateInput =
 export type SubscriptionDetail = SubscriptionCreateInput & {
   id: string;
   flow: string | null;
+  flowDraft: string | null;
+  tagIds: string[];
   createdAt: string;
   updatedAt: string;
 };
@@ -32,6 +37,7 @@ export interface SubscriptionFormState {
   pathname: string;
   token: string;
   expiredAt: string;
+  tagIds: string[];
 }
 export type SubscriptionFormChange = <Key extends keyof SubscriptionFormState>(
   key: Key,

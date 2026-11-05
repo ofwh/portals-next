@@ -6,7 +6,7 @@ import { getSubscription, updateSubscription } from '@/lib/client/subscriptions'
 import type { SubscriptionFormState } from '@/lib/types/subscriptions';
 
 function initialForm(): SubscriptionFormState {
-  return { name: '', description: '', status: true, pathname: '', token: '', expiredAt: '' };
+  return { name: '', description: '', status: true, pathname: '', token: '', expiredAt: '', tagIds: [] };
 }
 
 async function loadForm(id: string, signal: AbortSignal): Promise<SubscriptionFormState> {
@@ -19,6 +19,7 @@ async function loadForm(id: string, signal: AbortSignal): Promise<SubscriptionFo
     pathname: detail.pathname,
     token: detail.token ?? '',
     expiredAt: detail.expiredAt ?? '',
+    tagIds: detail.tagIds,
   };
 }
 
@@ -45,6 +46,7 @@ function validateBaseForm(form: SubscriptionFormState) {
 async function saveForm(form: SubscriptionFormState, id?: string) {
   await updateSubscription({
     ...(id ? { id } : {}),
+    tagIds: form.tagIds,
     name: form.name.trim(),
     description: form.description.trim() || null,
     pathname: form.pathname.trim(),

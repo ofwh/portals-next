@@ -29,7 +29,10 @@ type DragHandlers = Pick<ReturnType<typeof useWorkflowCanvas>, 'startDrag' | 'mo
 
 function NodePalette({ groups, drag }: { groups: readonly NodeGroup[]; drag: DragHandlers }) {
   const t = useTranslations();
-  const saving = useWorkflow((state) => state.saving || state.running);
+  const { saving, nodes } = useWorkflow((state) => ({
+    saving: state.saving || state.running,
+    nodes: state.flow?.nodes,
+  }));
 
   return (
     <div className="mt-4 space-y-6">
@@ -41,7 +44,7 @@ function NodePalette({ groups, drag }: { groups: readonly NodeGroup[]; drag: Dra
               <li key={node.type}>
                 <button
                   type="button"
-                  disabled={saving}
+                  disabled={saving || (node.singleton && nodes?.some((item) => item.type === node.type))}
                   style={NODE_PREVIEW_SIZE}
                   onPointerDown={(event) => drag.startDrag(event, node.type)}
                   onPointerMove={drag.moveDrag}
@@ -49,7 +52,7 @@ function NodePalette({ groups, drag }: { groups: readonly NodeGroup[]; drag: Dra
                   onPointerCancel={drag.clearDrag}
                   onLostPointerCapture={drag.clearDrag}
                   onDragStart={(event) => event.preventDefault()}
-                  className="bg-background hover:bg-accent focus-visible:ring-ring block w-full min-w-0 cursor-grab touch-none rounded-md border text-left outline-none select-none focus-visible:ring-2 active:cursor-grabbing disabled:opacity-50"
+                  className="bg-background hover:bg-accent focus-visible:ring-ring block w-full min-w-0 cursor-grab touch-none rounded-md border text-left outline-none select-none focus-visible:ring-2 active:cursor-grabbing disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   <NodePreview type={node.type} name={node.nameKey ? t(node.nameKey) : node.name} />
                 </button>

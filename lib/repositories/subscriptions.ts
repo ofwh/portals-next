@@ -1,14 +1,24 @@
 import { and, count, desc, eq, or, sql } from 'drizzle-orm';
 import 'server-only';
+import { SUBSCRIPTION_TAG_GROUP } from '@/lib/constants/tags';
 import { db } from '@/lib/db';
 import { subscriptions } from '@/lib/db/schema';
 import type { Pagination } from '@/lib/types/pagination';
 import type { SubscriptionListParams } from '@/lib/types/subscriptions';
+import type { TagOption } from '@/lib/types/tag';
+import { attachTags, findTagIds as findConfiguredTagIds, replaceTags } from './tag-configs';
 
 export type SubscriptionRow = typeof subscriptions.$inferSelect;
-export type SubscriptionValues = Omit<typeof subscriptions.$inferInsert, 'id' | 'createdAt' | 'updatedAt'>;
+export type SubscriptionValues = Omit<typeof subscriptions.$inferInsert, 'id' | 'createdAt' | 'updatedAt'> & {
+  tagIds?: string[];
+};
 
-export function pagination({ page, size, search, status }: SubscriptionListParams): Pagination<SubscriptionRow> {
+export function pagination({
+  page,
+  size,
+  search,
+  status,
+}: SubscriptionListParams): Pagination<SubscriptionRow & { tags: TagOption[] }> {
   const where = and(
     search
       ? or(
@@ -30,7 +40,7 @@ export function pagination({ page, size, search, status }: SubscriptionListParam
       .offset((page - 1) * size)
       .all();
 
-    return { data, total, page, size };
+    return { data: attachTags(tx, SUBSCRIPTION_TAG_GROUP, data), total, page, size };
   });
 }
 
@@ -43,22 +53,54 @@ export function findByPath(pathname: string): SubscriptionRow | undefined {
 }
 
 export function create(values: SubscriptionValues): SubscriptionRow {
-  return db.insert(subscriptions).values(values).returning().get();
+  const { tagIds, ...data } = values;
+
+  return db.transaction((tx) => {
+    const row = tx.insert(subscriptions).values(data).returning().get();
+
+    if (tagIds !== undefined) {
+      replaceTags(tx, SUBSCRIPTION_TAG_GROUP, row.id, tagIds);
+    }
+
+    return row;
+  });
 }
 
 export function update(id: string, values: Partial<SubscriptionValues>): SubscriptionRow | undefined {
-  return db
-    .update(subscriptions)
-    .set({ ...values, updatedAt: new Date() })
-    .where(eq(subscriptions.id, id))
-    .returning()
-    .get();
+  const { tagIds, ...data } = values;
+
+  return db.transaction((tx) => {
+    const row = tx
+      .update(subscriptions)
+      .set({ ...data, updatedAt: new Date() })
+      .where(eq(subscriptions.id, id))
+      .returning()
+      .get();
+
+    if (row && tagIds !== undefined) {
+      replaceTags(tx, SUBSCRIPTION_TAG_GROUP, row.id, tagIds);
+    }
+
+    return row;
+  });
+}
+
+export function findTagIds(id: string): string[] {
+  return findConfiguredTagIds(SUBSCRIPTION_TAG_GROUP, id);
 }
 
 export function remove(id: string): SubscriptionRow | undefined {
-  return db.delete(subscriptions).where(eq(subscriptions.id, id)).returning().get();
+  return db.transaction((tx) => {
+    const row = tx.delete(subscriptions).where(eq(subscriptions.id, id)).returning().get();
+
+    if (row) {
+      replaceTags(tx, SUBSCRIPTION_TAG_GROUP, id, []);
+    }
+
+    return row;
+  });
 }
 
-const repository = { pagination, findById, findByPath, create, update, remove };
+const repository = { pagination, findById, findByPath, findTagIds, create, update, remove };
 
 export default repository;

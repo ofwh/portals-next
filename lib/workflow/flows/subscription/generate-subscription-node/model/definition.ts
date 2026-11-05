@@ -6,6 +6,7 @@ export const definition = {
   type: 'subscription.generate-subscription',
   ...nodeLabel('workflowNodes.subscription.generateSubscription.name'),
   version: 1,
+  singleton: true,
 };
 export const defaultConfig: GenerateSubscriptionConfig = { format: 'clash' };
 export const outputFormats = [
