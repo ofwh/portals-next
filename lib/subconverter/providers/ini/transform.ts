@@ -1,3 +1,4 @@
+import { projectOptions } from './output';
 import { splitFields } from './parser';
 import { debugNode, rejectNode } from '../../proxy-node/debug';
 import {
@@ -12,11 +13,12 @@ import {
   validateFields,
 } from '../../proxy-node/mapping';
 import { createTransform, supportsType } from '../../proxy-node/transform';
-import type { IniConfig, IniNode, IniWireGuardSettings } from '../../types/providers/ini';
+import type { IniConfig, IniNode, IniProxyOptions, IniWireGuardSettings } from '../../types/providers/ini';
 import type { ProxyType } from '../../types/proxy-node/common';
 import type { ProxyNodeFields } from '../../types/proxy-node/fields';
 import type { Binding } from '../../types/proxy-node/mapping';
 import { array, camelCase, number, object, oneOf, optional, shape, text } from '../schema';
+import { isSimpleObfs } from '../ss/plugin';
 
 export const supports = [
   'ss',
@@ -52,6 +54,7 @@ const aliases = oneOf(
   'wireguard',
   'hysteria2',
   'tuic',
+  'tuic-v5',
   'anytls',
 );
 const common: readonly Binding[] = [
@@ -73,6 +76,8 @@ const common: readonly Binding[] = [
   { path: 'options.tlsProfile', field: 'clientFingerprint' },
   { path: 'options.fp', field: 'clientFingerprint' },
   { path: 'options.fingerprint', field: 'clientFingerprint' },
+  { path: 'options.underlyingProxy', field: 'underlyingProxy' },
+  { path: 'options.interface', field: 'interfaceName' },
 ];
 const transport: readonly Binding[] = [
   { path: 'network', field: 'network' },
@@ -259,7 +264,11 @@ export function extract(config: IniConfig): IniNode[] {
       let node = declaration;
 
       if (declaration.type === 'wireguard' && declaration.options.sectionName) {
-        const section = config.sections.find((item) => item.name === declaration.options.sectionName);
+        const section = config.sections.find(
+          (item) =>
+            item.name === declaration.options.sectionName ||
+            item.name === `WireGuard ${declaration.options.sectionName}`,
+        );
 
         if (!section) {
           rejectNode('missing-wireguard-section');
@@ -300,7 +309,9 @@ export function canonicalType(node: IniNode): (typeof supports)[number] {
         ? 'ssr'
         : node.type === 'socks' || node.type === 'socks5-tls'
           ? 'socks5'
-          : node.type;
+          : node.type === 'tuic-v5'
+            ? 'tuic'
+            : node.type;
 
   if (type === 'http' && (node.options.tls === 'true' || node.options.overTls === 'true')) {
     type = 'https';
@@ -340,6 +351,9 @@ function protocolBindings(type: ProxyType): Binding[] {
       { path: 'plugin', field: 'plugin' },
       { path: 'options.obfs', field: 'pluginMode' },
       { path: 'options.obfsHost', field: 'pluginHost' },
+      { path: 'options.pluginPath', field: 'pluginPath' },
+      { path: 'options.pluginTls', field: 'pluginTls', codec: 'booleanText' },
+      { path: 'options.skipCertVerify', field: 'pluginSkipCertVerify', codec: 'booleanText' },
     );
   }
 
@@ -373,12 +387,19 @@ function protocolBindings(type: ProxyType): Binding[] {
     result.push(
       { path: 'options.downloadBandwidth', field: 'downMbps', codec: 'numberText' },
       { path: 'options.salamanderPassword', field: 'obfsPassword' },
+      { path: 'options.obfs', field: 'obfs' },
+      { path: 'options.portHopping', field: 'ports', codec: 'ports' },
+      { path: 'options.serverPorts', field: 'ports', codec: 'ports' },
+      { path: 'options.hopInterval', field: 'hopInterval', codec: 'numberText' },
+      { path: 'options.portHoppingInterval', field: 'hopInterval', codec: 'numberText' },
+      { path: 'options.serverCertFingerprintSha256', field: 'fingerprint' },
     );
   }
 
   if (type === 'tuic') {
     result.push(
       { path: 'options.uuid', field: 'uuid' },
+      { path: 'options.token', field: 'token' },
       { path: 'options.congestionController', field: 'congestionControl' },
       { path: 'options.udpRelayMode', field: 'udpRelayMode' },
     );
@@ -423,6 +444,30 @@ export function toFields(node: IniNode): ProxyNodeFields {
   }
 
   const options = { ...node.options };
+
+  if (options.tlsAlpn !== undefined) {
+    if (!/^(?:[0-9a-f]{2})+$/i.test(options.tlsAlpn)) {
+      return rejectNode('invalid-alpn');
+    }
+
+    const bytes = Buffer.from(options.tlsAlpn, 'hex');
+    const protocols: string[] = [];
+
+    for (let i = 0; i < bytes.length;) {
+      const length = bytes[i++];
+
+      if (!length || i + length > bytes.length) {
+        return rejectNode('invalid-alpn');
+      }
+
+      protocols.push(bytes.subarray(i, i + length).toString('utf8'));
+      i += length;
+    }
+
+    put(options, 'alpn', protocols.join(','));
+    remove(options, 'tlsAlpn');
+  }
+
   const args = [...node.arguments];
   const address =
     node.layout === 'endpoint'
@@ -506,11 +551,19 @@ export function toFields(node: IniNode): ProxyNodeFields {
     }
   }
   if (type === 'ss' && get(options, 'obfs') !== undefined) {
-    if (!['http', 'tls'].includes(text(get(options, 'obfs')))) {
-      return rejectNode('unsupported-ss-plugin');
-    }
+    const mode = text(get(options, 'obfs'));
 
-    put(source, 'plugin', 'obfs-local');
+    if (['ws', 'wss'].includes(mode)) {
+      put(source, 'plugin', 'v2ray-plugin');
+      put(options, 'pluginTls', String(mode === 'wss'));
+      put(options, 'pluginPath', get(options, 'obfsUri'));
+      put(options, 'obfs', 'websocket');
+      remove(options, 'obfsUri');
+    } else if (!['http', 'tls'].includes(mode)) {
+      return rejectNode('unsupported-ss-plugin');
+    } else {
+      put(source, 'plugin', 'obfs-local');
+    }
   }
 
   if (['vmess', 'vless', 'trojan'].includes(type)) {
@@ -577,11 +630,34 @@ export function toNode(fields: ProxyNodeFields, style: IniStyle): IniNode {
 
   const bindings = protocolBindings(fields.type).filter((binding) => binding.path !== 'network');
   const fixed = ['trojan', 'anytls', 'hysteria2', 'tuic', 'https'].includes(fields.type) ? { tls: true } : {};
+
+  if (get(fields, 'headerType') === 'none') {
+    put(fixed, 'headerType', 'none');
+  }
+
+  if (fields.type === 'vless' && fields.encryption === 'none') {
+    put(fixed, 'encryption', 'none');
+  }
+
+  if (get(fields, 'realityEnabled') !== undefined) {
+    put(fixed, 'realityEnabled', Boolean(get(fields, 'realityPublicKey')));
+  }
+
+  if (fields.type === 'anytls' && style === 'surge' && fields.udp !== undefined) {
+    put(fixed, 'udp', fields.udp);
+  }
+
+  if (fields.type === 'ss' && fields.pluginMux !== undefined && style === 'quanx') {
+    put(fixed, 'pluginMux', fields.pluginMux);
+  }
+
+  if (fields.type === 'hysteria2' && fields.upMbps !== undefined) {
+    put(fixed, 'upMbps', fields.upMbps);
+  }
+
   const fingerprint = nativeFingerprint(fields);
 
-  for (const [key, value] of Object.entries(fingerprint.fixed)) {
-    put(fixed, key, value);
-  }
+  Object.assign(fixed, fingerprint.fixed);
   const initial = {};
 
   if (fingerprint.value !== undefined) {
@@ -589,14 +665,14 @@ export function toNode(fields: ProxyNodeFields, style: IniStyle): IniNode {
   }
 
   const output = expand(fields, bindings, initial, fixed);
-  const options = { ...object(get(output, 'options') ?? {}) };
+  const options: IniProxyOptions = { ...object(get(output, 'options') ?? {}) };
   const address = { server: text(get(output, 'server')), port: Number(convert(get(output, 'port'), 'port')) };
   const args = [address.server, String(address.port)];
   const type = fields.type;
   let nativeType = aliases(type === 'socks5' ? 'socks5' : type === 'ssr' ? 'shadowsocksr' : type);
 
   if (get(output, 'plugin') !== undefined) {
-    if (!['obfs-local', 'simple-obfs'].includes(text(get(output, 'plugin')))) {
+    if (!isSimpleObfs(get(output, 'plugin')) && !(style === 'quanx' && get(output, 'plugin') === 'v2ray-plugin')) {
       return rejectNode('unsupported-ss-plugin');
     }
   }
@@ -648,9 +724,15 @@ export function toNode(fields: ProxyNodeFields, style: IniStyle): IniNode {
     remove(options, 'transport');
   }
 
+  projectOptions(fields, style, options);
+
   if (type === 'https' && style !== 'loon') {
     nativeType = 'http';
     put(options, style === 'quanx' ? 'overTls' : 'tls', 'true');
+  }
+
+  if (type === 'tuic' && !get(fields, 'token')) {
+    nativeType = aliases('tuic-v5');
   }
 
   if (style === 'loon') {

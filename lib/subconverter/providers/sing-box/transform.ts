@@ -4,6 +4,7 @@ import { expand, flatten, get, projectWireGuard, put, remove } from '../../proxy
 import { createTransform } from '../../proxy-node/transform';
 import type { SingBoxConfig, SingBoxNode } from '../../types/providers/sing-box';
 import type { Binding } from '../../types/proxy-node/mapping';
+import { isSimpleObfs } from '../ss/plugin';
 import { pluginInput, pluginOutput } from '../ss/transform';
 
 export const supports = [
@@ -148,6 +149,7 @@ const bindings = {
     {
       path: 'pluginOpts.alpn',
       field: 'pluginAlpn',
+      codec: 'comma',
     },
     {
       path: 'pluginOpts.versionHint',
@@ -2032,10 +2034,6 @@ export const transform = createTransform({
             : fields.type;
     const initial = { type: nativeType };
 
-    if (fields.type === 'vmess' && fields.cipher === undefined) {
-      put(initial, 'security', 'auto');
-    }
-
     if (['trojan', 'anytls', 'hysteria', 'hysteria2', 'tuic', 'naive', 'https'].includes(fields.type)) {
       put(initial, 'tls.enabled', true);
     }
@@ -2050,7 +2048,9 @@ export const transform = createTransform({
 
     if (fingerprint !== undefined || utls === true) {
       put(initial, 'tls.utls.enabled', utls !== false);
-      put(initial, 'tls.utls.fingerprint', fingerprint ?? 'chrome');
+      if (fingerprint !== undefined) {
+        put(initial, 'tls.utls.fingerprint', fingerprint);
+      }
     }
 
     if (
@@ -2077,13 +2077,17 @@ export const transform = createTransform({
 
       put(fixed, 'udp', udp);
       if (networks === undefined) {
-        put(initial, 'network', udp ? ['tcp', 'udp'] : ['tcp']);
+        put(initial, 'network', udp ? ['tcp', 'udp'] : 'tcp');
       }
     }
 
     const output = expand(fields, bindings[fields.type], initial, fixed);
 
     if (fields.type === 'ss') {
+      if (fields.plugin && !isSimpleObfs(fields.plugin) && fields.plugin !== 'v2ray-plugin') {
+        return rejectNode('unsupported-ss-plugin');
+      }
+
       return readNode(pluginOutput(output));
     }
 

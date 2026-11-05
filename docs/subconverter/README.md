@@ -48,6 +48,8 @@ flowchart TD
 
 ## 输出文档范围
 
+Sub-Store 的输出结构、各协议参数类型、缺省行为及目标命名映射统一见[Sub-Store 输出格式与节点参数](sub-store/README.md)。它记录固定源码版本的 producer 行为，不表示本仓库已经实现其中全部目标。
+
 配置输出适配器要求支持 `clash/clashr`（Mihomo）、`surge`、`quanx`、`loon`、`surfboard`、`stash`、`singbox`。统一方法、泛型类型及转换依赖见[配置输出适配器](output-adapter.md)。下列其他格式文档属于已有格式分析，不代表本次适配器也要求实现这些输出。
 
 本仓库现有 provider 对应：[clash](outputs/clash.md)、[sing-box](outputs/sing-box.md)、[surge](outputs/surge.md)、[surfboard](outputs/surfboard.md)、[loon](outputs/loon.md)、[quanx](outputs/quanx.md)、[ini](outputs/ini.md)、[uri](outputs/uri.md)、[base64](outputs/base64.md)、[ss](outputs/ss.md)、[ssr](outputs/ssr.md)、[v2ray](outputs/v2ray.md)。其中后三种 provider 的配置形态不能直接等同于 SCE 同名链接输出。

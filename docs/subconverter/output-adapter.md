@@ -4,16 +4,19 @@
 
 输出适配器接收已经转换为通用类型的节点、规则和策略列表，分别转换为目标格式的数据，再由 `combine` 组合为完整配置对象，最后通过 `toString` 输出文本。此文定义完整输出适配器的目标接口；工作流入口的已实现边界见[订阅生成节点](#订阅生成节点)。
 
-| 软件 / 输出类型          | 适配器标识  | 三要素转换与最终配置结构          |
-| ------------------------ | ----------- | --------------------------------- |
-| Mihomo / Clash           | `clash`     | [Clash](outputs/clash.md)         |
-| Mihomo / ClashR 兼容输出 | `clashr`    | [ClashR](outputs/clashr.md)       |
-| Surge                    | `surge`     | [Surge](outputs/surge.md)         |
-| Quantumult X             | `quanx`     | [QuanX](outputs/quanx.md)         |
-| Loon                     | `loon`      | [Loon](outputs/loon.md)           |
-| Surfboard                | `surfboard` | [Surfboard](outputs/surfboard.md) |
-| Stash                    | `stash`     | [Stash](outputs/stash.md)         |
-| sing-box                 | `singbox`   | [sing-box](outputs/sing-box.md)   |
+| 软件 / 输出类型          | 适配器标识     | 三要素转换与最终配置结构                |
+| ------------------------ | -------------- | --------------------------------------- |
+| Mihomo / Clash           | `clash`        | [Clash](outputs/clash.md)               |
+| Mihomo / ClashR 兼容输出 | `clashr`       | [ClashR](outputs/clashr.md)             |
+| Surge                    | `surge`        | [Surge](outputs/surge.md)               |
+| Quantumult X             | `quanx`        | [QuanX](outputs/quanx.md)               |
+| Loon                     | `loon`         | [Loon](outputs/loon.md)                 |
+| Surfboard                | `surfboard`    | [Surfboard](outputs/surfboard.md)       |
+| Stash                    | `stash`        | [Stash](outputs/stash.md)               |
+| sing-box                 | `singbox`      | [sing-box](outputs/sing-box.md)         |
+| Shadowsocks(SS)          | `ss`           | [SS](outputs/ss.md)                     |
+| Shadowsocks(Mixed)       | `mixed`        | [Mixed](outputs/mixed.md)               |
+| Shadowrocket             | `shadowrocket` | [Shadowrocket](outputs/shadowrocket.md) |
 
 `clash/clashr` 是不同输出能力约束，不能仅按软件名称选用相同字段。本文采用 `singbox` 作为输出适配器标识；现有订阅解析格式 `sing-box` 与文档文件名 `outputs/sing-box.md` 保持不变，在输出入口显式映射。其他输出文档保留格式分析，不属于本适配器要求的支持范围。
 
@@ -25,7 +28,15 @@
 
 聚合对象只用于单次执行，不写入配置草稿。调用[输出入口](../../lib/subconverter/output/index.ts) 时，缺省列表补为空数组，`rulesets` 显式映射为适配器的 `rules`。节点配置仅选择输出类型，默认 Clash；输出为完整配置的 String，适配器内部保留配置对象、媒体类型和诊断。
 
-当前入口从空底稿生成配置，采用严格能力校验；不接收原生底稿、版本切换、模板、远程代理 provider 定义或有损兼容选项。来源转换丢失、空策略组、名称冲突、缺失引用、循环引用、不支持的协议字段或规则条件均失败，不静默舍弃。来源节点元数据仅供选择器使用，不作为原生协议字段输出。
+当前入口从空底稿生成配置；不接收原生底稿、版本切换、模板、远程代理 provider 定义或有损字段降级选项。目标无法表示的协议、字段或参数组合默认过滤整个节点，依赖缺失、歧义或循环的节点同步过滤；过滤项记入产物诊断，保留原输入位置及其余节点顺序，允许全部过滤后输出空节点列表。节点名称为空或重复、空策略组、策略或规则中的缺失引用、循环策略引用及不支持的规则条件仍失败。策略成员筛选与引用绑定以过滤后的节点为准。来源节点元数据仅供选择器使用，不作为原生协议字段输出。
+
+纯节点目标 `ss`、`mixed`、`shadowrocket` 忽略传入的策略和规则，不获取远程规则；节点过滤遵循上述通用边界。三者使用 URI 转换器生成分享链接，`document` 为链接数组，`content` 为逐行链接文本的 UTF-8 Base64 编码，媒体类型为 `text/plain`。SS 可将加密方式兼容且 `protocol=origin`、`obfs=plain` 的 SSR 转为 SS；Mixed 和 Shadowrocket 保留 SSR 链接。Shadowrocket 沿用本仓库的 URI 订阅格式，不采用 Sub-Store 同名 producer 的 YAML 格式。
+
+所有目标的可选节点参数按输入保留：输入字段有值且目标支持时，映射为目标原生字段；输入未提供时不补写默认值，显式 `false`、`0` 和空字符串不能因 truthy 判断丢失。字段存在以值不为 `undefined` 判断。格式必需的结构、协议判别和等价字段转换仍由目标序列化器生成。格式无法表示的参数遵循目标能力边界，不伪造扩展字段；Sub-Store 参考文档中的默认补值或仅 true 输出规则不覆盖本约束。
+
+节点输出先依据 [Sub-Store 格式与参数表](sub-store/README.md)确定目标 schema、协议字段、类型与缺省行为；未覆盖的能力再核对协议或客户端的最新官方规范。不同应用的目标名称须按映射表解释，不将 SubConverter-Extended 的目标与 Sub-Store 同名 producer 直接视为相同结构。
+
+UDP、TFO、UOT 按[目标与协议的字段对照](sub-store/README.md#udp-参数对照)分别输出。SS URI 支持 `udp=0/1` 扩展，Base64 包装不改变内层字段能力；不得统一丢弃这些参数，也不得把某个协议的扩展机械追加到所有节点。
 
 远程规则在转换前按声明格式获取并归一化，下载响应运行取消信号；能够原生消费的 Clash 系列规则资源可直接生成 rule-provider。非原生二进制资源、需要额外上下文的选择器、SSID 组，以及目标无法表示的测速参数或 `no-resolve` 均失败。sing-box 使用 WireGuard endpoint 与路由 action，不生成旧版 outbound；GEOSITE 和非 private GEOIP 所需的规则资源地址未配置时拒绝生成。各目标的底稿合并、可选兼容模式及其他扩展能力仍按下文目标接口约束，不由当前节点隐式启用。
 
@@ -34,9 +45,8 @@
 通用字段定义及错误、符号、规则资源类型引用[公共契约](README.md#输出公共契约目标)，不再次解析外部配方或调用规则、策略 parser。
 
 ```ts
+import type { OutputTarget } from '@/lib/subconverter/types/output';
 import type { ProxyNodeFields } from '@/lib/subconverter/types/proxy-node';
-
-type OutputTarget = 'clash' | 'clashr' | 'surge' | 'quanx' | 'loon' | 'surfboard' | 'stash' | 'singbox';
 
 interface OutputElements {
   nodes: readonly ProxyNodeFields[];

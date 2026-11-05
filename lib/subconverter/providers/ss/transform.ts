@@ -1,4 +1,5 @@
 import { ssProxyNode } from './parser';
+import { escapeOption, isSimpleObfs, parseOptions } from './plugin';
 import { rejectNode } from '../../proxy-node/debug';
 import { expand, flatten, get, put } from '../../proxy-node/mapping';
 import { createTransform } from '../../proxy-node/transform';
@@ -120,6 +121,7 @@ const bindings = [
   {
     path: 'pluginOpts.alpn',
     field: 'pluginAlpn',
+    codec: 'comma',
   },
   {
     path: 'pluginOpts.versionHint',
@@ -264,16 +266,28 @@ export function pluginInput(node: object): object {
 
   if (value !== undefined) {
     const options = {};
+    const plugin = get(source, 'plugin');
+    const usesObfsAliases = isSimpleObfs(plugin) || plugin === 'v2ray-plugin';
 
-    for (const part of text(value).split(';').filter(Boolean)) {
-      const equal = part.indexOf('=');
-      const key = camelCase(equal < 0 ? part : part.slice(0, equal));
+    for (const [nativeKey, content] of parseOptions(text(value))) {
+      const key =
+        usesObfsAliases && nativeKey === 'obfs'
+          ? 'mode'
+          : usesObfsAliases && nativeKey === 'obfs-host'
+            ? 'host'
+            : camelCase(nativeKey);
 
-      if (get(options, key) !== undefined) {
-        rejectNode('duplicate-plugin-parameter');
+      const existing = get(options, key);
+
+      if (existing !== undefined) {
+        if (existing !== content) {
+          rejectNode('duplicate-plugin-parameter');
+        }
+
+        continue;
       }
 
-      put(options, key, equal < 0 ? 'true' : part.slice(equal + 1));
+      put(options, key, content);
     }
     put(source, 'pluginOpts', options);
   }
@@ -284,6 +298,12 @@ export function pluginInput(node: object): object {
 export function pluginOutput(node: object): object {
   const result = { ...node };
   const options = get(result, 'pluginOpts');
+  const plugin = get(result, 'plugin');
+  const simpleObfs = isSimpleObfs(plugin);
+
+  if (simpleObfs) {
+    put(result, 'plugin', 'obfs-local');
+  }
 
   if (options !== undefined) {
     const parts = Object.entries(object(options)).map(([key, value]) => {
@@ -291,7 +311,22 @@ export function pluginOutput(node: object): object {
         return rejectNode('unrepresentable-plugin-parameter');
       }
 
-      return `${key.replace(/[A-Z]/g, (char) => `-${char.toLowerCase()}`)}=${String(value)}`;
+      const nativeKey =
+        simpleObfs && key === 'mode'
+          ? 'obfs'
+          : simpleObfs && key === 'host'
+            ? 'obfs-host'
+            : key.replace(/[A-Z]/g, (char) => `-${char.toLowerCase()}`);
+
+      if (plugin === 'v2ray-plugin' && (key === 'tls' || key === 'mux') && typeof value === 'boolean') {
+        if (key === 'mux') {
+          return `mux=${value ? 1 : 0}`;
+        }
+
+        return value ? escapeOption(nativeKey) : `${escapeOption(nativeKey)}=false`;
+      }
+
+      return `${escapeOption(nativeKey)}=${escapeOption(String(value))}`;
     });
 
     put(result, 'pluginOpts', parts.join(';'));

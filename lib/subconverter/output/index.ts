@@ -2,10 +2,14 @@ import 'server-only';
 import { adapter as clash } from './clash';
 import { adapter as clashr } from './clashr';
 import { adapter as loon } from './loon';
+import { generate as mixed } from './mixed';
 import { adapter as quanx } from './quanx';
+import { generate as shadowrocket } from './shadowrocket';
+import { filterUnsupportedNodes } from './shared/nodes';
 import { builtinSymbols } from './shared/policies';
 import { materializeRules } from './shared/rules';
 import { adapter as singbox } from './singbox';
+import { generate as ss } from './ss';
 import { adapter as stash } from './stash';
 import { adapter as surfboard } from './surfboard';
 import { adapter as surge } from './surge';
@@ -18,7 +22,7 @@ async function render<N, R, P, D extends object>(
 ): Promise<ConfigArtifact<D>> {
   signal.throwIfAborted();
   const context: OutputContext = { symbols: builtinSymbols(adapter.target === 'quanx'), ruleSources: [] };
-  const nodes = adapter.nodes.transform(elements.nodes, context);
+  const nodes = filterUnsupportedNodes(elements.nodes, (values) => adapter.nodes.transform(values, context));
   const nodeContext = { ...context, symbols: [...context.symbols, ...nodes.entries.map((entry) => entry.symbol)] };
   const policies = adapter.policies.transform(elements.policies, nodes, nodeContext);
   const ruleContext = {
@@ -49,6 +53,9 @@ const generators = {
   surfboard: (elements, signal) => render(surfboard, elements, signal),
   stash: (elements, signal) => render(stash, elements, signal),
   singbox: (elements, signal) => render(singbox, elements, signal),
+  ss,
+  mixed,
+  shadowrocket,
 } satisfies Record<OutputTarget, (elements: OutputElements, signal: AbortSignal) => Promise<ConfigArtifact<object>>>;
 
 export function generate(

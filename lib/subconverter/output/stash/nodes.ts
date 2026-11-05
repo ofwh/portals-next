@@ -75,9 +75,6 @@ export function transform(nodes: OutputElements['nodes']) {
 
       if (node.type === 'tuic') {
         value.version = node.token ? 4 : 5;
-        if (!value.alpn) {
-          value.alpn = ['h3'];
-        }
       }
 
       if (node.type === 'wireguard') {

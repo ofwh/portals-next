@@ -2,7 +2,8 @@ import type { PolicyConfigFields } from '@/lib/subconverter/types/policies';
 import type { RuleSetConfigFields } from '@/lib/subconverter/types/rulesets';
 import type { ProxyNodeFields } from './proxy-node';
 
-export type OutputTarget = 'clash' | 'clashr' | 'surge' | 'quanx' | 'loon' | 'surfboard' | 'stash' | 'singbox';
+export type OutputTarget =
+  'clash' | 'clashr' | 'surge' | 'quanx' | 'loon' | 'surfboard' | 'stash' | 'singbox' | 'ss' | 'mixed' | 'shadowrocket';
 export type JsonValue = null | boolean | number | string | JsonValue[] | NativeObject;
 export interface NativeObject {
   [key: string]: JsonValue;

@@ -32,6 +32,7 @@ export interface IniProxyOptions {
   mtu?: string;
   obfs?: string;
   obfsHost?: string;
+  obfsParam?: string;
   obfsUri?: string;
   password?: string;
   path?: string;
@@ -83,6 +84,17 @@ export interface IniProxyOptions {
   vmessAead?: string;
   wsHeaders?: string;
   wsPath?: string;
+  pluginPath?: string;
+  pluginTls?: string;
+  token?: string;
+  geckoPassword?: string;
+  portHopping?: string;
+  serverPorts?: string;
+  hopInterval?: string;
+  portHoppingInterval?: string;
+  serverCertFingerprintSha256?: string;
+  underlyingProxy?: string;
+  interface?: string;
 }
 
 export interface IniProxyNode {
@@ -143,6 +155,7 @@ type IniNodeType =
   | 'wireguard'
   | 'hysteria2'
   | 'tuic'
+  | 'tuic-v5'
   | 'anytls';
 type IniProtocolNodes = { [T in IniNodeType]: Omit<IniProxyNode, 'type'> & { type: T } };
 export type IniNode = IniProtocolNodes[IniNodeType];

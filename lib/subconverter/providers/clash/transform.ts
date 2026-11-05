@@ -5,6 +5,7 @@ import { createTransform, supportsType } from '../../proxy-node/transform';
 import type { ClashConfig, ClashNode } from '../../types/providers/clash';
 import type { ProxyNodeFields } from '../../types/proxy-node/fields';
 import type { Binding } from '../../types/proxy-node/mapping';
+import { isSimpleObfs } from '../ss/plugin';
 
 export const supports = [
   'anytls',
@@ -3855,6 +3856,11 @@ export const transform = createTransform({
     }
 
     const initial = { type: nativeType, ...(fields.type === 'https' ? { tls: true } : {}) };
+
+    if (fields.type === 'ss' && isSimpleObfs(fields.plugin)) {
+      put(fixed, 'plugin', fields.plugin);
+      put(initial, 'plugin', 'obfs');
+    }
 
     if (fingerprint.value !== undefined) {
       put(initial, 'clientFingerprint', fingerprint.value);

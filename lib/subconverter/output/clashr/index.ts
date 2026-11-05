@@ -57,7 +57,30 @@ export const adapter: typeof clash = {
         }
       });
 
-      return transformNodes(nodes);
+      const result = transformNodes(nodes);
+
+      return {
+        ...result,
+        entries: result.entries.map((entry) => {
+          if (entry.fields.type !== 'ssr') {
+            return entry;
+          }
+
+          const value = { ...entry.value };
+
+          if (value['protocol-param'] !== undefined) {
+            value.protocolparam = value['protocol-param'];
+            delete value['protocol-param'];
+          }
+
+          if (value['obfs-param'] !== undefined) {
+            value.obfsparam = value['obfs-param'];
+            delete value['obfs-param'];
+          }
+
+          return { ...entry, value };
+        }),
+      };
     },
   },
   policies: {

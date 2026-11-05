@@ -17,6 +17,7 @@ import type { ProxyNodeFields } from '../../types/proxy-node/fields';
 import type { Binding } from '../../types/proxy-node/mapping';
 import { toFields as iniToFields, readNode as readIniNode } from '../ini/transform';
 import { array, base64, camelCase, object, oneOf, optional, port, shape, text } from '../schema';
+import { escapeOption, isSimpleObfs } from '../ss/plugin';
 import { transform as ssTransform } from '../ss/transform';
 import { ssrProxyNode } from '../ssr/parser';
 import { transform as ssrTransform } from '../ssr/transform';
@@ -344,6 +345,7 @@ const bindings = {
     },
   ],
   anytls: [
+    { path: 'query.udp', field: 'udp', codec: 'booleanText' },
     {
       path: 'name',
       field: 'name',
@@ -1225,11 +1227,11 @@ function toFields(node: UriNode): ProxyNodeFields | ProxyNodeFields[] {
   }
 
   if (node.scheme === 'ss') {
-    assertCovered(query, ['plugin', 'group', 'remarks']);
+    assertCovered(query, ['plugin', 'group', 'remarks', 'udp', 'tfo', 'uot', 'udpOverTcp']);
     const plugin = get(query, 'plugin');
     const parts = plugin === undefined ? [] : text(plugin).split(';');
 
-    return one(
+    const fields = one(
       ssTransform('fields', [
         {
           server: node.server,
@@ -1242,6 +1244,21 @@ function toFields(node: UriNode): ProxyNodeFields | ProxyNodeFields[] {
         },
       ]),
     );
+
+    for (const [key, field] of [
+      ['udp', 'udp'],
+      ['tfo', 'tcpFastOpen'],
+      ['uot', 'udpOverTcpEnabled'],
+      ['udpOverTcp', 'udpOverTcpEnabled'],
+    ] as const) {
+      const value = get(query, key);
+
+      if (value !== undefined) {
+        put(fields, field, convert(value, 'boolean'));
+      }
+    }
+
+    return fields;
   }
 
   const rawType =
@@ -1366,15 +1383,45 @@ function queryEntries(value: unknown): [string, string][] {
 
 function toNode(fields: ProxyNodeFields): UriNode {
   if (fields.type === 'ssr') {
-    return { scheme: 'ssr', config: one(ssrTransform('node', [fields])), query: [] };
+    const portable = { ...fields };
+
+    remove(portable, 'udp', 'tcpFastOpen');
+
+    return { scheme: 'ssr', config: one(ssrTransform('node', [portable])), query: [] };
   }
 
   if (fields.type === 'ss') {
-    const node = one(ssTransform('node', [fields]));
+    const portable = { ...fields };
 
-    const query: [string, string][] = node.plugin
-      ? [['plugin', `${node.plugin}${node.pluginOpts ? `;${node.pluginOpts}` : ''}`]]
-      : [];
+    remove(portable, 'udp', 'tcpFastOpen', 'udpOverTcpEnabled', 'udpOverTcpVersion');
+    const node = one(ssTransform('node', [portable]));
+    let plugin = node.plugin;
+    let options = node.pluginOpts ?? '';
+
+    if (isSimpleObfs(plugin)) {
+      plugin = 'simple-obfs';
+    }
+
+    if (plugin === 'v2ray-plugin') {
+      const aliases = [
+        ...(fields.pluginMode ? [`obfs=${escapeOption(fields.pluginMode)}`] : []),
+        ...(fields.pluginHost ? [`obfs-host=${escapeOption(fields.pluginHost)}`] : []),
+      ];
+
+      options = [...aliases, options].filter(Boolean).join(';');
+    }
+
+    const query: [string, string][] = plugin ? [['plugin', `${plugin}${options ? `;${options}` : ''}`]] : [];
+
+    for (const [field, parameter] of [
+      ['udp', 'udp'],
+      ['udpOverTcpEnabled', 'uot'],
+      ['tcpFastOpen', 'tfo'],
+    ] as const) {
+      if (fields[field] !== undefined) {
+        query.push([parameter, fields[field] ? '1' : '0']);
+      }
+    }
 
     if (node.group !== undefined) {
       query.push(['group', Buffer.from(node.group).toString('base64')]);
@@ -1398,10 +1445,29 @@ function toNode(fields: ProxyNodeFields): UriNode {
     );
 
     const fingerprint = nativeFingerprint(fields);
+    const fixed = { ...fingerprint.fixed };
+
+    for (const field of ['udp', 'tcpFastOpen', 'allowInsecure'] as const) {
+      if (get(fields, field) !== undefined) {
+        put(fixed, field, get(fields, field));
+      }
+    }
+
+    const config = expand(fields, rows, { v: '2', fp: fingerprint.value }, fixed);
+
+    put(config, 'port', String(fields.port));
+    if (fields.tls !== undefined) {
+      put(config, 'tls', fields.tls ? 'tls' : '');
+    }
+
+    if (fields.network === 'http') {
+      put(config, 'net', 'tcp');
+      put(config, 'type', 'http');
+    }
 
     return {
       scheme: 'vmess',
-      config: vmessShareNode(expand(fields, rows, { v: '2', fp: fingerprint.value }, fingerprint.fixed)),
+      config: vmessShareNode(config),
     };
   }
 
@@ -1518,6 +1584,12 @@ function toNode(fields: ProxyNodeFields): UriNode {
   };
   const fingerprint = nativeFingerprint(fields);
 
+  for (const field of ['udp', 'tcpFastOpen'] as const) {
+    if (get(fields, field) !== undefined) {
+      put(fixed, field, get(fields, field));
+    }
+  }
+
   for (const [key, value] of Object.entries(fingerprint.fixed)) {
     put(fixed, key, value);
   }
@@ -1540,6 +1612,10 @@ function toNode(fields: ProxyNodeFields): UriNode {
   const output = expand(fields, [...bindings[type], { path: 'query.group', field: 'group' }], {}, fixed);
   const query = queryEntries(get(output, 'query'));
 
+  if (type === 'anytls' && get(fields, 'udp') !== undefined) {
+    query.push(['udp', get(fields, 'udp') ? '1' : '0']);
+  }
+
   if (fingerprint.value !== undefined && !query.some(([key]) => key === 'fp' || key === 'fingerprint')) {
     query.push(['fp', fingerprint.value]);
   }
@@ -1548,7 +1624,7 @@ function toNode(fields: ProxyNodeFields): UriNode {
 
   if (reality === true) {
     query.push(['security', 'reality']);
-  } else if (['vmess', 'vless', 'http'].includes(type) && tls !== undefined) {
+  } else if (['vmess', 'vless', 'http', 'trojan'].includes(type) && tls !== undefined) {
     query.push(['security', tls ? 'tls' : 'none']);
   }
 

@@ -3,11 +3,103 @@ import { camelCase } from '../../providers/schema';
 import type { OutputParts } from '../../types/output';
 import type { IniNode, IniSection } from '../../types/providers/ini';
 
-const optionNames =
-  'uuid ws over-tls protocol protocol-param congestion-controller udp-relay-mode aead alpn alterid block-quic custom direct dns dns-server dnsv6 download-bandwidth encrypt-method fast-open fingerprint flow fp grpc-mode host interface-ip interface-ip-v6 interface-ipv6 keepalive method mode mtu obfs obfs-host obfs-uri password path peer peers pre-shared-key preshared-key private-key psk public-key reality-base64-pubkey reality-hex-shortid reject reject-tinygif reuse salamander-password section-name self-ip self-ipv6 self-ip-v6 service-name shadow-tls-password shadow-tls-sni shadow-tls-version short-id skip-cert-verify sni ssr-protocol ssr-protocol-param tag test-url tfo tls tls-alpn tls-cert-sha256 tls-host tls-name tls-profile tls-pubkey-sha256 tls-verification tls13 transport udp udp-port udp-relay username version vless-flow vmess-aead ws-headers ws-path'.split(
-    ' ',
-  );
-const nativeNames = new Map(optionNames.map((key) => [camelCase(key), key]));
+const nativeNames = new Map(
+  [
+    'aead',
+    'alpn',
+    'alterid',
+    'block-quic',
+    'congestion-controller',
+    'custom',
+    'direct',
+    'dns',
+    'dns-server',
+    'dnsv6',
+    'download-bandwidth',
+    'encrypt-method',
+    'fast-open',
+    'fingerprint',
+    'flow',
+    'fp',
+    'gecko-password',
+    'grpc-mode',
+    'hop-interval',
+    'host',
+    'interface',
+    'interface-ip',
+    'interface-ip-v6',
+    'interface-ipv6',
+    'keepalive',
+    'method',
+    'mode',
+    'mtu',
+    'obfs',
+    'obfs-host',
+    'obfs-uri',
+    'over-tls',
+    'password',
+    'path',
+    'peer',
+    'peers',
+    'port-hopping',
+    'port-hopping-interval',
+    'pre-shared-key',
+    'preshared-key',
+    'private-key',
+    'protocol',
+    'protocol-param',
+    'psk',
+    'public-key',
+    'reality-base64-pubkey',
+    'reality-hex-shortid',
+    'reject',
+    'reject-tinygif',
+    'reuse',
+    'salamander-password',
+    'section-name',
+    'self-ip',
+    'self-ip-v6',
+    'self-ipv6',
+    'server-cert-fingerprint-sha256',
+    'server-ports',
+    'service-name',
+    'shadow-tls-password',
+    'shadow-tls-sni',
+    'shadow-tls-version',
+    'short-id',
+    'skip-cert-verify',
+    'sni',
+    'ssr-protocol',
+    'ssr-protocol-param',
+    'tag',
+    'test-url',
+    'tfo',
+    'tls',
+    'tls-alpn',
+    'tls-cert-sha256',
+    'tls-host',
+    'tls-name',
+    'tls-profile',
+    'tls-pubkey-sha256',
+    'tls-verification',
+    'tls13',
+    'token',
+    'transport',
+    'udp',
+    'udp-port',
+    'udp-relay',
+    'udp-relay-mode',
+    'underlying-proxy',
+    'username',
+    'uuid',
+    'version',
+    'vless-flow',
+    'vmess-aead',
+    'ws',
+    'ws-headers',
+    'ws-path',
+  ].map((key) => [camelCase(key), key]),
+);
 
 export function token(value: string): string {
   if (/[\r\n\0]/.test(value)) {
@@ -106,7 +198,7 @@ export function projectNode(node: IniNode, index: number, style: 'surge' | 'loon
       return [`tls-verification=${value === 'true' ? 'false' : 'true'}`];
     }
 
-    return [`${native}=${token(value)}`];
+    return [`${style === 'loon' && key === 'alterid' ? 'alterId' : native}=${token(value)}`];
   });
   const left = style === 'quanx' ? node.type : token(node.name);
   const fields = [...(style === 'quanx' ? [] : [node.type]), ...node.arguments.map(token), ...options];

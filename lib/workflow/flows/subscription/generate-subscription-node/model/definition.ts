@@ -17,6 +17,9 @@ export const outputFormats = [
   'surfboard',
   'stash',
   'singbox',
+  'ss',
+  'mixed',
+  'shadowrocket',
 ] as const satisfies readonly OutputTarget[];
 export const outputFormatLabels: Record<OutputTarget, string> = {
   clash: 'Clash / Mihomo',
@@ -27,4 +30,7 @@ export const outputFormatLabels: Record<OutputTarget, string> = {
   surfboard: 'Surfboard',
   stash: 'Stash',
   singbox: 'sing-box',
+  ss: 'Shadowsocks(SS)',
+  mixed: 'Shadowsocks(Mixed)',
+  shadowrocket: 'Shadowrocket',
 };
