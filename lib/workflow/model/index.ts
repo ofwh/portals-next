@@ -7,6 +7,7 @@ export interface NodeInstance<C = unknown> {
   id: string;
   type: string;
   name: string;
+  displayName?: string;
   config: C;
   definitionVersion: number;
 }

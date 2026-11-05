@@ -61,9 +61,10 @@ export function NodeCard({
   isConnectable,
   preview = false,
 }: Pick<NodeProps<WorkflowCanvasNode>, 'data' | 'selected' | 'isConnectable'> & { preview?: boolean }) {
-  const t = useTranslations('admin.application.subscriptions.flowEditor');
+  const t = useTranslations();
   const [details, setDetails] = useState<NodeRunState | null>(null);
   const { instance, manifest, available, expanded, runState } = data;
+  const name = instance.displayName?.trim() || (manifest?.nameKey ? t(manifest.nameKey) : instance.name);
   const Content = nodeViewRegistry.getNodeView(instance.type)?.display?.Content;
   const StatusIcon = runState ? nodeStatusIcons[runState.status] : null;
   const canViewDetails = runState?.status === 'success' || runState?.status === 'failed';
@@ -77,7 +78,7 @@ export function NodeCard({
       {runState && StatusIcon && (
         <div className="nodrag nopan absolute top-1/2 right-3 z-10 -translate-y-1/2">
           <span role="status" className="sr-only">
-            {t(`nodeStatus.${runState.status}`)}
+            {t(`admin.application.subscriptions.flowEditor.nodeStatus.${runState.status}`)}
           </span>
           <Tooltip>
             <TooltipTrigger
@@ -86,7 +87,11 @@ export function NodeCard({
                   type="button"
                   variant="ghost"
                   size="icon-sm"
-                  aria-label={canViewDetails ? t('runDetails') : t(`nodeStatus.${runState.status}`)}
+                  aria-label={
+                    canViewDetails
+                      ? t('admin.application.subscriptions.flowEditor.runDetails')
+                      : t(`admin.application.subscriptions.flowEditor.nodeStatus.${runState.status}`)
+                  }
                   className={
                     runState.status === 'running'
                       ? 'text-primary rounded-full border-0 shadow-none'
@@ -124,23 +129,29 @@ export function NodeCard({
               )}
             </TooltipTrigger>
             <TooltipContent side="top" className="max-w-xs break-words">
-              <p>{canViewDetails ? t('runDetails') : t(`nodeStatus.${runState.status}`)}</p>
+              <p>
+                {canViewDetails
+                  ? t('admin.application.subscriptions.flowEditor.runDetails')
+                  : t(`admin.application.subscriptions.flowEditor.nodeStatus.${runState.status}`)}
+              </p>
             </TooltipContent>
           </Tooltip>
         </div>
       )}
       {available && expanded && Content ? (
-        <Content node={instance} selected={selected} status={runState?.status} mode="canvas" />
+        <Content node={{ ...instance, name }} selected={selected} status={runState?.status} mode="canvas" />
       ) : available ? (
-        <NodePreview type={instance.type} name={instance.name} />
+        <NodePreview type={instance.type} name={name} />
       ) : (
         <div className="p-4">
-          <p className="truncate font-medium">{instance.name}</p>
-          <p className="text-destructive mt-2 text-xs">{t('nodeUnavailable')}</p>
+          <p className="truncate font-medium">{name}</p>
+          <p className="text-destructive mt-2 text-xs">
+            {t('admin.application.subscriptions.flowEditor.nodeUnavailable')}
+          </p>
         </div>
       )}
       {details && (
-        <NodeRunDetails name={instance.name} input={manifest?.input} state={details} onClose={() => setDetails(null)} />
+        <NodeRunDetails name={name} input={manifest?.input} state={details} onClose={() => setDetails(null)} />
       )}
       {hasInput &&
         (preview ? (
@@ -150,7 +161,7 @@ export function NodeCard({
             type="target"
             position={Position.Left}
             isConnectable={isConnectable && available}
-            aria-label={t('inputPort', { name: instance.name })}
+            aria-label={t('admin.application.subscriptions.flowEditor.inputPort', { name })}
             style={{ width: 12, height: 12, background: 'var(--background)', border: '2px solid var(--primary)' }}
           />
         ))}
@@ -162,7 +173,7 @@ export function NodeCard({
             type="source"
             position={Position.Right}
             isConnectable={isConnectable && available}
-            aria-label={t('outputPort', { name: instance.name })}
+            aria-label={t('admin.application.subscriptions.flowEditor.outputPort', { name })}
             style={{ width: 12, height: 12, background: 'var(--background)', border: '2px solid var(--primary)' }}
           />
         ))}
@@ -277,7 +288,7 @@ export function Canvas({ canvas }: { canvas: ReturnType<typeof useWorkflowCanvas
           viewport={flow.viewport ?? { x: 0, y: 0, zoom: 1 }}
           onViewportChange={canvas.onViewportChange}
           onNodeDoubleClick={(_event, node) => {
-            if (node.data.available && !saving && nodeViewRegistry.getNodeView(node.data.instance.type)?.config) {
+            if (node.data.available && !saving) {
               canvas.setEditingId(node.id);
             }
           }}

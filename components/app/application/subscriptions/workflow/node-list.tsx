@@ -28,13 +28,14 @@ export function NodePreview({ type, name }: { type: string; name: string }) {
 type DragHandlers = Pick<ReturnType<typeof useWorkflowCanvas>, 'startDrag' | 'moveDrag' | 'dropDrag' | 'clearDrag'>;
 
 function NodePalette({ groups, drag }: { groups: readonly NodeGroup[]; drag: DragHandlers }) {
+  const t = useTranslations();
   const saving = useWorkflow((state) => state.saving || state.running);
 
   return (
     <div className="mt-4 space-y-6">
       {groups.map((group) => (
-        <section key={group.id} aria-label={group.name} className="space-y-3">
-          <h3 className="text-muted-foreground text-xs font-medium">{group.name}</h3>
+        <section key={group.id} aria-label={group.nameKey ? t(group.nameKey) : group.name} className="space-y-3">
+          <h3 className="text-muted-foreground text-xs font-medium">{group.nameKey ? t(group.nameKey) : group.name}</h3>
           <ul className="space-y-2">
             {group.nodes.map((node) => (
               <li key={node.type}>
@@ -50,7 +51,7 @@ function NodePalette({ groups, drag }: { groups: readonly NodeGroup[]; drag: Dra
                   onDragStart={(event) => event.preventDefault()}
                   className="bg-background hover:bg-accent focus-visible:ring-ring block w-full min-w-0 cursor-grab touch-none rounded-md border text-left outline-none select-none focus-visible:ring-2 active:cursor-grabbing disabled:opacity-50"
                 >
-                  <NodePreview type={node.type} name={node.name} />
+                  <NodePreview type={node.type} name={node.nameKey ? t(node.nameKey) : node.name} />
                 </button>
               </li>
             ))}

@@ -8,6 +8,7 @@ export function parseNode(raw: unknown): NodeInstance {
     !nonempty(raw.id) ||
     !nonempty(raw.type) ||
     typeof raw.name !== 'string' ||
+    (raw.displayName !== undefined && typeof raw.displayName !== 'string') ||
     !positiveInteger(raw.definitionVersion) ||
     !Object.hasOwn(raw, 'config')
   ) {
@@ -20,6 +21,7 @@ export function parseNode(raw: unknown): NodeInstance {
     id: raw.id,
     type: raw.type,
     name: raw.name,
+    ...(raw.displayName !== undefined ? { displayName: raw.displayName } : {}),
     config: cloneJson(raw.config),
     definitionVersion: raw.definitionVersion,
   };
@@ -52,7 +54,9 @@ export function parseWorkflow(raw: unknown): WorkflowDefinition {
   for (const node of raw.nodes) {
     if (
       !isRecord(node) ||
-      Object.keys(node).some((key) => !['id', 'type', 'name', 'config', 'definitionVersion'].includes(key))
+      Object.keys(node).some(
+        (key) => !['id', 'type', 'name', 'displayName', 'config', 'definitionVersion'].includes(key),
+      )
     ) {
       throw appError('common.INVALID_PARAMS');
     }

@@ -4,9 +4,9 @@ import { getSubscription, updateSubscription } from '@/lib/client/subscriptions'
 import { listWorkflowNodes, runWorkflow, saveWorkflowDraft } from '@/lib/client/workflow';
 import type { SubscriptionDetail } from '@/lib/types/subscriptions';
 import type { WorkflowNodeCatalog } from '@/lib/types/workflow';
-import type { FlowSnapshot, NodeRunState } from '@/lib/workflow/model';
+import type { FlowSnapshot, NodeInstance, NodeRunState } from '@/lib/workflow/model';
 import { validateArrangement } from '@/lib/workflow/model/arrangement';
-import { createNodeInstance, toWorkflow, updateNodeConfig } from '@/lib/workflow/model/canvas';
+import { createNodeInstance, toWorkflow, updateNode } from '@/lib/workflow/model/canvas';
 import { migrateSnapshot, restoreSnapshot, serializeSnapshot, SNAPSHOT_VERSION } from '@/lib/workflow/model/snapshot';
 import { typeRegistry } from '@/lib/workflow/node/client';
 import { validateConnection } from '@/lib/workflow/node/core/connections';
@@ -36,7 +36,7 @@ export interface WorkflowState {
   removeNode(id: string): void;
   connectNodes(source: string, target: string): void;
   removeEdge(id: string): void;
-  updateConfig(id: string, config: unknown): void;
+  updateNode(id: string, value: Partial<Pick<NodeInstance, 'config' | 'displayName'>>): void;
   save(): Promise<void>;
   loadNodes(): Promise<void>;
   loadDetail(): Promise<void>;
@@ -260,8 +260,8 @@ export function createWorkflowStore(subscriptionId: string) {
 
         set({ flow: { ...flow, edges: flow.edges.filter((edge) => edge.id !== id) } });
       },
-      updateConfig(id, config) {
-        set({ flow: updateNodeConfig(currentFlow(), id, config) });
+      updateNode(id, value) {
+        set({ flow: updateNode(currentFlow(), id, value) });
       },
       async save() {
         const state = get();

@@ -56,6 +56,6 @@
   "parseTemplate": {
     "name": "模板解析",
     "format": "模板类型",
-    "help": "选择 rule_base 对应的模板类型，输入为 HTTP 请求或文本内容提供的实际配置内容"
+    "help": "选择模板类型"
   }
 }

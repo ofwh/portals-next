@@ -2,6 +2,7 @@
 
 import { useReactFlow } from '@xyflow/react';
 import type { Connection, Edge, EdgeChange, NodeChange, Viewport } from '@xyflow/react';
+import { useTranslations } from 'next-intl';
 import type { ClipboardEvent, PointerEvent } from 'react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { appError } from '@/lib/api';
@@ -23,6 +24,7 @@ function isEditingText(target: EventTarget) {
 }
 
 export function useWorkflowCanvas() {
+  const t = useTranslations();
   const state = useWorkflow();
   const { store, notifyError } = state;
   const reactFlow = useReactFlow<WorkflowCanvasNode>();
@@ -51,10 +53,10 @@ export function useWorkflowCanvas() {
           selected: selectedNodes.has(node.id),
           width: size.width,
           height: size.height,
-          ariaLabel: node.name,
+          ariaLabel: node.displayName?.trim() || (manifest?.nameKey ? t(manifest.nameKey) : node.name),
         };
       }),
-    [state.flow?.nodes, state.catalog.nodes, state.nodeStates, selectedNodes, showNodeDetails],
+    [state.flow?.nodes, state.catalog.nodes, state.nodeStates, selectedNodes, showNodeDetails, t],
   );
   const edges = useMemo<Edge[]>(
     () => (state.flow?.edges ?? []).map((edge) => ({ ...edge, selected: selectedEdges.has(edge.id) })),

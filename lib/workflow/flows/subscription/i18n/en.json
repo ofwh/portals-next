@@ -56,6 +56,6 @@
   "parseTemplate": {
     "name": "Parse template",
     "format": "Template type",
-    "help": "Select the rule_base template type. Input is the actual configuration content from an HTTP request or text content node."
+    "help": "Select template type"
   }
 }

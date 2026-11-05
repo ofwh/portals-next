@@ -69,7 +69,11 @@ export async function executeFlow(
           throw appError('workflow.INVALID_CONNECTION');
         }
 
-        return { nodeId: upstream, name: source.name, type: resolveOutputType(output, source.config) };
+        return {
+          nodeId: upstream,
+          name: source.displayName?.trim() || source.name,
+          type: resolveOutputType(output, source.config),
+        };
       });
       const state: NodeRunState = {
         runId: context.runId,

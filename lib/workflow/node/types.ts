@@ -1,5 +1,7 @@
+import type { MessageKeys, NestedKeyOf } from 'next-intl';
 import type { ComponentType } from 'react';
 import type { NamedType, Parser, TypeDescriptor, ValueSchema } from '@/lib/types/workflow';
+import type { nodeMessages } from './messages';
 import type { NodeInstance, NodeStatus } from '../model';
 
 export interface InputPort<T> {
@@ -28,7 +30,7 @@ export interface ExecutionContext {
 }
 export interface NodeLabel {
   name: string;
-  nameKey?: string;
+  nameKey?: MessageKeys<typeof nodeMessages.en, NestedKeyOf<typeof nodeMessages.en>>;
 }
 export interface NodeModule<I, C, O, RunInput = I> extends NodeLabel {
   type: string;

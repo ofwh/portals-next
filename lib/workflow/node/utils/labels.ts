@@ -17,7 +17,10 @@ function readLabel(messages: MessageTree, key: string): string | undefined {
   return typeof value === 'string' ? value : undefined;
 }
 
-export function nodeLabel(nameKey: string, messages: MessageTree = nodeMessages.en): NodeLabel {
+export function nodeLabel(
+  nameKey: NonNullable<NodeLabel['nameKey']>,
+  messages: MessageTree = nodeMessages.en,
+): NodeLabel {
   const name = readLabel(messages, nameKey) ?? readLabel(nodeMessages.en, nameKey);
 
   if (!name) {

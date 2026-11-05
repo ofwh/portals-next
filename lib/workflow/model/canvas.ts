@@ -1,6 +1,6 @@
 import { appError } from '@/lib/api';
 import { cloneJson, nonempty } from '@/lib/shared/data';
-import type { CanvasNode, FlowSnapshot, WorkflowDefinition } from './index';
+import type { CanvasNode, FlowSnapshot, NodeInstance, WorkflowDefinition } from './index';
 import type { NodeManifest } from '../node/types';
 
 export const NODE_TYPE_MIME = 'application/x-workflow-node-type';
@@ -25,14 +25,18 @@ export function createNodeInstance(
   };
 }
 
-export function updateNodeConfig<C>(snapshot: FlowSnapshot, nodeId: string, value: C): FlowSnapshot {
+export function updateNode(
+  snapshot: FlowSnapshot,
+  nodeId: string,
+  value: Partial<Pick<NodeInstance, 'config' | 'displayName'>>,
+): FlowSnapshot {
   if (!snapshot.nodes.some((node) => node.id === nodeId)) {
     throw appError('workflow.NODE_NOT_FOUND');
   }
 
   return {
     ...snapshot,
-    nodes: snapshot.nodes.map((node) => (node.id === nodeId ? { ...node, config: cloneJson(value) } : node)),
+    nodes: snapshot.nodes.map((node) => (node.id === nodeId ? { ...node, ...cloneJson(value) } : node)),
   };
 }
 
@@ -40,10 +44,11 @@ export function toWorkflow(snapshot: FlowSnapshot): WorkflowDefinition {
   return cloneJson({
     id: snapshot.workflowId,
     version: snapshot.schemaVersion,
-    nodes: snapshot.nodes.map(({ id, type, name, config, definitionVersion }) => ({
+    nodes: snapshot.nodes.map(({ id, type, name, displayName, config, definitionVersion }) => ({
       id,
       type,
       name,
+      ...(displayName !== undefined ? { displayName } : {}),
       config,
       definitionVersion,
     })),
