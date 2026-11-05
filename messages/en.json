@@ -537,6 +537,7 @@
           "wrapLines": "Wrap lines",
           "noWrapLines": "Do not wrap lines",
           "runInput": "Input",
+          "emptyRunInput": "Empty",
           "runOutput": "Output",
           "noRunData": "No data"
         }

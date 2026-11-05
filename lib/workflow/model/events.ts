@@ -53,6 +53,23 @@ export function parseRunEvent(value: unknown): RunEvent {
         break;
       }
 
+      const inputNodes =
+        node.inputNodes === undefined
+          ? undefined
+          : Array.isArray(node.inputNodes)
+            ? node.inputNodes.map((source: unknown) => {
+                if (!isRecord(source) || typeof source.nodeId !== 'string' || typeof source.name !== 'string') {
+                  throw appError('common.INVALID_PARAMS');
+                }
+
+                return { nodeId: source.nodeId, name: source.name };
+              })
+            : null;
+
+      if (inputNodes === null || (inputNodes && inputNodes.length !== node.input?.length)) {
+        break;
+      }
+
       return {
         type: value.type,
         runId,
@@ -63,6 +80,7 @@ export function parseRunEvent(value: unknown): RunEvent {
           ...(typeof node.startedAt === 'number' ? { startedAt: node.startedAt } : {}),
           ...(typeof node.finishedAt === 'number' ? { finishedAt: node.finishedAt } : {}),
           ...(Array.isArray(node.input) ? { input: node.input } : {}),
+          ...(inputNodes ? { inputNodes } : {}),
           ...(Object.hasOwn(node, 'output') ? { output: node.output } : {}),
           ...(isRecord(node.error) && typeof node.error.code === 'number' && typeof node.error.message === 'string'
             ? { error: { code: node.error.code, message: node.error.message } }

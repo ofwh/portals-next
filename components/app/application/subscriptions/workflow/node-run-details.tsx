@@ -1,8 +1,8 @@
 'use client';
 
-import { Copy, WrapText } from 'lucide-react';
+import { Copy, FileInput, WrapText } from 'lucide-react';
 import { useTranslations } from 'next-intl';
-import { useState } from 'react';
+import { Fragment, useState } from 'react';
 import { toast } from 'sonner';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -24,7 +24,8 @@ export function NodeRunDetails({
   onClose(): void;
 }) {
   const t = useTranslations('admin.application.subscriptions.flowEditor');
-  const inputValue = input?.multiple === false ? state.input?.[0] : state.input;
+  const inputValue = state.input?.length ? (input?.multiple === false ? state.input[0] : state.input) : undefined;
+  const multipleInputs = input?.multiple !== false && state.input && state.input.length > 1 ? state.input : undefined;
 
   return (
     <Dialog
@@ -55,12 +56,38 @@ export function NodeRunDetails({
         </DialogHeader>
         <ResizablePanelGroup orientation="horizontal" className="min-h-0 flex-1">
           <ResizablePanel defaultSize="50%" minSize="20%" className="min-w-0">
-            <RunDataPanel label={t('runInput')} value={inputValue} emptyLabel={t('noRunData')} />
+            {!state.input?.length ? (
+              <div
+                role="status"
+                className="text-muted-foreground flex h-full flex-col items-center justify-center gap-2 p-3 text-sm"
+              >
+                <FileInput aria-hidden="true" className="size-8" />
+                <p>{t('emptyRunInput')}</p>
+              </div>
+            ) : multipleInputs ? (
+              <ResizablePanelGroup orientation="vertical" className="min-h-0">
+                {multipleInputs.map((value, index) => {
+                  const source = state.inputNodes?.[index];
+                  const label = source?.name ?? `${t('runInput')} ${index + 1}`;
+
+                  return (
+                    <Fragment key={source?.nodeId ?? label}>
+                      {index > 0 && <ResizableHandle withHandle className="my-3" />}
+                      <ResizablePanel defaultSize={`${100 / multipleInputs.length}%`} className="min-h-0 min-w-0">
+                        <RunDataPanel label={label} value={value} emptyLabel="" />
+                      </ResizablePanel>
+                    </Fragment>
+                  );
+                })}
+              </ResizablePanelGroup>
+            ) : (
+              <RunDataPanel label={state.inputNodes?.[0]?.name ?? t('runInput')} value={inputValue} emptyLabel="" />
+            )}
           </ResizablePanel>
           <ResizableHandle withHandle className="mx-3" />
           <ResizablePanel defaultSize="50%" minSize="20%" className="min-w-0">
             <RunDataPanel
-              label={t('runOutput')}
+              label={name}
               value={state.status === 'failed' ? state.error : state.output}
               emptyLabel={t('noRunData')}
             />
@@ -94,7 +121,7 @@ function RunDataPanel({ label, value, emptyLabel }: { label: string; value: unkn
 
   return (
     <section aria-label={label} className="flex h-full min-h-0 min-w-0 flex-col gap-2">
-      <h3 className="text-sm font-medium">{label}</h3>
+      <h4 className="text-sm font-medium wrap-anywhere">{label}</h4>
       <div className="group/run-data bg-muted relative min-h-0 flex-1 overflow-hidden rounded-md">
         <ScrollArea className="h-full min-w-0">
           <pre

@@ -537,6 +537,7 @@
           "wrapLines": "自动换行",
           "noWrapLines": "不换行",
           "runInput": "入参",
+          "emptyRunInput": "无数据",
           "runOutput": "出参",
           "noRunData": "无数据"
         }

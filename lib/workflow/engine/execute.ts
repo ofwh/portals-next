@@ -69,9 +69,16 @@ export async function executeFlow(
           throw appError('workflow.INVALID_CONNECTION');
         }
 
-        return { nodeId: upstream, type: resolveOutputType(output, source.config) };
+        return { nodeId: upstream, name: source.name, type: resolveOutputType(output, source.config) };
       });
-      const state: NodeRunState = { runId: context.runId, nodeId: id, status: 'running', input, startedAt: Date.now() };
+      const state: NodeRunState = {
+        runId: context.runId,
+        nodeId: id,
+        status: 'running',
+        input,
+        inputNodes: inputSources.map(({ nodeId, name }) => ({ nodeId, name })),
+        startedAt: Date.now(),
+      };
 
       emitState(state);
       try {
