@@ -38,7 +38,7 @@ export interface NodeRunState {
   status: NodeStatus;
   input?: readonly unknown[];
   output?: unknown;
-  error?: { code: string; message: string };
+  error?: { code: number; message: string };
   startedAt?: number;
   finishedAt?: number;
 }

@@ -48,7 +48,7 @@ export function parseRunEvent(value: unknown): RunEvent {
         (node.startedAt !== undefined && typeof node.startedAt !== 'number') ||
         (node.finishedAt !== undefined && typeof node.finishedAt !== 'number') ||
         (node.error !== undefined &&
-          (!isRecord(node.error) || typeof node.error.code !== 'string' || typeof node.error.message !== 'string'))
+          (!isRecord(node.error) || typeof node.error.code !== 'number' || typeof node.error.message !== 'string'))
       ) {
         break;
       }
@@ -64,7 +64,7 @@ export function parseRunEvent(value: unknown): RunEvent {
           ...(typeof node.finishedAt === 'number' ? { finishedAt: node.finishedAt } : {}),
           ...(Array.isArray(node.input) ? { input: node.input } : {}),
           ...(Object.hasOwn(node, 'output') ? { output: node.output } : {}),
-          ...(isRecord(node.error) && typeof node.error.code === 'string' && typeof node.error.message === 'string'
+          ...(isRecord(node.error) && typeof node.error.code === 'number' && typeof node.error.message === 'string'
             ? { error: { code: node.error.code, message: node.error.message } }
             : {}),
         },

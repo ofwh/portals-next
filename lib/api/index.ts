@@ -1,16 +1,16 @@
 import { appError, businessCode } from './errors';
-import type { AppError, ErrorCode } from './errors';
+import type { AppError } from './errors';
 import { formatMessage } from './messages';
 import type { Locale } from './messages';
 
-export { appError, AppError, ERROR_CODE } from './errors';
+export { appError, AppError, businessCode, ERROR_CODE } from './errors';
 export type { ErrorCode, ErrorParams } from './errors';
 export type { Locale } from './messages';
 
 export const SUCCESS_CODE = 0;
 
 export type Result<T> = { ok: true; value: T } | { ok: false; error: AppError };
-export type ResponseError = { code: ErrorCode; message: string };
+export type ResponseError = { code: number; message: string };
 export type BaseResponse<T> =
   | { code: typeof SUCCESS_CODE; data: T; message: string; error?: never }
   | { code: number; data: null; message: string; error: ResponseError };
@@ -27,13 +27,14 @@ export function okResponse<T>(data: T): Response {
 
 export function errorResponse(error: AppError, locale: Locale = 'en'): Response {
   const message = errorMessage(error, locale);
+  const code = businessCode(error.code);
 
   return Response.json(
     {
-      code: businessCode(error.code),
+      code,
       data: null,
       message,
-      error: { code: error.code, message },
+      error: { code, message },
     } satisfies BaseResponse<null>,
     { headers },
   );

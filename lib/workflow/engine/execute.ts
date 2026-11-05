@@ -1,5 +1,5 @@
 import 'server-only';
-import { appError, AppError, errorMessage } from '@/lib/api';
+import { appError, AppError, businessCode, errorMessage } from '@/lib/api';
 import type { Locale } from '@/lib/api';
 import { cloneJson } from '@/lib/shared/data';
 import type { ExecutionPlan, NodeRunState, RunEvent } from '../model';
@@ -107,7 +107,7 @@ export async function executeFlow(
           ...state,
           status: context.signal.aborted ? 'cancelled' : 'failed',
           finishedAt: Date.now(),
-          error: { code: failure.code, message: errorMessage(failure, context.locale) },
+          error: { code: businessCode(failure.code), message: errorMessage(failure, context.locale) },
         });
 
         throw failure;

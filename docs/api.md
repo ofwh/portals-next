@@ -24,7 +24,7 @@
 - API 层通过 `lib/api` 的 `readParams` 或 `readForm` 解析请求，解析失败返回统一错误响应；解析结果不代替 service 的运行时校验。
 - 自有业务接口使用 `BaseResponse<T>`，HTTP 状态统一为 `200`，以响应体 `code` 判断业务成败。
 - 成功响应通过 `okResponse` 构造，`code` 为 `0`，`data` 为业务结果，`message` 为 `OK`，不返回 `error`。
-- 失败响应通过 `errorResponse` 构造，`code` 为数值错误码，`data` 为 `null`，`error` 为 `{ code, message }`；其中 `error.code` 为稳定的命名空间错误标识，`message` 与 `error.message` 相同。
+- 失败响应通过 `errorResponse` 构造，`code` 为数值错误码，`data` 为 `null`，`error` 为 `{ code, message }`；其中 `error.code` 与顶层 `code` 相同，`message` 与 `error.message` 相同。命名空间错误标识仅用于内部错误定义与文案查找。
 - 服务端统一入口使用 `lib/api/server`，语言选择遵循[国际化规范](i18n.md)；公共响应与错误工具不得依赖鉴权或数据库模块。
 - 业务 API 的请求鉴权统一在根目录 `proxy.ts` 配置，不在 `lib/api/server` 或 service 层执行。
 - 未知异常转换为公共内部错误，响应中不得暴露原始异常、数据库信息、凭据或调用栈。
