@@ -3,8 +3,10 @@ import { isRecord } from '@/lib/shared/data';
 import { compilePattern } from '@/lib/shared/regex';
 import type { Parser } from '@/lib/types/workflow';
 import type { RenameConfig, RenameRule } from './types';
+import { schema } from '../../schema';
 
-export { proxyNodesSchema as inputSchema, proxyNodesSchema as outputSchema } from '../../schema';
+export const inputSchema = schema.proxyNodes;
+export const outputSchema = schema.proxyNodes;
 
 function isRule(value: unknown): value is RenameRule {
   return (

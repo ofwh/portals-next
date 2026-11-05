@@ -8,8 +8,10 @@ import { generate as shadowrocket } from './shadowrocket';
 import { filterUnsupportedNodes } from './shared/nodes';
 import { builtinSymbols } from './shared/policies';
 import { materializeRules } from './shared/rules';
+import { templateSymbols, validateTemplate } from './shared/template';
 import { adapter as singbox } from './singbox';
 import { generate as ss } from './ss';
+import { adapter as sssub } from './sssub';
 import { adapter as stash } from './stash';
 import { adapter as surfboard } from './surfboard';
 import { adapter as surge } from './surge';
@@ -21,7 +23,15 @@ async function render<N, R, P, D extends object>(
   signal: AbortSignal,
 ): Promise<ConfigArtifact<D>> {
   signal.throwIfAborted();
-  const context: OutputContext = { symbols: builtinSymbols(adapter.target === 'quanx'), ruleSources: [] };
+  const context: OutputContext = {
+    symbols: [
+      ...builtinSymbols(adapter.target === 'quanx'),
+      ...templateSymbols(elements.template, elements.policies.length === 0),
+    ],
+    ruleSources: [],
+    template: elements.template,
+    generateRules: elements.rules.length > 0,
+  };
   const nodes = filterUnsupportedNodes(elements.nodes, (values) => adapter.nodes.transform(values, context));
   const nodeContext = { ...context, symbols: [...context.symbols, ...nodes.entries.map((entry) => entry.symbol)] };
   const policies = adapter.policies.transform(elements.policies, nodes, nodeContext);
@@ -53,6 +63,7 @@ const generators = {
   surfboard: (elements, signal) => render(surfboard, elements, signal),
   stash: (elements, signal) => render(stash, elements, signal),
   singbox: (elements, signal) => render(singbox, elements, signal),
+  sssub: (elements, signal) => render(sssub, elements, signal),
   ss,
   mixed,
   shadowrocket,
@@ -63,5 +74,7 @@ export function generate(
   elements: OutputElements,
   signal: AbortSignal,
 ): Promise<ConfigArtifact<object>> {
+  validateTemplate(target, elements.template);
+
   return generators[target](elements, signal);
 }

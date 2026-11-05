@@ -1,5 +1,6 @@
 import { OutputError } from './errors';
 import { convertNodes, filterUnsupportedNodes } from './nodes';
+import { ssNode } from './ss';
 import { name, stringify } from './uri-links';
 import { UriProvider } from '../../providers/uri';
 import type { ConfigArtifact, OutputElements, OutputIssue } from '../../types/output';
@@ -14,46 +15,10 @@ const protocols: Record<LinkTarget, readonly ProxyType[]> = {
   mixed,
   shadowrocket: [...mixed, 'hysteria', 'anytls', 'mieru'],
 };
-const ssCiphers = new Set([
-  'rc4-md5',
-  'aes-128-gcm',
-  'aes-192-gcm',
-  'aes-256-gcm',
-  'aes-128-cfb',
-  'aes-192-cfb',
-  'aes-256-cfb',
-  'aes-128-ctr',
-  'aes-192-ctr',
-  'aes-256-ctr',
-  'camellia-128-cfb',
-  'camellia-192-cfb',
-  'camellia-256-cfb',
-  'bf-cfb',
-  'chacha20-ietf-poly1305',
-  'xchacha20-ietf-poly1305',
-  'salsa20',
-  'chacha20',
-  'chacha20-ietf',
-  '2022-blake3-aes-128-gcm',
-  '2022-blake3-aes-256-gcm',
-  '2022-blake3-chacha20-poly1305',
-  '2022-blake3-chacha12-poly1305',
-  '2022-blake3-chacha8-poly1305',
-]);
 
 function compatibleNode(target: LinkTarget, node: ProxyNodeFields): ProxyNodeFields | undefined {
-  if (target === 'ss' && node.type === 'ssr') {
-    if (node.protocol !== 'origin' || node.obfs !== 'plain' || !ssCiphers.has(node.cipher)) {
-      return undefined;
-    }
-
-    const fields = { ...node };
-
-    for (const key of ['protocol', 'protocolParam', 'obfs', 'obfsParam']) {
-      Reflect.deleteProperty(fields, key);
-    }
-
-    return { ...fields, type: 'ss' };
+  if (target === 'ss') {
+    return ssNode(node);
   }
 
   return protocols[target].includes(node.type) ? node : undefined;

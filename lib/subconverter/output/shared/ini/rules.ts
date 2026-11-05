@@ -1,7 +1,7 @@
-import type { RuleSetConfigFields } from '@/lib/subconverter/types/rulesets';
-import type { IniRuleProjection } from './ini';
-import { boundRules, conditionText, validateRule } from './rules';
-import type { OutputContext } from '../../types/output';
+import type { IniRuleProjection } from './types';
+import type { OutputContext } from '../../../types/output';
+import type { RuleSetConfigFields } from '../../../types/rulesets';
+import { boundRules, conditionText, validateRule } from '../rules';
 
 export const basicRuleTypes = [
   'MATCH',

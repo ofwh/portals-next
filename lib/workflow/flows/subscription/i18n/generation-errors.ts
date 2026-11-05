@@ -15,6 +15,8 @@ export const generationErrorDetails = {
     unknownPosition: '位置未知',
     unknownReason: '输出转换失败',
     reasons: {
+      'template-format-mismatch': '模板类型与订阅输出类型不匹配',
+      'invalid-template-collection': '模板中的代理、策略组或端点集合结构无效',
       'unsupported-node-or-dependency': '存在无法转换的节点或无效的节点依赖',
       'missing-or-ambiguous-name': '节点名称为空或无法唯一匹配',
       'invalid-native-object': '目标节点结构无效',
@@ -80,6 +82,8 @@ export const generationErrorDetails = {
     unknownPosition: 'unknown position',
     unknownReason: 'Output conversion failed',
     reasons: {
+      'template-format-mismatch': 'The template type does not match the subscription output type',
+      'invalid-template-collection': 'Invalid proxy, policy group, or endpoint collection in the template',
       'unsupported-node-or-dependency': 'A node cannot be converted or has an invalid dependency',
       'missing-or-ambiguous-name': 'The node name is empty or cannot be uniquely matched',
       'invalid-native-object': 'Invalid target node structure',

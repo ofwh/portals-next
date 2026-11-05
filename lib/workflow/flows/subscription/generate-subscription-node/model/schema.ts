@@ -7,7 +7,7 @@ import { ruleGroupsSchema } from '@/lib/workflow/flows/configuration/rulesets-no
 import { stringValue, unionOf } from '@/lib/workflow/node/core/schemas';
 import { outputFormats } from './definition';
 import type { GenerateSubscriptionConfig } from './types';
-import { proxyNodesSchema } from '../../schema';
+import { schema } from '../../schema';
 
 export function isOutputFormat(value: unknown): value is OutputTarget {
   return typeof value === 'string' && outputFormats.some((format) => format === value);
@@ -26,5 +26,8 @@ export const configSchema: Parser<GenerateSubscriptionConfig> = {
     return { format: value.format };
   },
 };
-export const inputSchema = unionOf(proxyNodesSchema, unionOf(ruleGroupsSchema, policyGroupsSchema));
+export const inputSchema = unionOf(
+  schema.template,
+  unionOf(schema.proxyNodes, unionOf(ruleGroupsSchema, policyGroupsSchema)),
+);
 export const outputSchema = stringValue;

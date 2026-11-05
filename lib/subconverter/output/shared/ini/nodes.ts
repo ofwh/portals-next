@@ -1,7 +1,8 @@
-import { fail } from './errors';
-import { camelCase } from '../../providers/schema';
-import type { OutputParts } from '../../types/output';
-import type { IniNode, IniSection } from '../../types/providers/ini';
+import { token } from './token';
+import type { IniNodeProjection } from './types';
+import { camelCase } from '../../../providers/schema';
+import type { IniNode } from '../../../types/providers/ini';
+import { fail } from '../errors';
 
 const nativeNames = new Map(
   [
@@ -101,26 +102,6 @@ const nativeNames = new Map(
   ].map((key) => [camelCase(key), key]),
 );
 
-export function token(value: string): string {
-  if (/[\r\n\0]/.test(value)) {
-    return fail('assembly', -1, 'text', 'invalid-ini-line-break');
-  }
-
-  return /[,="'()\[\]#;]|^\s|\s$/.test(value) ? JSON.stringify(value) : value;
-}
-
-export interface IniNodeProjection {
-  lines: string[];
-  sections: IniSection[];
-}
-export interface IniRuleProjection {
-  local: string[];
-  remote: string[];
-}
-export interface IniDocument {
-  sections: IniSection[];
-}
-
 export function projectNode(node: IniNode, index: number, style: 'surge' | 'loon' | 'quanx'): IniNodeProjection {
   if (node.wireGuard) {
     if (style === 'loon') {
@@ -204,28 +185,6 @@ export function projectNode(node: IniNode, index: number, style: 'surge' | 'loon
   const fields = [...(style === 'quanx' ? [] : [node.type]), ...node.arguments.map(token), ...options];
 
   return { lines: [`${left} = ${fields.join(', ')}`], sections: [] };
-}
-
-export function combineIni(
-  parts: OutputParts<IniNodeProjection, IniRuleProjection, string[]>,
-  names: { nodes: string; policies: string; rules: string; remote?: string },
-): IniDocument {
-  const sections: IniSection[] = [
-    { name: names.nodes, lines: parts.nodes.entries.flatMap((entry) => entry.value.lines) },
-    { name: names.policies, lines: parts.policies.value },
-    { name: names.rules, lines: parts.rules.value.local },
-    ...parts.nodes.entries.flatMap((entry) => entry.value.sections),
-  ];
-
-  if (names.remote && parts.rules.value.remote.length) {
-    sections.push({ name: names.remote, lines: parts.rules.value.remote });
-  }
-
-  return { sections };
-}
-
-export function stringifyIni(config: IniDocument): string {
-  return config.sections.map((section) => `[${section.name}]\n${section.lines.join('\n')}`).join('\n\n') + '\n';
 }
 
 function projectLoonWireGuard(node: IniNode, index: number): IniNodeProjection {

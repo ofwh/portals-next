@@ -5,3 +5,4 @@ export type * from './rulesets';
 export type * from './configuration';
 export type * from './output';
 export type * from './subscription';
+export type * from './template';

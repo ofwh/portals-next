@@ -5,6 +5,7 @@ import type { Parser } from '@/lib/types/workflow';
 import { stringValue } from '@/lib/workflow/node/core/schemas';
 import { subscriptionFormats } from './definition';
 import type { ExtractNodesConfig } from './types';
+import { schema } from '../../schema';
 
 export function isSubscriptionFormat(value: unknown): value is SubscriptionFormat {
   return typeof value === 'string' && subscriptionFormats.some((format) => format === value);
@@ -25,4 +26,4 @@ export const configSchema: Parser<ExtractNodesConfig> = {
 };
 export const inputSchema = stringValue;
 
-export { proxyNodesSchema as outputSchema } from '../../schema';
+export const outputSchema = schema.proxyNodes;

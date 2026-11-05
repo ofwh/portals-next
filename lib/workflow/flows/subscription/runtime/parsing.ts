@@ -16,7 +16,7 @@ import {
 } from '@/lib/subconverter';
 import type { Provider, ProxyNodeFields } from '@/lib/subconverter';
 import type { SubscriptionFormat } from '@/lib/subconverter/types/subscription';
-import { proxyNodesSchema } from '../schema';
+import { schema } from '../schema';
 
 function read<C extends object, N, F extends ProxyNodeFields>(
   provider: Provider<C, N, F>,
@@ -25,7 +25,7 @@ function read<C extends object, N, F extends ProxyNodeFields>(
   provider.load(content);
   const nodes: unknown = JSON.parse(JSON.stringify(provider.transform('fields', provider.nodes)));
 
-  return proxyNodesSchema.parse(nodes);
+  return schema.proxyNodes.parse(nodes);
 }
 
 const parsers = {

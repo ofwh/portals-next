@@ -1,10 +1,9 @@
-import type { PolicyGroupType } from '@/lib/subconverter/types/policies';
-import type { PolicyConfigFields } from '@/lib/subconverter/types/policies';
-import { fail } from './errors';
-import { token } from './ini';
-import type { IniNodeProjection } from './ini';
-import { resolvePolicies } from './policies';
-import type { ConvertedNodes, OutputContext } from '../../types/output';
+import { token } from './token';
+import type { IniNodeProjection } from './types';
+import type { ConvertedNodes, OutputContext } from '../../../types/output';
+import type { PolicyConfigFields, PolicyGroupType } from '../../../types/policies';
+import { fail } from '../errors';
+import { resolvePolicies } from '../policies';
 
 export function projectPolicies(
   policies: readonly PolicyConfigFields[],

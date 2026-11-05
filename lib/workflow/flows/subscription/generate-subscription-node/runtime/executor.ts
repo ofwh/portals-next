@@ -17,7 +17,12 @@ export async function execute(
   try {
     const artifact = await generate(
       config.format,
-      { nodes: input.nodes ?? [], rules: input.rulesets ?? [], policies: input.policies ?? [] },
+      {
+        nodes: input.nodes ?? [],
+        rules: input.rulesets ?? [],
+        policies: input.policies ?? [],
+        template: input.template,
+      },
       context.signal,
     );
 

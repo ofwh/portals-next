@@ -5,8 +5,10 @@ import type { ProxyType } from '@/lib/subconverter/types';
 import type { Parser } from '@/lib/types/workflow';
 import { protocolOptions } from './definition';
 import type { FilterConfig, FilterRule } from './types';
+import { schema } from '../../schema';
 
-export { proxyNodesSchema as inputSchema, proxyNodesSchema as outputSchema } from '../../schema';
+export const inputSchema = schema.proxyNodes;
+export const outputSchema = schema.proxyNodes;
 
 export function isProtocol(value: unknown): value is ProxyType {
   return typeof value === 'string' && Object.hasOwn(protocolOptions, value);

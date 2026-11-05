@@ -3,7 +3,7 @@ import type { TypeDescriptor } from '@/lib/types/workflow';
 import { policyGroupsSchema } from '@/lib/workflow/flows/configuration/policies-node/model/output-schema';
 import { ruleGroupsSchema } from '@/lib/workflow/flows/configuration/rulesets-node/model/output-schema';
 import type { ExecutionContext } from '@/lib/workflow/node/types';
-import { proxyNodesSchema } from '../../schema';
+import { schema } from '../../schema';
 import { configSchema } from '../model/schema';
 import type { GenerateSubscriptionElements, GenerateSubscriptionInput } from '../model/types';
 
@@ -38,8 +38,14 @@ export function parseInput(
   values.forEach((value, index) => {
     const source = context.inputSources![index].type;
 
-    if (sameType(source, proxyNodesSchema.descriptor)) {
-      (elements.nodes ??= []).push(...proxyNodesSchema.parse(value));
+    if (!Array.isArray(value)) {
+      if (elements.template) {
+        throw appError('workflow.SUBSCRIPTION_TEMPLATE_DUPLICATE');
+      }
+
+      elements.template = schema.template.parse(value);
+    } else if (sameType(source, schema.proxyNodes.descriptor)) {
+      (elements.nodes ??= []).push(...schema.proxyNodes.parse(value));
     } else if (sameType(source, ruleGroupsSchema.descriptor)) {
       (elements.rulesets ??= []).push(...ruleGroupsSchema.parse(value));
     } else if (sameType(source, policyGroupsSchema.descriptor)) {

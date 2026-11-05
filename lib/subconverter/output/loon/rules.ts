@@ -1,7 +1,12 @@
 import type { OutputContext, OutputElements } from '../../types/output';
-import { basicRuleTypes, projectRules } from '../shared/ini-rules';
+import { ini } from '../shared/ini';
 
 export const transform = (rules: OutputElements['rules'], context: OutputContext) =>
-  projectRules(rules, context, [...basicRuleTypes, 'USER-AGENT', 'URL-REGEX', 'PROCESS-NAME', 'DST-PORT', 'SRC-PORT'], {
-    'DST-PORT': 'DEST-PORT',
-  });
+  ini.projectRules(
+    rules,
+    context,
+    [...ini.basicRuleTypes, 'USER-AGENT', 'URL-REGEX', 'PROCESS-NAME', 'DST-PORT', 'SRC-PORT'],
+    {
+      'DST-PORT': 'DEST-PORT',
+    },
+  );

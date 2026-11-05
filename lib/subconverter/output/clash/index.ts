@@ -1,4 +1,5 @@
 import { stringify } from 'yaml';
+import { combine } from './combine';
 import { transform as transformNodes } from './nodes';
 import { transform as transformPolicies } from './policies';
 import { transform as transformRules } from './rules';
@@ -14,11 +15,6 @@ export const adapter: OutputAdapter<NativeObject, RuleProjection, NativeObject[]
       transformPolicies(policies, nodes, context, ['select', 'url-test', 'fallback', 'load-balance', 'relay', 'smart']),
   },
   rules: { transform: transformRules },
-  combine: ({ nodes, policies, rules }) => ({
-    proxies: nodes.entries.map((entry) => entry.value),
-    'proxy-groups': policies.value,
-    rules: rules.value.rules,
-    ...(Object.keys(rules.value.providers).length ? { 'rule-providers': rules.value.providers } : {}),
-  }),
+  combine,
   toString: (config) => stringify(config),
 };

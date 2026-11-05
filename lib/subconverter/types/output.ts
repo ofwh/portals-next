@@ -1,14 +1,27 @@
 import type { PolicyConfigFields } from '@/lib/subconverter/types/policies';
 import type { RuleSetConfigFields } from '@/lib/subconverter/types/rulesets';
 import type { ProxyNodeFields } from './proxy-node';
+import type { SubscriptionTemplate } from './template';
 
 export type OutputTarget =
-  'clash' | 'clashr' | 'surge' | 'quanx' | 'loon' | 'surfboard' | 'stash' | 'singbox' | 'ss' | 'mixed' | 'shadowrocket';
+  | 'clash'
+  | 'clashr'
+  | 'surge'
+  | 'quanx'
+  | 'loon'
+  | 'surfboard'
+  | 'stash'
+  | 'singbox'
+  | 'sssub'
+  | 'ss'
+  | 'mixed'
+  | 'shadowrocket';
 export type JsonValue = null | boolean | number | string | JsonValue[] | NativeObject;
 export interface NativeObject {
   [key: string]: JsonValue;
 }
 export interface OutputElements {
+  template?: SubscriptionTemplate;
   nodes: readonly ProxyNodeFields[];
   rules: readonly RuleSetConfigFields[];
   policies: readonly PolicyConfigFields[];
@@ -48,6 +61,8 @@ export interface MaterializedRuleSource {
   lines: string[];
 }
 export interface OutputContext {
+  template?: SubscriptionTemplate;
+  generateRules?: boolean;
   symbols: readonly SymbolBinding[];
   ruleSources: readonly MaterializedRuleSource[];
 }
