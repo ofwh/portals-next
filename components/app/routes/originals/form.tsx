@@ -5,6 +5,7 @@ import { CalendarIcon, Clock2, Eye, EyeOff } from 'lucide-react';
 import { useLocale, useTranslations } from 'next-intl';
 import { type ReactNode, useId, useState } from 'react';
 import { enUS, zhCN } from 'react-day-picker/locale';
+import { CodeEditor } from '@/components/business/code-editor';
 import { TagSelect } from '@/components/business/tag-select';
 import { Button } from '@/components/ui/button';
 import { ButtonGroup } from '@/components/ui/button-group';
@@ -24,6 +25,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
 import { ROUTE_TYPE } from '@/lib/constants';
+import { CODE_LANGUAGES } from '@/lib/constants/code-editor';
 import type { OriginalFormChange, OriginalFormState } from '@/lib/types/routes';
 
 interface FormItem {
@@ -44,7 +46,15 @@ interface FormGroup {
   items: FormItem[];
 }
 
-export function OriginalForm({ form, onChange }: { form: OriginalFormState; onChange: OriginalFormChange }) {
+export function OriginalForm({
+  form,
+  onChange,
+  disabled = false,
+}: {
+  form: OriginalFormState;
+  onChange: OriginalFormChange;
+  disabled?: boolean;
+}) {
   const t = useTranslations();
 
   const id = useId();
@@ -152,6 +162,33 @@ export function OriginalForm({ form, onChange }: { form: OriginalFormState; onCh
       title: t('admin.routes.originals.form.contentTitle'),
       items: [
         {
+          key: 'content',
+          label: t('admin.routes.originals.form.content'),
+          labelId: `${id}-content-label`,
+          description: t('admin.routes.originals.form.contentHelp'),
+          descriptionId: `${id}-content-help`,
+          content: (
+            <CodeEditor
+              id={`${id}-content`}
+              labelId={`${id}-content-label`}
+              descriptionId={`${id}-content-help`}
+              value={form.content}
+              onChange={(value) => onChange('content', value)}
+              language={form.language}
+              onLanguageChange={(value) => {
+                onChange('language', value);
+                const language = CODE_LANGUAGES.find((item) => item.value === value);
+
+                if (language) {
+                  onChange('contentType', language.contentType);
+                }
+              }}
+              languageLabel={t('admin.routes.originals.form.language')}
+              disabled={disabled}
+            />
+          ),
+        },
+        {
           key: 'contentType',
           label: t('admin.routes.originals.form.contentType'),
           htmlFor: `${id}-content-type`,
@@ -166,45 +203,6 @@ export function OriginalForm({ form, onChange }: { form: OriginalFormState; onCh
               onChange={(event) => onChange('contentType', event.target.value)}
               placeholder="application/json"
               aria-describedby={`${id}-content-type-help`}
-              autoCapitalize="none"
-              spellCheck={false}
-            />
-          ),
-        },
-        {
-          key: 'language',
-          label: t('admin.routes.originals.form.language'),
-          htmlFor: `${id}-language`,
-          description: t('admin.routes.originals.form.languageHelp'),
-          descriptionId: `${id}-language-help`,
-          required: true,
-          content: (
-            <Input
-              id={`${id}-language`}
-              required
-              value={form.language}
-              onChange={(event) => onChange('language', event.target.value)}
-              placeholder="plaintext"
-              aria-describedby={`${id}-language-help`}
-              autoCapitalize="none"
-              spellCheck={false}
-            />
-          ),
-        },
-        {
-          key: 'content',
-          label: t('admin.routes.originals.form.content'),
-          htmlFor: `${id}-content`,
-          description: t('admin.routes.originals.form.contentHelp'),
-          descriptionId: `${id}-content-help`,
-          content: (
-            <Textarea
-              id={`${id}-content`}
-              rows={16}
-              className="min-h-64 resize-y font-mono"
-              value={form.content}
-              onChange={(event) => onChange('content', event.target.value)}
-              aria-describedby={`${id}-content-help`}
               autoCapitalize="none"
               spellCheck={false}
             />

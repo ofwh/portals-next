@@ -29,7 +29,7 @@ function EditDrawer({ id, onSaved, ...props }: RouteDrawerProps) {
 
   return (
     <RouteDrawer {...props} {...controller} id={id} mode="originals" open={open} setOpen={setOpen}>
-      <OriginalForm form={form} onChange={onChange} />
+      <OriginalForm form={form} onChange={onChange} disabled={controller.submitting || props.disabled} />
     </RouteDrawer>
   );
 }
