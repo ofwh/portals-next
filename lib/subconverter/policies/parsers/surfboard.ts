@@ -1,0 +1,21 @@
+import { isTimed, parsePolicies, validatePolicy, withHealthCheckUrl } from '@/lib/subconverter/policies/shared/parser';
+import type { ConfigObject } from '@/lib/subconverter/types/configuration';
+import type { PolicyConfigFields } from '@/lib/subconverter/types/policies';
+
+export function parse(configuration: ConfigObject): PolicyConfigFields[] {
+  return parsePolicies(configuration).map((definition) => {
+    const group = withHealthCheckUrl(definition);
+
+    validatePolicy(
+      group,
+      ['select', 'url-test', 'fallback', 'load-balance'],
+      isTimed(group) || group.type === 'relay' ? ['url', 'interval', 'timeout', 'tolerance'] : [],
+    );
+
+    if (group.url && !group.url.toLowerCase().startsWith('http://')) {
+      return { ...group, url: 'http://www.gstatic.com/generate_204' };
+    }
+
+    return group;
+  });
+}

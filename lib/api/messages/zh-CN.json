@@ -1,0 +1,12 @@
+{
+  "common": {
+    "INVALID_PARAMS": "请求参数无效",
+    "UNAUTHORIZED": "请先登录",
+    "FORBIDDEN": "无权执行此操作",
+    "NOT_FOUND": "资源不存在",
+    "TOO_MANY_REQUESTS": "请求过于频繁，请稍后重试",
+    "INTERNAL_ERROR": "服务暂时不可用",
+    "BAD_GATEWAY": "上游服务不可用",
+    "REQUEST_FAILED": "请求失败"
+  }
+}

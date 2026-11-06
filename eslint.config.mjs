@@ -105,6 +105,7 @@ const eslintConfig = defineConfig([
     'dist/**',
     'coverage/**',
     'components/ui/**',
+    'components/reui/**',
     'scripts/**',
     'next-env.d.ts',
   ]),

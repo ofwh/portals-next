@@ -6,6 +6,7 @@ dist
 coverage
 public
 components/ui
+components/reui
 pnpm-lock.yaml
 AGENTS.md
 CLAUDE.md

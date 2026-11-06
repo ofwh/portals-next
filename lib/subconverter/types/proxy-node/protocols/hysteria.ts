@@ -1,0 +1,48 @@
+import type { NodeFieldsBase } from '../common';
+
+export interface HysteriaNodeFields extends NodeFieldsBase {
+  type: 'hysteria';
+  server: string;
+  alpn?: Array<string>;
+  auth?: string;
+  authString?: string;
+  certificate?: string | Array<string>;
+  underlyingProxy?: string;
+  disableMtuDiscovery?: boolean;
+  downMbps?: number;
+  downSpeed?: number;
+  echEnabled?: boolean;
+  echConfig?: string | Array<string>;
+  echQueryServerName?: string;
+  fastOpen?: boolean;
+  fingerprint?: string;
+  hopInterval?: number;
+  interfaceName?: string;
+  ipVersion?: string;
+  mptcp?: boolean;
+  nameCertVerify?: string;
+  obfs?: string;
+  obfsProtocol?: string;
+  port: number;
+  ports?: Array<string>;
+  privateKey?: string;
+  protocol?: string;
+  recvWindow?: number;
+  recvWindowConn?: number;
+  routingMark?: number;
+  allowInsecure?: boolean;
+  serverName?: string;
+  tcpFastOpen?: boolean;
+  upMbps?: number;
+  upSpeed?: number;
+  tls?: boolean;
+  tlsMinVersion?: string;
+  tlsMaxVersion?: string;
+  tls13?: boolean;
+  utlsEnabled?: boolean;
+  certificatePath?: string;
+  clientFingerprint?: string;
+  echConfigPath?: string;
+  disableSni?: boolean;
+  packetNetworks?: Array<string>;
+}
