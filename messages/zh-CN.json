@@ -314,10 +314,6 @@
           "original": {
             "pathnameHelp": "内容路由前缀",
             "statusHelp": "关闭后暂停原始内容快捷访问"
-          },
-          "subscription": {
-            "pathnameHelp": "订阅路由前缀",
-            "statusHelp": "关闭后暂停订阅访问"
           }
         },
         "preferences": {
@@ -482,8 +478,6 @@
           "pathnameInvalid": "路径格式不正确",
           "nameMax": "名称不能超过 100 个字符"
         },
-        "copyPath": "复制完整路径",
-        "copySuccess": "订阅链接已复制",
         "deleteSelectedError": "已删除 {deleted} 条订阅，{failed} 条删除失败，请重试",
         "statusError": "更新订阅状态失败",
         "columns": {

@@ -1,1 +1,0 @@
-export { generateSubscriptionNodeView } from './ui';

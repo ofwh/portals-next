@@ -1,11 +1,10 @@
 'use client';
 
-import { Ban, CircleCheck, CircleSlash, Copy, LoaderCircle, Play, Trash2, Workflow } from 'lucide-react';
+import { Ban, CircleCheck, CircleSlash, LoaderCircle, Play, Trash2, Workflow } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 import { useRef, useState } from 'react';
 import type { ComponentType, ReactElement, ReactNode } from 'react';
-import { toast } from 'sonner';
 import { TagList } from '@/components/business/tag-list';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -20,7 +19,6 @@ import {
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { usePreferences } from '@/hooks/use-preferences';
-import { useRouteUrl } from '@/hooks/use-route-url';
 import type { SubscriptionListItem, SubscriptionStatusActions } from '@/lib/types/subscriptions';
 
 export interface SubscriptionDrawerProps {
@@ -61,16 +59,6 @@ export function SubscriptionTable({
   const t = useTranslations();
 
   const formatDateTime = usePreferences((state) => state.formatDateTime);
-  const routeUrl = useRouteUrl('subscription');
-
-  async function copyPath(pathname: string) {
-    try {
-      await navigator.clipboard.writeText(routeUrl(pathname));
-      toast.success(t('admin.application.subscriptions.copySuccess'));
-    } catch {
-      toast.error(t('shared.copyError'));
-    }
-  }
 
   return (
     <SubscriptionTableContainer loading={loading} initialLoading={initialLoading}>
@@ -139,32 +127,7 @@ export function SubscriptionTable({
               </Tooltip>
             </TableCell>
             <TableCell>
-              <div className="group inline-flex w-fit items-center gap-1.5">
-                <Tooltip>
-                  <TooltipTrigger render={<Button variant="link" size="sm" className="px-0 hover:no-underline" />}>
-                    {subscription.pathname}
-                  </TooltipTrigger>
-                  <TooltipContent side="top" className="break-all">
-                    {routeUrl(subscription.pathname)}
-                  </TooltipContent>
-                </Tooltip>
-                <Tooltip>
-                  <TooltipTrigger
-                    render={
-                      <Button
-                        variant="ghost"
-                        size="icon-xs"
-                        className="shrink-0 opacity-0 group-hover:opacity-100 focus-visible:opacity-100"
-                        aria-label={t('admin.application.subscriptions.copyPath')}
-                        onClick={() => void copyPath(subscription.pathname)}
-                      />
-                    }
-                  >
-                    <Copy />
-                  </TooltipTrigger>
-                  <TooltipContent side="top">{t('admin.application.subscriptions.copyPath')}</TooltipContent>
-                </Tooltip>
-              </div>
+              <span>{subscription.pathname}</span>
             </TableCell>
             <TableCell>
               <TagList tags={subscription.tags} />

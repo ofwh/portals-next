@@ -1,1 +1,0 @@
-export { renameNodeView } from './ui';

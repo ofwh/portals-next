@@ -39,7 +39,7 @@ description: 在 portals-next 仓库新增或调整 workflow 节点、节点组�
 
 输入、配置、输出及执行输入绑定对应的运行时 schema，数组元素、字典值和联合分支均须保留类型信息。运行时描述显式声明，不依赖 TypeScript 类型名称推断。
 
-节点间传递的通用数据类型、泛型容器、类型描述及 schema 契约统一定义在 `lib/types/workflow.ts`，不依赖节点实现、UI 或服务端模块。编排层不引用或枚举节点业务类型。workflow 与 subconverter 共用的业务类型由 `lib/subconverter/types/` 声明，节点和相关 service 直接引用，不在节点内重复定义或中转导出。节点按需引用通用定义，并在自身 model 中指定具体业务类型、容器元素或字典值类型；节点配置类型同样保留在自身 model 中。
+节点间传递的通用数据类型、泛型容器、类型描述及 schema 契约统一定义在 `lib/types/workflow.ts`，不依赖节点实现、UI 或服务端模块。编排层不引用或枚举节点业务类型。跨模块共用的业务类型由所属业务模块声明，节点和相关 service 直接引用，不在节点内重复定义或中转导出。节点按需引用通用定义，并在自身 model 中指定具体业务类型、容器元素或字典值类型；节点配置类型同样保留在自身 model 中。
 
 通用类型名称沿用 JavaScript：字符串统一称为 String；集合使用 Array 和 Object，基础值使用 Number、Boolean 和 null。类型描述使用现有的小写标识；any 表示任意值，业务类型通过 ref 独立注册。配置字段表达类型时，其取值同样使用统一类型名称。
 

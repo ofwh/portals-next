@@ -1,1 +1,0 @@
-export { parseTemplateNodeView } from './ui';

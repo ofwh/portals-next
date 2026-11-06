@@ -314,10 +314,6 @@
           "original": {
             "pathnameHelp": "Original route prefix",
             "statusHelp": "Turn off to pause original content shortcut access"
-          },
-          "subscription": {
-            "pathnameHelp": "Subscription route prefix",
-            "statusHelp": "Turn off to pause subscription access"
           }
         },
         "preferences": {
@@ -482,8 +478,6 @@
           "pathnameInvalid": "The path format is invalid",
           "nameMax": "Name cannot exceed 100 characters"
         },
-        "copyPath": "Copy full URL",
-        "copySuccess": "Subscription URL copied",
         "deleteSelectedError": "Deleted {deleted} subscriptions; {failed} failed. Please try again",
         "statusError": "Failed to update subscription status",
         "columns": {

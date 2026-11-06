@@ -1,6 +1,6 @@
 import type { Dispatcher } from 'undici';
 import type { RouteType } from '@/lib/constants/routes';
-import type { caches, originals, proxies, redirects, subscriptions } from '@/lib/db/schema';
+import type { caches, originals, proxies, redirects } from '@/lib/db/schema';
 import type { ShortcutType } from '@/lib/types/shortcuts';
 
 export interface ConfigMap {
@@ -8,7 +8,6 @@ export interface ConfigMap {
   redirects: typeof redirects.$inferSelect;
   caches: typeof caches.$inferSelect;
   originals: typeof originals.$inferSelect;
-  subscriptions: typeof subscriptions.$inferSelect;
 }
 
 export interface RouteParams {
