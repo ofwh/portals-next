@@ -1,8 +1,8 @@
+import { transform as transformPolicies } from '@/lib/subconverter/policies/output/clash';
+import { transform as transformRules } from '@/lib/subconverter/rulesets/output/clash';
 import { transform as transformNodes } from './nodes';
 import { adapter as clash } from '../clash';
 import { combine } from '../clash/combine';
-import { transform as transformPolicies } from '../clash/policies';
-import { transform as transformRules } from '../clash/rules';
 
 export const adapter: typeof clash = {
   ...clash,

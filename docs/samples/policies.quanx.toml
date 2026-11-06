@@ -4,7 +4,7 @@
 
 # 参数格式：<…> 为需要替换的值；方括号表示可选部分，成员引用前缀 [] 除外。
 # 每项使用 [[custom_groups]]。
-# 手动：name = "<组名>"；type = "select"；rule = ["<成员>", …]；timeout = 0。
+# 手动：name = "<组名>"；type = "select"；rule = ["<成员>", …]。
 # TOML 省略 timeout 时解析器补 5；不需要超时字段的模式显式写 0。
 # 组名：非空且唯一，不能与节点或内置动作重名。
 # 成员：[]名称引用节点、组或内置动作；普通文本为节点名称正则。
@@ -17,11 +17,9 @@
 name = "Manual"
 type = "select"
 rule = ["[]DIRECT"]
-timeout = 0
 
 # 完整配置：手动组组合节点、组引用、名称筛选和内置动作。
 [[custom_groups]]
 name = "Selection"
 type = "select"
 rule = ["[]Manual", "[]HK-01", "^SG-", "[]REJECT"]
-timeout = 0

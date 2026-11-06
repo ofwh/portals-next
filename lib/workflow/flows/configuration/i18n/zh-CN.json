@@ -1,13 +1,27 @@
 {
   "group": "配置",
   "ruleGroups": {
-    "name": "规则组解析"
+    "name": "规则组解析",
+    "client": "规则类型"
   },
   "policyGroups": {
-    "name": "策略组解析"
+    "name": "策略组解析",
+    "client": "策略类型"
   },
   "shared": {
     "type": "配置类型",
-    "typeHelp": "请选择配置内容类型"
+    "typeHelp": "请选择配置内容类型",
+    "clientHelp": "按所选客户端解析配置项字段",
+    "clients": {
+      "clash": "Clash",
+      "clashr": "ClashR",
+      "surge": "Surge",
+      "quanx": "Quantumult X",
+      "loon": "Loon",
+      "surfboard": "Surfboard",
+      "stash": "Stash"
+    },
+    "selectClient": "请选择类型",
+    "invalidClient": "类型 {client} 已不支持，请重新选择"
   }
 }

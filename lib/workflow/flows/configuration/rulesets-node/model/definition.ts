@@ -6,4 +6,4 @@ export const definition = {
   ...nodeLabel('workflowNodes.configuration.ruleGroups.name'),
   version: 1,
 };
-export const defaultConfig: RuleGroupsConfig = { type: 'ini' };
+export const defaultConfig: RuleGroupsConfig = { type: 'ini', client: 'clash' };

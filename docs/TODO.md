@@ -1,3 +1,8 @@
 ## TODO
 
-- [ ] 错误时的 `"code": "workflow.SUBSCRIPTION_GENERATE_FAILED",` 应该时对应数据状态码，而不是字符串
+- [ ] 订阅也加入 shortcuts 以及管理端配置。
+- [ ]
+- [ ] ...
+- [ ] Dashboard 视图
+- [ ] 路由的访问详情分析页面
+- [ ] 首页内容

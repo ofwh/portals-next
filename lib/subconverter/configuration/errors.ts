@@ -18,3 +18,13 @@ export class ConfigSyntaxError extends SyntaxError {
     this.name = 'ConfigSyntaxError';
   }
 }
+
+export class ConfigurationFieldError extends Error {
+  constructor(
+    public readonly field: string,
+    message: string,
+  ) {
+    super(`${field}: ${message}`);
+    this.name = 'ConfigurationFieldError';
+  }
+}

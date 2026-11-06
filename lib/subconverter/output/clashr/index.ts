@@ -1,9 +1,10 @@
 import logger from '@/lib/api/logger';
+import { transform as transformPolicies } from '@/lib/subconverter/policies/output/clash';
+import { transform as transformRules } from '@/lib/subconverter/rulesets/output/clash';
+import { ruleTypes } from '@/lib/subconverter/rulesets/output/clashr';
 import type { OutputElements } from '../../types/output';
 import { adapter as clash } from '../clash';
 import { transform as transformNodes } from '../clash/nodes';
-import { transform as transformPolicies } from '../clash/policies';
-import { transform as transformRules } from '../clash/rules';
 import { fail, OUTPUT_ERROR } from '../shared/errors';
 
 const protocols = ['ss', 'ssr', 'vmess', 'trojan', 'http', 'https', 'socks5', 'snell'];
@@ -91,19 +92,6 @@ export const adapter: typeof clash = {
       transformPolicies(policies, nodes, context, ['select', 'url-test', 'fallback', 'load-balance', 'relay']),
   },
   rules: {
-    transform: (rules, context) =>
-      transformRules(rules, context, 'clashr', [
-        'MATCH',
-        'DOMAIN',
-        'DOMAIN-SUFFIX',
-        'DOMAIN-KEYWORD',
-        'IP-CIDR',
-        'IP-CIDR6',
-        'SRC-IP-CIDR',
-        'GEOIP',
-        'DST-PORT',
-        'SRC-PORT',
-        'PROCESS-NAME',
-      ]),
+    transform: (rules, context) => transformRules(rules, context, 'clashr', ruleTypes),
   },
 };

@@ -1,9 +1,9 @@
+import { transform as policies } from '@/lib/subconverter/policies/output/singbox';
+import { transform as rules } from '@/lib/subconverter/rulesets/output/singbox';
+import type { RuleProjection } from '@/lib/subconverter/rulesets/output/singbox';
 import { combine } from './combine';
 import { transform as nodes } from './nodes';
 import type { NodeProjection } from './nodes';
-import { transform as policies } from './policies';
-import { transform as rules } from './rules';
-import type { RuleProjection } from './rules';
 import type { NativeObject, OutputAdapter } from '../../types/output';
 
 export const adapter: OutputAdapter<NodeProjection, RuleProjection, NativeObject[], NativeObject> = {

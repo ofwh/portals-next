@@ -3,11 +3,11 @@
 
 # 参数格式：<…> 为需要替换的值；方括号表示可选部分，成员引用前缀 [] 除外。
 # 每项使用 [[custom_groups]]。
-# 手动：name = "<组名>"；type = "select"；rule = ["<成员>", …]；timeout = 0。
+# 手动：name = "<组名>"；type = "select"；rule = ["<成员>", …]。
 # 检测：name = "<组名>"；type = "<url-test|fallback|load-balance>"；rule = ["<成员>", …]。
 # 检测必填：url = "<检测URL>"；interval = <检测间隔>。
 # 检测可选：timeout = <超时>；tolerance = <容差>。
-# 链式：name = "<组名>"；type = "relay"；rule = ["[]<节点名>", …]；timeout = 0。
+# 链式：name = "<组名>"；type = "relay"；rule = ["[]<节点名>", …]。
 # TOML 省略 timeout 时解析器补 5；不需要超时字段的模式显式写 0。
 # 组名：非空且唯一，不能与节点或内置动作重名。
 # 成员：[]名称引用节点、组或内置动作；普通文本为节点名称正则。
@@ -23,7 +23,6 @@
 name = "Manual"
 type = "select"
 rule = ["[]DIRECT"]
-timeout = 0
 
 # 完整配置：延迟组显式提供 URL、间隔、超时和容差。
 [[custom_groups]]
@@ -56,4 +55,3 @@ interval = 300
 name = "Relay"
 type = "relay"
 rule = ["[]HK-01", "[]SG-01"]
-timeout = 0

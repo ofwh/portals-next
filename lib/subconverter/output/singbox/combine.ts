@@ -1,6 +1,6 @@
 import { isRecord } from '@/lib/shared/data';
+import type { RuleProjection } from '@/lib/subconverter/rulesets/output/singbox';
 import type { NodeProjection } from './nodes';
-import type { RuleProjection } from './rules';
 import type { JsonValue, NativeObject, OutputContext, OutputParts } from '../../types/output';
 import { templateDocument } from '../shared/template';
 

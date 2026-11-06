@@ -1,4 +1,6 @@
 import 'server-only';
+import { builtinSymbols } from '@/lib/subconverter/policies/output/shared';
+import { materializeRules } from '@/lib/subconverter/rulesets/output/shared';
 import { adapter as clash } from './clash';
 import { adapter as clashr } from './clashr';
 import { adapter as loon } from './loon';
@@ -6,8 +8,6 @@ import { generate as mixed } from './mixed';
 import { adapter as quanx } from './quanx';
 import { generate as shadowrocket } from './shadowrocket';
 import { filterUnsupportedNodes } from './shared/nodes';
-import { builtinSymbols } from './shared/policies';
-import { materializeRules } from './shared/rules';
 import { templateSymbols, validateTemplate } from './shared/template';
 import { adapter as singbox } from './singbox';
 import { generate as ss } from './ss';

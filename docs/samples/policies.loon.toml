@@ -3,7 +3,7 @@
 
 # 参数格式：<…> 为需要替换的值；方括号表示可选部分，成员引用前缀 [] 除外。
 # 每项使用 [[custom_groups]]。
-# 手动：name = "<组名>"；type = "select"；rule = ["<成员>", …]；timeout = 0。
+# 手动：name = "<组名>"；type = "select"；rule = ["<成员>", …]。
 # 检测：name = "<组名>"；type = "<url-test|fallback|load-balance>"；rule = ["<成员>", …]。
 # 检测必填：url = "<检测URL>"；interval = <检测间隔>。
 # 检测可选：timeout = <超时>；tolerance = <容差>。
@@ -22,7 +22,6 @@
 name = "Manual"
 type = "select"
 rule = ["[]DIRECT"]
-timeout = 0
 
 # 完整配置：延迟组显式提供 URL、间隔、超时和容差。
 [[custom_groups]]

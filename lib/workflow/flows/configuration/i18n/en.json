@@ -1,13 +1,27 @@
 {
   "group": "Configuration",
   "ruleGroups": {
-    "name": "Parse rule groups"
+    "name": "Parse rule groups",
+    "client": "Rule type"
   },
   "policyGroups": {
-    "name": "Parse policy groups"
+    "name": "Parse policy groups",
+    "client": "Policy type"
   },
   "shared": {
     "type": "Configuration type",
-    "typeHelp": "Select the configuration content type"
+    "typeHelp": "Select the configuration content type",
+    "clientHelp": "Parse configuration fields for the selected client",
+    "clients": {
+      "clash": "Clash",
+      "clashr": "ClashR",
+      "surge": "Surge",
+      "quanx": "Quantumult X",
+      "loon": "Loon",
+      "surfboard": "Surfboard",
+      "stash": "Stash"
+    },
+    "selectClient": "Select a type",
+    "invalidClient": "The type {client} is no longer supported. Select another type."
   }
 }

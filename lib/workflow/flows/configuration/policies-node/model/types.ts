@@ -4,17 +4,7 @@ import type { WorkflowArray, WorkflowDataTypes } from '@/lib/types/workflow';
 
 export interface PolicyGroupsConfig {
   type?: ConfigType;
+  client?: string;
 }
 export type PolicyGroupsInput = WorkflowDataTypes['String'];
 export type PolicyGroupsOutput = WorkflowArray<PolicyConfigFields>;
-
-export interface PolicyConfigNode {
-  name: string;
-  type: string;
-  rule?: readonly string[];
-  use?: readonly string[];
-  url?: string;
-  interval?: string;
-  timeout?: string;
-  tolerance?: string;
-}

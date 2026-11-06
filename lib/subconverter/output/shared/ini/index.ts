@@ -1,7 +1,7 @@
+import { groupLine, projectPolicies } from '@/lib/subconverter/policies/output/ini';
+import { basicRuleTypes, projectRules } from '@/lib/subconverter/rulesets/output/ini';
 import { combine } from './combine';
 import { projectNode } from './nodes';
-import { groupLine, projectPolicies } from './policies';
-import { basicRuleTypes, projectRules } from './rules';
 import { stringify } from './stringify';
 import { token } from './token';
 

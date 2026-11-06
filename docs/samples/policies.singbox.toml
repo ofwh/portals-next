@@ -3,7 +3,7 @@
 
 # 参数格式：<…> 为需要替换的值；方括号表示可选部分，成员引用前缀 [] 除外。
 # 每项使用 [[custom_groups]]。
-# 手动：name = "<组名>"；type = "select"；rule = ["<成员>", …]；timeout = 0。
+# 手动：name = "<组名>"；type = "select"；rule = ["<成员>", …]。
 # 检测：name = "<组名>"；type = "<url-test>"；rule = ["<成员>", …]。
 # 检测必填：url = "<检测URL>"；interval = <检测间隔>。
 # 检测可选：timeout = <超时>；tolerance = <容差>。
@@ -15,23 +15,21 @@
 # 组成员可用 DIRECT，不能包含 REJECT；拒绝动作应在规则中设置。
 # 检测URL：有效 HTTP(S) URL；检测间隔以秒计，定时组须为正安全整数。
 # 超时、容差：非负安全整数。
-# sing-box 的超时只填写 0；容差用于 url-test，select 不设置检测字段。
+# sing-box 不支持 timeout 字段；容差用于 url-test，select 不设置检测字段。
 
 # 最小配置：单个内置成员。
 [[custom_groups]]
 name = "Manual"
 type = "select"
 rule = ["[]DIRECT"]
-timeout = 0
 
-# 完整配置：延迟组显式提供 URL、间隔、超时和容差。当前输出要求 timeout=0。
+# 完整配置：延迟组显式提供 URL、间隔、超时和容差。不支持 timeout 字段。
 [[custom_groups]]
 name = "Latency"
 type = "url-test"
 rule = ["^(HK|SG)-"]
 url = "https://example.com/generate_204"
 interval = 300
-timeout = 0
 tolerance = 50
 
 # 关联配置：selector 可以引用 urltest 组。
@@ -39,4 +37,3 @@ tolerance = 50
 name = "Selection"
 type = "select"
 rule = ["[]Latency", "[]HK-01", "[]DIRECT"]
-timeout = 0

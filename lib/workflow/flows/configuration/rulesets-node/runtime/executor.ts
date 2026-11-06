@@ -1,8 +1,9 @@
 import 'server-only';
 import { appError } from '@/lib/api';
 import { parser as configParser } from '@/lib/subconverter/configuration';
+import { isConfigurationClient } from '@/lib/subconverter/configuration/options';
+import { parse as parseRules } from '@/lib/subconverter/rulesets';
 import type { ExecutionContext } from '@/lib/workflow/node/types';
-import { parse as parseRules } from './parser';
 import type { RuleGroupsConfig, RuleGroupsOutput } from '../model/types';
 
 export async function execute(
@@ -12,7 +13,13 @@ export async function execute(
 ): Promise<RuleGroupsOutput> {
   context.signal.throwIfAborted();
   try {
-    return parseRules(configParser.parse(input, config.type ?? 'ini'));
+    const client = config.client ?? 'clash';
+
+    if (!isConfigurationClient(client)) {
+      throw appError('common.INVALID_PARAMS');
+    }
+
+    return parseRules(configParser.parse(input, config.type ?? 'ini'), client);
   } catch {
     const failure = appError('workflow.CONFIGURATION_PARSE_FAILED');
 

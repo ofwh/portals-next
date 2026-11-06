@@ -1,4 +1,4 @@
-import type { RuleProjection } from './rules';
+import type { RuleProjection } from '@/lib/subconverter/rulesets/output/clash';
 import type { JsonValue, NativeObject, OutputContext, OutputParts } from '../../types/output';
 import { templateDocument } from '../shared/template';
 

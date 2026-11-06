@@ -13,7 +13,7 @@ custom:
     # 组成员可用 DIRECT，不能包含 REJECT；拒绝动作应在规则中设置。
     # 检测URL：有效 HTTP(S) URL；检测间隔以秒计，定时组须为正安全整数。
     # 超时、容差：非负安全整数。
-    # sing-box 的超时只填写 0；容差用于 url-test，select 不设置检测字段。
+    # sing-box 不支持 timeout 字段；容差用于 url-test，select 不设置检测字段。
 
     # 最小配置：单个内置成员。
     - name: Manual
@@ -21,14 +21,13 @@ custom:
       rule:
         - '[]DIRECT'
 
-    # 完整配置：延迟组显式提供 URL、间隔、超时和容差。当前输出要求 timeout=0。
+    # 完整配置：延迟组显式提供 URL、间隔、超时和容差。不支持 timeout 字段。
     - name: Latency
       type: url-test
       rule:
         - ^(HK|SG)-
       url: https://example.com/generate_204
       interval: 300
-      timeout: 0
       tolerance: 50
 
     # 关联配置：selector 可以引用 urltest 组。

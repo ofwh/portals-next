@@ -14,3 +14,14 @@ export interface PolicyGroupFields {
 }
 
 export type PolicyConfigFields = PolicyGroupFields;
+
+export interface PolicyConfigNode {
+  name: string;
+  type: string;
+  rule?: readonly string[];
+  use?: readonly string[];
+  url?: string;
+  interval?: string;
+  timeout?: string;
+  tolerance?: string;
+}

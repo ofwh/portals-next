@@ -18,3 +18,12 @@ export type RuleGroupFields =
     });
 
 export type RuleSetConfigFields = RuleGroupFields;
+
+export interface RuleSetConfigNode {
+  group: string;
+  rule?: string;
+  ruleset?: string;
+  type?: string;
+  interval?: string;
+  options?: readonly string[];
+}

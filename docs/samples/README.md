@@ -15,7 +15,7 @@
 - INI 使用 `[custom]` 下的 `ruleset`、`custom_proxy_group`；字段名使用下划线。内联条件以 `[]` 开头，不重复附加策略或下载间隔。
 - TOML 使用根级 `[[rulesets]]`、`[[custom_groups]]`。远程规则由 `type` 声明来源格式，`ruleset` 只填 URL；内联仍使用 `ruleset = "[]条件"`。
 - YAML 使用 `custom.rulesets`、`custom.proxy_groups`。规则来源格式写在 URL 前缀，内联使用 `rule`。relay 使用字符串形式，保留有序成员语义。
-- TOML 的 select 和无检测配置的 relay 显式填写 `timeout = 0`，用于阻止解析器补入默认超时；其他格式省略该字段。
+- 解析节点的规则或策略类型选择文件名对应的客户端；检测字段默认值由客户端解析器处理，配置格式不额外补入超时。
 - 规则下载间隔与策略检测间隔是不同参数。策略检测 URL 与正间隔配套；非零超时、容差只在对应目标支持的场景中展示。
 - `stash-format` 仅在 Stash 示例中出现。其 `text` 场景声明纯文本正文，`mrs` 场景使用原生 domain/ipcidr provider，不能与需要展开正文的 `no-resolve` 组合。其他目标示例不使用该选项。
 - `no-resolve` 仅在支持它的目标中展示，且对应规则为 IP 条件。

@@ -1,6 +1,6 @@
+import { transform as policies } from '@/lib/subconverter/policies/output/surfboard';
+import { transform as rules } from '@/lib/subconverter/rulesets/output/surfboard';
 import { transform as nodes } from './nodes';
-import { transform as policies } from './policies';
-import { transform as rules } from './rules';
 import type { OutputAdapter } from '../../types/output';
 import { ini } from '../shared/ini';
 import type { IniDocument, IniNodeProjection, IniRuleProjection } from '../shared/ini';

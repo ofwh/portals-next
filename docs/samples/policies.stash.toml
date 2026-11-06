@@ -4,8 +4,8 @@
 
 # 参数格式：<…> 为需要替换的值；方括号表示可选部分，成员引用前缀 [] 除外。
 # 每项使用 [[custom_groups]]。
-# 手动：name = "<组名>"；type = "select"；rule = ["<成员>", …]；timeout = 0。
-# 链式：name = "<组名>"；type = "relay"；rule = ["[]<节点名>", …]；timeout = 0。
+# 手动：name = "<组名>"；type = "select"；rule = ["<成员>", …]。
+# 链式：name = "<组名>"；type = "relay"；rule = ["[]<节点名>", …]。
 # relay 的检测扩展：url = "<检测URL>"；interval = <检测间隔>；timeout = <超时>，不设置 tolerance。
 # TOML 省略 timeout 时解析器补 5；不需要超时字段的模式显式写 0。
 # 组名：非空且唯一，不能与节点或内置动作重名。
@@ -21,21 +21,18 @@
 name = "Manual"
 type = "select"
 rule = ["[]DIRECT"]
-timeout = 0
 
 # 完整配置：手动组组合节点、组引用、名称筛选和内置动作。
 [[custom_groups]]
 name = "Selection"
 type = "select"
 rule = ["[]Manual", "[]HK-01", "^SG-", "[]REJECT"]
-timeout = 0
 
 # 关联配置：relay 使用有序节点引用，不能用名称筛选代替固定顺序。
 [[custom_groups]]
 name = "Relay"
 type = "relay"
 rule = ["[]HK-01", "[]SG-01"]
-timeout = 0
 
 # 关联配置：TOML 的 relay 可同时声明 benchmark URL、间隔和非零超时。
 [[custom_groups]]
