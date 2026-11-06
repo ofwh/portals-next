@@ -1,4 +1,4 @@
-import { rejectNode } from '../../proxy-node/debug';
+import { NODE_ERROR, rejectNode } from '../../proxy-node/errors';
 
 export function isSimpleObfs(plugin: unknown): boolean {
   return plugin === 'obfs' || plugin === 'obfs-local' || plugin === 'simple-obfs';
@@ -44,7 +44,7 @@ export function parseOptions(value: string): [string, string][] {
   }
 
   if (escaped || key || content) {
-    return rejectNode('invalid-plugin-parameter');
+    return rejectNode(NODE_ERROR.INVALID_PLUGIN_PARAMETER);
   }
 
   return result;

@@ -1,6 +1,7 @@
+import logger from '@/lib/api/logger';
 import type { NodeProjection } from './nodes';
 import type { ConvertedNodes, NativeObject, OutputContext, OutputElements } from '../../types/output';
-import { fail } from '../shared/errors';
+import { fail, OUTPUT_ERROR } from '../shared/errors';
 import { resolvePolicies } from '../shared/policies';
 
 export function transform(
@@ -11,7 +12,9 @@ export function transform(
   const result = resolvePolicies(policies, nodes, context.symbols);
   const value: NativeObject[] = result.entries.map(({ definition, members }, index) => {
     if (!['select', 'url-test'].includes(definition.type) || definition.timeout || members.includes('REJECT')) {
-      return fail('policy', index, 'fields', 'unsupported-singbox-group');
+      logger.warn(OUTPUT_ERROR.UNSUPPORTED_SINGBOX_GROUP, { data: definition, field: 'fields' });
+
+      return fail('policy', index, 'fields', OUTPUT_ERROR.UNSUPPORTED_SINGBOX_GROUP);
     }
 
     const group: NativeObject = {
@@ -21,7 +24,9 @@ export function transform(
     };
 
     if (definition.type === 'select' && (definition.url || definition.interval || definition.tolerance)) {
-      return fail('policy', index, 'fields', 'selector-health-check-not-supported');
+      logger.warn(OUTPUT_ERROR.SELECTOR_HEALTH_CHECK_NOT_SUPPORTED, { data: definition, field: 'fields' });
+
+      return fail('policy', index, 'fields', OUTPUT_ERROR.SELECTOR_HEALTH_CHECK_NOT_SUPPORTED);
     }
 
     if (definition.url) {

@@ -47,7 +47,9 @@ export function parse(content: string, format: SubscriptionFormat): ProxyNodeFie
   try {
     return parsers[format](content.replace(/^\uFEFF/, '').trim());
   } catch {
-    throw appError('workflow.SUBSCRIPTION_PARSE_FAILED');
+    const failure = appError('workflow.SUBSCRIPTION_PARSE_FAILED');
+
+    throw failure;
   }
 }
 

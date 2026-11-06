@@ -1,3 +1,5 @@
+import logger from '@/lib/api/logger';
+import { NODE_ERROR } from '@/lib/subconverter/proxy-node/errors';
 import { debugNode } from '../../proxy-node/debug';
 import type { IniConfig, IniProxyNode, IniProxyOptions, IniSection } from '../../types/providers/ini';
 import { camelCase } from '../schema';
@@ -173,11 +175,13 @@ export function parseIni(content: string, quantumultX = false): IniConfig {
           layout: args.length > 2 ? 'positional' : 'named',
         });
       }
-    } catch {
-      debugNode('ini', 'parse', index, 'invalid-node-data');
+    } catch (error) {
+      debugNode('ini', 'parse', index, error instanceof Error ? error.message : NODE_ERROR.INVALID_NODE_DATA, line);
     }
   }
   if (!sections.some((item) => ['proxy', 'server_local'].includes(item.name.toLowerCase()))) {
+    logger.warn('INI configuration requires a proxy section', { data: sections[0] });
+
     throw new Error('INI configuration requires a proxy section');
   }
 

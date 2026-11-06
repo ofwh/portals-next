@@ -1,4 +1,4 @@
-import { rejectNode } from './debug';
+import { NODE_ERROR, rejectNode } from './errors';
 import { readFields } from './fields';
 import { array, boolean, field, number, object, port, text } from '../providers/schema';
 import type { ProxyNodeFields } from '../types/proxy-node/fields';
@@ -64,7 +64,7 @@ export function assertCovered(value: unknown, paths: readonly string[], prefix =
   }
 
   if (typeof value !== 'object' || value === null) {
-    rejectNode('unrepresentable-parameter');
+    rejectNode(NODE_ERROR.UNREPRESENTABLE_PARAMETER);
   }
 
   for (const [key, item] of Object.entries(value)) {
@@ -86,7 +86,7 @@ function duration(value: unknown): number {
   const match = /^(\d+(?:\.\d+)?)(ms|s|m|h)?$/.exec(text(value));
 
   if (!match) {
-    return rejectNode('invalid-duration');
+    return rejectNode(NODE_ERROR.INVALID_DURATION);
   }
 
   return Number(match[1]) * (match[2] === 'ms' ? 0.001 : match[2] === 'm' ? 60 : match[2] === 'h' ? 3600 : 1);
@@ -124,7 +124,7 @@ function peerList(value: unknown, codec: Codec, reverse: boolean): object[] {
     const reserved = field(source, 'reserved');
 
     if (!server || /[\s/?#]/.test(server) || !publicKey) {
-      return rejectNode('invalid-wireguard-peer');
+      return rejectNode(NODE_ERROR.INVALID_WIREGUARD_PEER);
     }
 
     if (
@@ -133,7 +133,7 @@ function peerList(value: unknown, codec: Codec, reverse: boolean): object[] {
         reserved.length !== 3 ||
         reserved.some((item) => typeof item !== 'number' || !Number.isInteger(item) || item < 0 || item > 255))
     ) {
-      return rejectNode('invalid-wireguard-reserved');
+      return rejectNode(NODE_ERROR.INVALID_WIREGUARD_RESERVED);
     }
 
     put(result, reverse ? serverKey : 'server', server);
@@ -189,7 +189,7 @@ export function convert(value: unknown, codec: Codec | undefined, reverse = fals
       const mode = text(value).toLowerCase();
 
       if (!['', 'none', 'tls', 'true', 'false', '1', '0'].includes(mode)) {
-        return rejectNode('unsupported-tls-mode');
+        return rejectNode(NODE_ERROR.UNSUPPORTED_TLS_MODE);
       }
 
       return ['tls', 'true', '1'].includes(mode);
@@ -200,7 +200,7 @@ export function convert(value: unknown, codec: Codec | undefined, reverse = fals
       }
 
       if (!['gun', 'multi'].includes(text(value))) {
-        return rejectNode('unsupported-grpc-mode');
+        return rejectNode(NODE_ERROR.UNSUPPORTED_GRPC_MODE);
       }
 
       return value === 'multi';
@@ -216,7 +216,7 @@ export function convert(value: unknown, codec: Codec | undefined, reverse = fals
             const split = item.includes(':') ? item.indexOf(':') : item.indexOf('=');
 
             if (split < 1) {
-              return rejectNode('invalid-header');
+              return rejectNode(NODE_ERROR.INVALID_HEADER);
             }
 
             return { name: item.slice(0, split).trim(), value: [item.slice(split + 1).trim()] };
@@ -226,7 +226,7 @@ export function convert(value: unknown, codec: Codec | undefined, reverse = fals
       return headers(value)
         .map((item) => {
           if (item.value.length !== 1 || /[|\r\n]/.test(item.value[0])) {
-            return rejectNode('unrepresentable-header');
+            return rejectNode(NODE_ERROR.UNREPRESENTABLE_HEADER);
           }
 
           return `${item.name}:${item.value[0]}`;
@@ -241,7 +241,7 @@ export function convert(value: unknown, codec: Codec | undefined, reverse = fals
       const values = headers(value);
 
       if (values.length !== 1 || values[0].name.toLowerCase() !== 'host' || values[0].value.length !== 1) {
-        return rejectNode('unrepresentable-header');
+        return rejectNode(NODE_ERROR.UNREPRESENTABLE_HEADER);
       }
 
       return values[0].value[0];
@@ -256,7 +256,7 @@ export function convert(value: unknown, codec: Codec | undefined, reverse = fals
       const values = array(text)(value);
 
       if (values.length !== 1) {
-        return rejectNode('unrepresentable-list');
+        return rejectNode(NODE_ERROR.UNREPRESENTABLE_LIST);
       }
 
       return values[0];
@@ -275,7 +275,7 @@ export function convert(value: unknown, codec: Codec | undefined, reverse = fals
       const values = typeof value === 'string' ? [value] : array(text)(value);
 
       if (values.length !== 1) {
-        return rejectNode('unrepresentable-list');
+        return rejectNode(NODE_ERROR.UNREPRESENTABLE_LIST);
       }
 
       return values[0];
@@ -292,7 +292,7 @@ export function convert(value: unknown, codec: Codec | undefined, reverse = fals
       const match = /^(\d+(?:\.\d+)?)\s*([kmg]?)([bB])?(?:ps)?$/i.exec(text(value));
 
       if (!match) {
-        return rejectNode('invalid-bandwidth');
+        return rejectNode(NODE_ERROR.INVALID_BANDWIDTH);
       }
 
       const scale = match[2].toLowerCase() === 'k' ? 0.001 : match[2].toLowerCase() === 'g' ? 1000 : 1;
@@ -304,7 +304,7 @@ export function convert(value: unknown, codec: Codec | undefined, reverse = fals
     case 'headersSingle':
       return headers(value).map((header) => {
         if (reverse && header.value.length !== 1) {
-          return rejectNode('unrepresentable-header');
+          return rejectNode(NODE_ERROR.UNREPRESENTABLE_HEADER);
         }
 
         return { name: header.name, value: reverse ? header.value[0] : header.value };
@@ -317,7 +317,7 @@ export function convert(value: unknown, codec: Codec | undefined, reverse = fals
       const values = headers(value);
 
       if (values.some((header) => header.name.toLowerCase() !== 'host')) {
-        return rejectNode('unrepresentable-header');
+        return rejectNode(NODE_ERROR.UNREPRESENTABLE_HEADER);
       }
 
       return values.flatMap((header) => header.value);
@@ -333,7 +333,7 @@ export function convert(value: unknown, codec: Codec | undefined, reverse = fals
       const addresses = array(text)(value).filter((address) => address.includes(':') === (codec === 'ipv6'));
 
       if (addresses.length > 1) {
-        return rejectNode('unrepresentable-addresses');
+        return rejectNode(NODE_ERROR.UNREPRESENTABLE_ADDRESSES);
       }
 
       return addresses[0];
@@ -359,7 +359,7 @@ function merge(target: object, key: string, value: unknown): void {
       const existing = combined.find((item) => item.name.toLowerCase() === header.name.toLowerCase());
 
       if (existing && JSON.stringify(existing.value) !== JSON.stringify(header.value)) {
-        rejectNode('conflicting-header');
+        rejectNode(NODE_ERROR.CONFLICTING_HEADER);
       }
 
       if (!existing) {
@@ -369,7 +369,7 @@ function merge(target: object, key: string, value: unknown): void {
 
     put(target, key, combined);
   } else if (JSON.stringify(previous) !== JSON.stringify(value)) {
-    rejectNode('conflicting-alias');
+    rejectNode(NODE_ERROR.CONFLICTING_ALIAS);
   }
 }
 
@@ -430,7 +430,7 @@ export function expand(
     const actual = get(fields, key);
 
     if (actual !== undefined && JSON.stringify(actual) !== JSON.stringify(expected)) {
-      rejectNode('unrepresentable-parameter');
+      rejectNode(NODE_ERROR.UNREPRESENTABLE_PARAMETER);
     }
 
     used.add(key);
@@ -465,7 +465,7 @@ export function validateFields(value: unknown): ProxyNodeFields {
   const result = readFields(value);
 
   if (!result.name.trim() || /[\r\n]/.test(result.name)) {
-    return rejectNode('invalid-name');
+    return rejectNode(NODE_ERROR.INVALID_NAME);
   }
 
   if ('port' in result && result.port !== undefined) {
@@ -482,7 +482,7 @@ export function validateFields(value: unknown): ProxyNodeFields {
         ['ss', 'ssr', 'trojan', 'snell', 'hysteria2', 'anytls', 'naive', 'mieru'].includes(result.type));
 
     if (item !== undefined && (typeof item !== 'string' || (required && !item.length) || /[\r\n]/.test(item))) {
-      return rejectNode('invalid-required-field');
+      return rejectNode(NODE_ERROR.INVALID_REQUIRED_FIELD);
     }
   }
 
@@ -509,26 +509,26 @@ export function validateFields(value: unknown): ProxyNodeFields {
 
   if (['trojan', 'anytls', 'hysteria', 'hysteria2', 'tuic', 'naive', 'https'].includes(result.type)) {
     if (get(result, 'tls') === false) {
-      return rejectNode('invalid-protocol-tls');
+      return rejectNode(NODE_ERROR.INVALID_PROTOCOL_TLS);
     }
 
     put(result, 'tls', true);
   }
 
   if (result.type === 'socks5' && result.version !== undefined && result.version !== '5') {
-    return rejectNode('unsupported-socks-version');
+    return rejectNode(NODE_ERROR.UNSUPPORTED_SOCKS_VERSION);
   }
 
   if (result.type === 'http' && result.tls === true) {
-    return rejectNode('invalid-protocol-tls');
+    return rejectNode(NODE_ERROR.INVALID_PROTOCOL_TLS);
   }
 
   if (result.type === 'tuic' && !result.token && (!result.uuid || !result.password)) {
-    return rejectNode('missing-tuic-authentication');
+    return rejectNode(NODE_ERROR.MISSING_TUIC_AUTHENTICATION);
   }
 
   if (result.type === 'ssr' && (!result.protocol || !result.obfs)) {
-    return rejectNode('missing-ssr-parameters');
+    return rejectNode(NODE_ERROR.MISSING_SSR_PARAMETERS);
   }
 
   for (const key of [
@@ -547,7 +547,7 @@ export function validateFields(value: unknown): ProxyNodeFields {
     const numericValue = get(result, key);
 
     if (typeof numericValue === 'number' && numericValue < 0) {
-      return rejectNode('invalid-numeric-parameter');
+      return rejectNode(NODE_ERROR.INVALID_NUMERIC_PARAMETER);
     }
   }
   if ('ports' in result && result.ports) {
@@ -555,20 +555,20 @@ export function validateFields(value: unknown): ProxyNodeFields {
       const match = /^(\d+)(?:[:-](\d+))?$/.exec(range);
 
       if (!match || Number(port(match[1])) > Number(port(match[2] ?? match[1]))) {
-        return rejectNode('invalid-port-range');
+        return rejectNode(NODE_ERROR.INVALID_PORT_RANGE);
       }
     }
   }
 
   if (result.type === 'wireguard') {
     if (!result.privateKey) {
-      return rejectNode('missing-wireguard-private-key');
+      return rejectNode(NODE_ERROR.MISSING_WIREGUARD_PRIVATE_KEY);
     }
 
     if (result.keepAlive !== undefined) {
       for (const peer of result.wireGuardPeers) {
         if (peer.keepAlive !== undefined && peer.keepAlive !== result.keepAlive) {
-          return rejectNode('conflicting-wireguard-keepalive');
+          return rejectNode(NODE_ERROR.CONFLICTING_WIREGUARD_KEEPALIVE);
         }
 
         peer.keepAlive = result.keepAlive;
@@ -577,7 +577,7 @@ export function validateFields(value: unknown): ProxyNodeFields {
     }
 
     if (!result.localAddresses.length || !result.wireGuardPeers.length) {
-      return rejectNode('missing-wireguard-configuration');
+      return rejectNode(NODE_ERROR.MISSING_WIREGUARD_CONFIGURATION);
     }
 
     peerList(result.wireGuardPeers, 'clashPeers', true);
@@ -594,7 +594,7 @@ export function projectWireGuard(value: object, style: 'clash' | 'sing-box'): ob
   const peers = get(value, 'peers');
 
   if (peers !== undefined && flatKeys.some((key) => get(value, key) !== undefined)) {
-    return rejectNode('ambiguous-wireguard-peers');
+    return rejectNode(NODE_ERROR.AMBIGUOUS_WIREGUARD_PEERS);
   }
 
   if (peers === undefined) {
@@ -620,7 +620,7 @@ export function nativeFingerprint(fields: ProxyNodeFields): { value?: string; fi
 
   if (enabled === false) {
     if (fingerprint !== undefined) {
-      return rejectNode('unrepresentable-disabled-fingerprint');
+      return rejectNode(NODE_ERROR.UNREPRESENTABLE_DISABLED_FINGERPRINT);
     }
 
     return { value: 'none', fixed: { utlsEnabled: false } };

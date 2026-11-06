@@ -29,6 +29,12 @@
 - 业务 API 的请求鉴权统一在根目录 `proxy.ts` 配置，不在 `lib/api/server` 或 service 层执行。
 - 未知异常转换为公共内部错误，响应中不得暴露原始异常、数据库信息、凭据或调用栈。
 
+## 请求追踪
+
+- 请求追踪的请求头、响应头及下游传递头统一使用 `lib/shared/http` 中的 `REQUEST_ID_HEADER`，不兼容其他头名称。服务端请求入口沿用该请求头的非空值；未提供时复用当前请求上下文，无上下文时生成 UUID v6。
+- 请求范围内的异步服务调用共用同一 requestId；相关模块通过 `lib/api/logger` 请求日志适配器调用基础 logger，由适配器附加 `requestId`，不逐层传递日志参数。`lib/logger` 保持独立，不依赖请求上下文或业务模块。
+- 请求链路中的后端 HTTP 调用向下游传递当前 requestId；并发请求的上下文相互隔离。
+
 ## 错误归属
 
 - 公共错误定义在 `lib/api/codes.ts`，文案保存在 `lib/api/messages/{locale}.json`，只表达与具体业务无关的失败原因。

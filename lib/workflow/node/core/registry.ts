@@ -1,7 +1,8 @@
 import 'server-only';
-import { appError } from '@/lib/api';
+import { appError, AppError, businessCode, errorMessage } from '@/lib/api';
+import logger from '@/lib/api/logger';
 import { cloneJson, freezeDeep, nonempty, positiveInteger } from '@/lib/shared/data';
-import type { ValueSchema } from '@/lib/types/workflow';
+import type { TypeDescriptor, ValueSchema } from '@/lib/types/workflow';
 import { resolveOutputType } from './ports';
 import { TypeRegistry } from './type-registry';
 import type { CanvasNode } from '../../model';
@@ -54,17 +55,70 @@ export class NodeRegistry {
           : null,
       }),
     );
-    const parse = <T>(schema: ValueSchema<T>, raw: unknown): T => {
-      const value = schema.parse(cloneJson(raw));
+    const failureData = (descriptor: TypeDescriptor, raw: unknown): unknown => {
+      const entries =
+        descriptor.kind === 'array' && Array.isArray(raw)
+          ? raw.map((value) => ({ descriptor: descriptor.items, value }))
+          : descriptor.kind === 'record' && raw !== null && typeof raw === 'object' && !Array.isArray(raw)
+            ? Object.values(raw).map((value: unknown) => ({ descriptor: descriptor.values, value }))
+            : [];
 
-      this.types.parse(schema.descriptor, cloneJson(value));
+      for (const entry of entries) {
+        try {
+          this.types.parse(entry.descriptor, entry.value);
+        } catch {
+          return failureData(entry.descriptor, entry.value);
+        }
+      }
 
-      return value;
+      return raw;
     };
-    const parseConfig = (raw: unknown): C => {
-      const config = node.configSchema.parse(node.parseConfig(cloneJson(raw)));
+    const parse = <T>(schema: ValueSchema<T>, raw: unknown, context: ExecutionContext, source?: TypeDescriptor): T => {
+      try {
+        if (source) {
+          this.types.parse(source, raw);
+        }
 
-      return cloneJson(config);
+        const value = schema.parse(cloneJson(raw));
+
+        this.types.parse(schema.descriptor, cloneJson(value));
+
+        return value;
+      } catch (error) {
+        const failure = error instanceof AppError ? error : appError('common.INVALID_PARAMS');
+
+        logger.warn(errorMessage(failure), {
+          code: businessCode(failure.code),
+          runId: context.runId,
+          nodeId: context.nodeId,
+          nodeType: node.type,
+          data: failureData(source ?? schema.descriptor, raw),
+          expectedType: schema.descriptor,
+          error: error instanceof Error ? error.message : error,
+        });
+
+        throw error;
+      }
+    };
+    const parseConfig = (raw: unknown, context?: Partial<ExecutionContext>): C => {
+      try {
+        const config = node.configSchema.parse(node.parseConfig(cloneJson(raw)));
+
+        return cloneJson(config);
+      } catch (error) {
+        const failure = error instanceof AppError ? error : appError('common.INVALID_PARAMS');
+
+        logger.warn(errorMessage(failure), {
+          code: businessCode(failure.code),
+          nodeType: node.type,
+          nodeId: context?.nodeId,
+          runId: context?.runId,
+          data: raw,
+          error: error instanceof Error ? error.message : error,
+        });
+
+        throw error;
+      }
     };
     const defaultConfig = freezeDeep(cloneJson(node.defaultConfig));
 
@@ -96,11 +150,29 @@ export class NodeRegistry {
             (!input && values.length > 0) ||
             (input && ((!input.multiple && values.length > 1) || (input.required && !values.length)))
           ) {
-            throw appError('workflow.INVALID_CONNECTION');
+            const failure = appError('workflow.INVALID_CONNECTION');
+
+            logger.warn(errorMessage(failure), {
+              code: businessCode(failure.code),
+              runId: context.runId,
+              nodeId: context.nodeId,
+              data: { inputCount: values.length, sourceCount: context.inputSources?.length },
+            });
+
+            throw failure;
           }
 
           if (context.inputSources && context.inputSources.length !== values.length) {
-            throw appError('workflow.INVALID_CONNECTION');
+            const failure = appError('workflow.INVALID_CONNECTION');
+
+            logger.warn(errorMessage(failure), {
+              code: businessCode(failure.code),
+              runId: context.runId,
+              nodeId: context.nodeId,
+              data: { inputCount: values.length, sourceCount: context.inputSources?.length },
+            });
+
+            throw failure;
           }
 
           const parsed = input
@@ -109,20 +181,23 @@ export class NodeRegistry {
 
                 if (source) {
                   if (!this.types.isAssignable(source.type, input.schema.descriptor)) {
-                    throw appError('workflow.INCOMPATIBLE_TYPE');
-                  }
+                    const failure = appError('workflow.INCOMPATIBLE_TYPE');
 
-                  this.types.parse(source.type, value);
+                    logger.warn(errorMessage(failure), {
+                      code: businessCode(failure.code),
+                      runId: context.runId,
+                      nodeId: context.nodeId,
+                      data: source?.type,
+                    });
+
+                    throw failure;
+                  }
                 }
 
-                return parse(input.schema, value);
+                return parse(input.schema, value, context, source?.type);
               })
             : [];
-          const result = await node.execute(
-            node.parseInput(parsed, context),
-            node.configSchema.parse(cloneJson(config)),
-            context,
-          );
+          const result = await node.execute(node.parseInput(parsed, context), parseConfig(config, context), context);
 
           context.signal.throwIfAborted();
 
@@ -130,9 +205,9 @@ export class NodeRegistry {
             return undefined;
           }
 
-          const value = parse(output.schema, result);
+          const value = parse(output.schema, result, context);
 
-          this.types.parse(resolveOutputType(manifest.output, config), value);
+          parse({ descriptor: resolveOutputType(manifest.output, config), parse: (value) => value }, value, context);
 
           return cloneJson(value);
         },

@@ -1,5 +1,5 @@
 import { vmessShareNode } from './parser';
-import { rejectNode } from '../../proxy-node/debug';
+import { NODE_ERROR, rejectNode } from '../../proxy-node/errors';
 import {
   assertCovered,
   convert,
@@ -1005,7 +1005,7 @@ const scheme = oneOf(
 );
 const queryReader = array((value): [string, string] => {
   if (!Array.isArray(value) || value.length !== 2) {
-    return rejectNode('invalid-uri-query');
+    return rejectNode(NODE_ERROR.INVALID_URI_QUERY);
   }
 
   return [text(value[0]), text(value[1])];
@@ -1061,7 +1061,7 @@ export function readNode(value: unknown): UriNode {
       };
     }
 
-    return rejectNode('invalid-uri-node');
+    return rejectNode(NODE_ERROR.INVALID_URI_NODE);
   }
 
   const node = urlReader(value);
@@ -1080,7 +1080,7 @@ function queryObject(node: UriUrlProxyNode): object {
     const key = camelCase(rawKey);
 
     if (get(result, key) !== undefined && get(result, key) !== value) {
-      return rejectNode('ambiguous-uri-query');
+      return rejectNode(NODE_ERROR.AMBIGUOUS_URI_QUERY);
     }
 
     put(result, key, value);
@@ -1091,7 +1091,7 @@ function queryObject(node: UriUrlProxyNode): object {
 
 function one<T>(items: T[]): T {
   if (items.length !== 1) {
-    return rejectNode('unrepresentable-uri-node');
+    return rejectNode(NODE_ERROR.UNREPRESENTABLE_URI_NODE);
   }
 
   return items[0];
@@ -1134,7 +1134,7 @@ function mieruFields(node: UriUrlProxyNode): ProxyNodeFields[] {
   const protocols = node.query.filter(([key]) => key === 'protocol').map(([, value]) => value);
 
   if (!ports.length || ports.length !== protocols.length) {
-    return rejectNode('invalid-mieru-bindings');
+    return rejectNode(NODE_ERROR.INVALID_MIERU_BINDINGS);
   }
 
   const query = queryObject({ ...node, query: node.query.filter(([key]) => key !== 'port' && key !== 'protocol') });
@@ -1144,13 +1144,13 @@ function mieruFields(node: UriUrlProxyNode): ProxyNodeFields[] {
 
   return ports.map((range, index) => {
     if (!['TCP', 'UDP'].includes(protocols[index])) {
-      return rejectNode('invalid-mieru-protocol');
+      return rejectNode(NODE_ERROR.INVALID_MIERU_PROTOCOL);
     }
 
     const limits = range.split('-');
 
     if (limits.length > 2 || Number(port(limits[0])) > Number(port(limits[1] ?? limits[0]))) {
-      return rejectNode('invalid-port-range');
+      return rejectNode(NODE_ERROR.INVALID_PORT_RANGE);
     }
 
     return validateFields({
@@ -1176,7 +1176,7 @@ function toFields(node: UriNode): ProxyNodeFields | ProxyNodeFields[] {
     if (node.scheme === 'ssr') {
       for (const [key] of node.query) {
         if (!['remarks', 'group', 'obfsparam', 'protoparam'].includes(key)) {
-          return rejectNode('unrepresentable-uri-query');
+          return rejectNode(NODE_ERROR.UNREPRESENTABLE_URI_QUERY);
         }
       }
 
@@ -1190,14 +1190,14 @@ function toFields(node: UriNode): ProxyNodeFields | ProxyNodeFields[] {
     const source = { ...node.config };
 
     if (node.config.v !== undefined && !['1', '2'].includes(String(node.config.v))) {
-      return rejectNode('unsupported-vmess-share-version');
+      return rejectNode(NODE_ERROR.UNSUPPORTED_VMESS_SHARE_VERSION);
     }
 
     if (String(node.config.v ?? '1') === '1' && node.config.host?.includes(';')) {
       const parts = node.config.host.split(';');
 
       if (parts.length !== 2) {
-        return rejectNode('invalid-vmess-host');
+        return rejectNode(NODE_ERROR.INVALID_VMESS_HOST);
       }
 
       put(source, 'host', parts[0]);
@@ -1217,7 +1217,7 @@ function toFields(node: UriNode): ProxyNodeFields | ProxyNodeFields[] {
   }
 
   if (node.scheme === 'mieru') {
-    return rejectNode('unsupported-mieru-uri');
+    return rejectNode(NODE_ERROR.UNSUPPORTED_MIERU_URI);
   }
 
   const query = queryObject(node);
@@ -1298,7 +1298,7 @@ function toFields(node: UriNode): ProxyNodeFields | ProxyNodeFields[] {
   }
 
   if (node.scheme === 'tg' && node.server === '') {
-    return rejectNode('invalid-telegram-node');
+    return rejectNode(NODE_ERROR.INVALID_TELEGRAM_NODE);
   }
 
   const source = {
@@ -1323,7 +1323,7 @@ function toFields(node: UriNode): ProxyNodeFields | ProxyNodeFields[] {
       put(query, 'encryption', node.username);
       put(source, 'username', node.password);
     } else if (node.password) {
-      return rejectNode('invalid-uri-credentials');
+      return rejectNode(NODE_ERROR.INVALID_URI_CREDENTIALS);
     }
 
     remove(source, 'password');
@@ -1343,7 +1343,7 @@ function toFields(node: UriNode): ProxyNodeFields | ProxyNodeFields[] {
   }
 
   if (type !== 'hysteria2' && node.ports !== undefined) {
-    return rejectNode('unsupported-port-hopping');
+    return rejectNode(NODE_ERROR.UNSUPPORTED_PORT_HOPPING);
   }
 
   const security = get(query, 'security');
@@ -1563,7 +1563,7 @@ function toNode(fields: ProxyNodeFields): UriNode {
       'naive',
     ].includes(fields.type)
   ) {
-    return rejectNode('unsupported-protocol');
+    return rejectNode(NODE_ERROR.UNSUPPORTED_PROTOCOL);
   }
 
   const type = oneOf(

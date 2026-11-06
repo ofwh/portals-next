@@ -1,5 +1,7 @@
+import { businessCode } from '@/lib/api';
+import logger from '@/lib/api/logger';
 import { cloneJson, isRecord } from '@/lib/shared/data';
-import { fail } from './errors';
+import { fail, OUTPUT_ERROR } from './errors';
 import { parseTemplate } from '../../template/schema';
 import type { JsonValue, OutputTarget, SymbolBinding } from '../../types/output';
 import type {
@@ -10,7 +12,13 @@ import type {
 
 export function validateTemplate(target: OutputTarget, template?: SubscriptionTemplate): void {
   if (template && template.format !== (target === 'clashr' ? 'clash' : target)) {
-    fail('assembly', -1, 'template', 'template-format-mismatch');
+    logger.error(OUTPUT_ERROR.TEMPLATE_FORMAT_MISMATCH, {
+      code: businessCode('workflow.SUBSCRIPTION_GENERATE_FAILED'),
+      data: { target, templateFormat: template.format },
+      field: 'template.format',
+    });
+
+    fail('assembly', -1, 'template', OUTPUT_ERROR.TEMPLATE_FORMAT_MISMATCH);
   }
 }
 
@@ -37,7 +45,9 @@ export function templateSymbols(template: SubscriptionTemplate | undefined, pres
     }
 
     if (!Array.isArray(value)) {
-      fail('assembly', -1, 'template', 'invalid-template-collection');
+      logger.warn(OUTPUT_ERROR.INVALID_TEMPLATE_COLLECTION, { data: value, field: 'template' });
+
+      fail('assembly', -1, 'template', OUTPUT_ERROR.INVALID_TEMPLATE_COLLECTION);
     }
 
     for (const item of value) {
@@ -46,7 +56,9 @@ export function templateSymbols(template: SubscriptionTemplate | undefined, pres
       }
 
       if (!isRecord(item) || typeof item[key] !== 'string' || !item[key].trim()) {
-        fail('assembly', -1, 'template', 'invalid-template-collection');
+        logger.warn(OUTPUT_ERROR.INVALID_TEMPLATE_COLLECTION, { data: item, field: 'template' });
+
+        fail('assembly', -1, 'template', OUTPUT_ERROR.INVALID_TEMPLATE_COLLECTION);
       }
 
       result.push({ kind, inputName: item[key], outputName: item[key] });

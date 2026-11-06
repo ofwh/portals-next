@@ -1,5 +1,6 @@
+import logger from '@/lib/api/logger';
 import type { PolicyConfigFields } from '@/lib/subconverter/types/policies';
-import { fail } from './errors';
+import { fail, OUTPUT_ERROR, OutputError } from './errors';
 import type { ConvertedNodes, SymbolBinding } from '../../types/output';
 import type { ProxyNodeFields } from '../../types/proxy-node';
 
@@ -25,7 +26,9 @@ export function resolveSymbol(
   const matches = symbols.filter((symbol) => symbol.inputName === name);
 
   if (matches.length !== 1) {
-    return fail(stage, index, 'reference', 'missing-or-ambiguous-reference');
+    logger.warn(OUTPUT_ERROR.MISSING_OR_AMBIGUOUS_REFERENCE, { data: name, field: 'reference' });
+
+    return fail(stage, index, 'reference', OUTPUT_ERROR.MISSING_OR_AMBIGUOUS_REFERENCE);
   }
 
   return matches[0].outputName;
@@ -34,7 +37,9 @@ export function resolveSymbol(
 function matcher(selector: string, index: number): (node: ProxyNodeFields) => boolean {
   if (!selector.startsWith('!!')) {
     if (selector.startsWith('script:')) {
-      return fail('policy', index, 'members', 'selector-requires-unavailable-context');
+      logger.warn(OUTPUT_ERROR.SELECTOR_REQUIRES_UNAVAILABLE_CONTEXT, { data: selector, field: 'members' });
+
+      return fail('policy', index, 'members', OUTPUT_ERROR.SELECTOR_REQUIRES_UNAVAILABLE_CONTEXT);
     }
 
     try {
@@ -42,14 +47,18 @@ function matcher(selector: string, index: number): (node: ProxyNodeFields) => bo
 
       return (node) => pattern.test(node.name);
     } catch {
-      return fail('policy', index, 'members', 'invalid-selector');
+      logger.warn(OUTPUT_ERROR.INVALID_SELECTOR, { data: selector, field: 'members' });
+
+      return fail('policy', index, 'members', OUTPUT_ERROR.INVALID_SELECTOR);
     }
   }
 
   const special = /^!!(TYPE|SERVER|PORT)=(.+?)(?:!!(.*))?$/.exec(selector);
 
   if (!special) {
-    return fail('policy', index, 'members', 'selector-requires-unavailable-context');
+    logger.warn(OUTPUT_ERROR.SELECTOR_REQUIRES_UNAVAILABLE_CONTEXT, { data: selector, field: 'members' });
+
+    return fail('policy', index, 'members', OUTPUT_ERROR.SELECTOR_REQUIRES_UNAVAILABLE_CONTEXT);
   }
 
   try {
@@ -60,14 +69,18 @@ function matcher(selector: string, index: number): (node: ProxyNodeFields) => bo
         const range = /^(!?)(\d+)(?:-(\d+))?$/.exec(part);
 
         if (!range) {
-          return fail('policy', index, 'members', 'invalid-port-selector');
+          logger.warn(OUTPUT_ERROR.INVALID_PORT_SELECTOR, { data: part, field: 'members' });
+
+          return fail('policy', index, 'members', OUTPUT_ERROR.INVALID_PORT_SELECTOR);
         }
 
         const start = Number(range[2]);
         const end = Number(range[3] ?? range[2]);
 
         if (start < 1 || end > 65535 || start > end) {
-          return fail('policy', index, 'members', 'invalid-port-selector');
+          logger.warn(OUTPUT_ERROR.INVALID_PORT_SELECTOR, { data: part, field: 'members' });
+
+          return fail('policy', index, 'members', OUTPUT_ERROR.INVALID_PORT_SELECTOR);
         }
 
         return { exclude: range[1] === '!', start, end };
@@ -90,8 +103,14 @@ function matcher(selector: string, index: number): (node: ProxyNodeFields) => bo
     return (node) =>
       name.test(node.name) &&
       pattern.test(special[1] === 'TYPE' ? node.type.toUpperCase() : 'server' in node ? node.server : '');
-  } catch {
-    return fail('policy', index, 'members', 'invalid-selector');
+  } catch (error) {
+    if (error instanceof OutputError) {
+      throw error;
+    }
+
+    logger.warn(OUTPUT_ERROR.INVALID_SELECTOR, { data: selector, field: 'members' });
+
+    return fail('policy', index, 'members', OUTPUT_ERROR.INVALID_SELECTOR);
   }
 }
 
@@ -111,7 +130,9 @@ export function resolvePolicies<N>(
 
   for (const symbol of all) {
     if (!symbol.inputName.trim() || names.has(symbol.inputName) || outputs.has(symbol.outputName)) {
-      fail('assembly', -1, 'name', 'duplicate-or-empty-name');
+      logger.warn(OUTPUT_ERROR.DUPLICATE_OR_EMPTY_NAME, { data: symbol, field: 'name' });
+
+      fail('assembly', -1, 'name', OUTPUT_ERROR.DUPLICATE_OR_EMPTY_NAME);
     }
 
     names.add(symbol.inputName);
@@ -123,16 +144,26 @@ export function resolvePolicies<N>(
       const value = definition[field];
 
       if (value !== undefined && (!Number.isSafeInteger(value) || value < 0)) {
-        fail('policy', index, field, 'invalid-group-number');
+        logger.warn(OUTPUT_ERROR.INVALID_GROUP_NUMBER, { data: definition, field: field });
+
+        fail('policy', index, field, OUTPUT_ERROR.INVALID_GROUP_NUMBER);
       }
     }
     if (definition.url !== undefined) {
+      let protocol: string;
+
       try {
-        if (!['http:', 'https:'].includes(new URL(definition.url).protocol)) {
-          fail('policy', index, 'url', 'invalid-health-check-url');
-        }
+        protocol = new URL(definition.url).protocol;
       } catch {
-        fail('policy', index, 'url', 'invalid-health-check-url');
+        logger.warn(OUTPUT_ERROR.INVALID_HEALTH_CHECK_URL, { data: definition, field: 'url' });
+
+        fail('policy', index, 'url', OUTPUT_ERROR.INVALID_HEALTH_CHECK_URL);
+      }
+
+      if (!['http:', 'https:'].includes(protocol)) {
+        logger.warn(OUTPUT_ERROR.INVALID_HEALTH_CHECK_URL, { data: definition.url, field: 'url' });
+
+        fail('policy', index, 'url', OUTPUT_ERROR.INVALID_HEALTH_CHECK_URL);
       }
     }
 
@@ -140,11 +171,15 @@ export function resolvePolicies<N>(
       ['url-test', 'fallback', 'load-balance'].includes(definition.type) &&
       (!definition.url || !definition.interval)
     ) {
-      fail('policy', index, 'url/interval', 'missing-health-check-options');
+      logger.warn(OUTPUT_ERROR.MISSING_HEALTH_CHECK_OPTIONS, { data: definition, field: 'url/interval' });
+
+      fail('policy', index, 'url/interval', OUTPUT_ERROR.MISSING_HEALTH_CHECK_OPTIONS);
     }
 
     if (definition.providers.length) {
-      fail('policy', index, 'providers', 'provider-resource-not-supplied');
+      logger.warn(OUTPUT_ERROR.PROVIDER_RESOURCE_NOT_SUPPLIED, { data: definition, field: 'providers' });
+
+      fail('policy', index, 'providers', OUTPUT_ERROR.PROVIDER_RESOURCE_NOT_SUPPLIED);
     }
 
     const members: string[] = [];
@@ -159,7 +194,9 @@ export function resolvePolicies<N>(
       }
     }
     if (!members.length) {
-      fail('policy', index, 'members', 'empty-group');
+      logger.warn(OUTPUT_ERROR.EMPTY_GROUP, { data: definition, field: 'members' });
+
+      fail('policy', index, 'members', OUTPUT_ERROR.EMPTY_GROUP);
     }
 
     return { definition, members: definition.type === 'relay' ? members : [...new Set(members)] };
@@ -169,7 +206,9 @@ export function resolvePolicies<N>(
   const active = new Set<string>();
   const visit = (name: string) => {
     if (active.has(name)) {
-      fail('policy', -1, 'members', 'cyclic-group-reference');
+      logger.warn(OUTPUT_ERROR.CYCLIC_GROUP_REFERENCE, { data: groups.get(name)?.definition, field: 'members' });
+
+      fail('policy', -1, 'members', OUTPUT_ERROR.CYCLIC_GROUP_REFERENCE);
     }
 
     if (done.has(name)) {

@@ -52,6 +52,7 @@ export class NodeViewRegistry {
         ? {
             config: {
               className: config.className,
+              validate: config.validate ? (value, context) => config.validate!(check(value), context) : undefined,
               Form: (props: NodeFormProps<unknown>) =>
                 createElement(config.Form, { ...props, value: check(props.value) }),
             },

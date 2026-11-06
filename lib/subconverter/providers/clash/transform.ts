@@ -1,5 +1,5 @@
 import { clashProxyNode } from './parser';
-import { rejectNode } from '../../proxy-node/debug';
+import { NODE_ERROR, rejectNode } from '../../proxy-node/errors';
 import { expand, flatten, get, nativeFingerprint, projectWireGuard, put, remove } from '../../proxy-node/mapping';
 import { createTransform, supportsType } from '../../proxy-node/transform';
 import type { ClashConfig, ClashNode } from '../../types/providers/clash';
@@ -3810,7 +3810,7 @@ export function readNode(value: unknown): ClashNode {
     const version = node.version || 1;
 
     if (![1, 2, 3, 4, 5].includes(version) || ([1, 2].includes(version) && node.udp === true)) {
-      return rejectNode('unsupported-snell-version');
+      return rejectNode(NODE_ERROR.UNSUPPORTED_SNELL_VERSION);
     }
   }
 
@@ -3831,7 +3831,7 @@ export const transform = createTransform({
 
     if (node.type === 'mieru' && node.portRange !== undefined) {
       if (Number(node.port ?? 0) !== 0) {
-        return rejectNode('ambiguous-mieru-ports');
+        return rejectNode(NODE_ERROR.AMBIGUOUS_MIERU_PORTS);
       }
 
       remove(source, 'port');
@@ -3870,7 +3870,7 @@ export const transform = createTransform({
       const intervals = fields.wireGuardPeers.map((peer) => peer.keepAlive);
 
       if (intervals.some((value) => value !== intervals[0])) {
-        return rejectNode('unrepresentable-peer-keepalive');
+        return rejectNode(NODE_ERROR.UNREPRESENTABLE_PEER_KEEPALIVE);
       }
 
       if (intervals[0] !== undefined) {
@@ -3893,7 +3893,7 @@ export const transform = createTransform({
 
     if (fields.type === 'mieru' && fields.ports !== undefined) {
       if (fields.ports.length !== 1 || Number(fields.ports[0].split(/[:-]/)[0]) !== fields.port) {
-        return rejectNode('unrepresentable-mieru-ports');
+        return rejectNode(NODE_ERROR.UNREPRESENTABLE_MIERU_PORTS);
       }
 
       put(fixed, 'port', fields.port);

@@ -1,9 +1,10 @@
+import logger from '@/lib/api/logger';
 import type { OutputElements } from '../../types/output';
 import { adapter as clash } from '../clash';
 import { transform as transformNodes } from '../clash/nodes';
 import { transform as transformPolicies } from '../clash/policies';
 import { transform as transformRules } from '../clash/rules';
-import { fail } from '../shared/errors';
+import { fail, OUTPUT_ERROR } from '../shared/errors';
 
 const protocols = ['ss', 'ssr', 'vmess', 'trojan', 'http', 'https', 'socks5', 'snell'];
 const fields = new Set([
@@ -53,7 +54,9 @@ export const adapter: typeof clash = {
           Object.keys(node).some((key) => !fields.has(key)) ||
           ('network' in node && node.network !== undefined && !['tcp', 'ws', 'http'].includes(node.network))
         ) {
-          fail('node', index, 'fields', 'unsupported-clashr-node');
+          logger.warn(OUTPUT_ERROR.UNSUPPORTED_CLASHR_NODE, { data: node, field: 'fields' });
+
+          fail('node', index, 'fields', OUTPUT_ERROR.UNSUPPORTED_CLASHR_NODE);
         }
       });
 

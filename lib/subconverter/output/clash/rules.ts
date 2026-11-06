@@ -1,6 +1,7 @@
+import logger from '@/lib/api/logger';
 import type { RuleSetConfigFields } from '@/lib/subconverter/types/rulesets';
 import type { NativeObject, OutputContext, OutputTarget } from '../../types/output';
-import { fail } from '../shared/errors';
+import { fail, OUTPUT_ERROR } from '../shared/errors';
 import { boundRules, conditionText, nativeRuleProvider, validateRule } from '../shared/rules';
 
 export interface RuleProjection {
@@ -47,14 +48,20 @@ export function transform(
     try {
       url = new URL(rule.url);
     } catch {
-      return fail('rule', index, 'url', 'invalid-rule-url');
+      logger.warn(OUTPUT_ERROR.INVALID_RULE_URL, { data: rule, field: 'url' });
+
+      return fail('rule', index, 'url', OUTPUT_ERROR.INVALID_RULE_URL);
     }
     if (!['http:', 'https:'].includes(url.protocol)) {
-      return fail('rule', index, 'url', 'unsupported-rule-url');
+      logger.warn(OUTPUT_ERROR.UNSUPPORTED_RULE_URL, { data: rule, field: 'url' });
+
+      return fail('rule', index, 'url', OUTPUT_ERROR.UNSUPPORTED_RULE_URL);
     }
 
     if (!Number.isSafeInteger(rule.interval) || rule.interval < 0) {
-      return fail('rule', index, 'interval', 'invalid-rule-interval');
+      logger.warn(OUTPUT_ERROR.INVALID_RULE_INTERVAL, { data: rule, field: 'interval' });
+
+      return fail('rule', index, 'interval', OUTPUT_ERROR.INVALID_RULE_INTERVAL);
     }
 
     const name = `ruleset-${index}`;
@@ -63,7 +70,9 @@ export function transform(
       rule.format === 'clash-domain' ? 'domain' : rule.format === 'clash-ipcidr' ? 'ipcidr' : 'classical';
 
     if (format === 'mrs' && behavior === 'classical') {
-      return fail('rule', index, 'resourceFormat', 'unsupported-mrs-behavior');
+      logger.warn(OUTPUT_ERROR.UNSUPPORTED_MRS_BEHAVIOR, { data: rule, field: 'resourceFormat' });
+
+      return fail('rule', index, 'resourceFormat', OUTPUT_ERROR.UNSUPPORTED_MRS_BEHAVIOR);
     }
 
     providers[name] = {
@@ -82,7 +91,9 @@ export function transform(
     rules: boundRules(definitions, context).map(({ condition, policy, index }) => {
       validateRule(condition, allowed, index, true);
       if (condition.type === 'RULE-SET' && !Object.hasOwn(providers, condition.value ?? '')) {
-        return fail('rule', index, 'rule', 'unknown-rule-provider');
+        logger.warn(OUTPUT_ERROR.UNKNOWN_RULE_PROVIDER, { data: rules[index], field: 'rule' });
+
+        return fail('rule', index, 'rule', OUTPUT_ERROR.UNKNOWN_RULE_PROVIDER);
       }
 
       return `${conditionText(condition)},${policy}${condition.noResolve ? ',no-resolve' : ''}`;

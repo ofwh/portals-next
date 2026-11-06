@@ -1,5 +1,6 @@
 import { isAlias, isMap, isNode, isScalar, isSeq, LineCounter, parseAllDocuments, Scalar } from 'yaml';
 import type { Node } from 'yaml';
+import logger from '@/lib/api/logger';
 import type { ConfigObject, ConfigValue } from '../../types/configuration';
 import { ConfigSyntaxError } from '../errors';
 import { createObject, isObject, valuesOf } from '../model';
@@ -52,6 +53,12 @@ export function parseYaml(content: string): ConfigObject {
 
   function fail(message: string, offset = 0): never {
     const position = lines.linePos(offset);
+
+    logger.warn(message, {
+      data: content.split(/\r\n|\n|\r/)[position.line - 1],
+      line: position.line,
+      column: position.col,
+    });
 
     throw new ConfigSyntaxError('yaml', position.line, position.col, message);
   }

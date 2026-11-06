@@ -1,5 +1,5 @@
 import type { IniStyle } from './transform';
-import { rejectNode } from '../../proxy-node/debug';
+import { NODE_ERROR, rejectNode } from '../../proxy-node/errors';
 import { convert, get, put, remove } from '../../proxy-node/mapping';
 import type { IniProxyOptions } from '../../types/providers/ini';
 import type { ProxyNodeFields } from '../../types/proxy-node';
@@ -70,7 +70,7 @@ export function projectOptions(fields: ProxyNodeFields, style: IniStyle, options
         const sni = serverName ?? host;
 
         if (tls && text(host).toLowerCase() !== text(sni).toLowerCase()) {
-          rejectNode('unsupported-transport');
+          rejectNode(NODE_ERROR.UNSUPPORTED_TRANSPORT);
         }
 
         put(options, 'obfs', tls ? 'wss' : 'ws');
@@ -101,7 +101,7 @@ export function projectOptions(fields: ProxyNodeFields, style: IniStyle, options
 
     if (fields.type === 'ss' && fields.plugin === 'v2ray-plugin') {
       if (fields.pluginMode && fields.pluginMode !== 'websocket') {
-        rejectNode('unsupported-ss-plugin');
+        rejectNode(NODE_ERROR.UNSUPPORTED_SS_PLUGIN);
       }
 
       put(options, 'obfs', fields.pluginTls ? 'wss' : 'ws');
@@ -128,7 +128,7 @@ export function projectOptions(fields: ProxyNodeFields, style: IniStyle, options
           const bytes = Buffer.from(text(protocol), 'utf8');
 
           if (!bytes.length || bytes.length > 255) {
-            return rejectNode('unrepresentable-alpn');
+            return rejectNode(NODE_ERROR.UNREPRESENTABLE_ALPN);
           }
 
           return bytes.length.toString(16).padStart(2, '0') + bytes.toString('hex');
@@ -144,7 +144,7 @@ export function projectOptions(fields: ProxyNodeFields, style: IniStyle, options
   if (fields.type === 'hysteria2') {
     if (fields.obfsPassword) {
       if (fields.obfs !== 'salamander' && !(style === 'surge' && fields.obfs === 'gecko')) {
-        rejectNode('unsupported-obfuscation');
+        rejectNode(NODE_ERROR.UNSUPPORTED_OBFUSCATION);
       }
 
       put(options, fields.obfs === 'gecko' ? 'geckoPassword' : 'salamanderPassword', fields.obfsPassword);

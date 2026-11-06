@@ -1,10 +1,10 @@
 import type { V2RayConfig } from '../../types/providers/v2ray';
+import { nodeItems } from '../node-items';
 import {
   array,
   boolean,
   entries,
   json,
-  nodeItems,
   number,
   oneOf,
   optional,

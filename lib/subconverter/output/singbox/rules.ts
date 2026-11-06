@@ -1,5 +1,6 @@
+import logger from '@/lib/api/logger';
 import type { NativeObject, OutputContext, OutputElements } from '../../types/output';
-import { fail } from '../shared/errors';
+import { fail, OUTPUT_ERROR } from '../shared/errors';
 import { boundRules } from '../shared/rules';
 import type { RuleCondition } from '../shared/rules';
 
@@ -32,7 +33,9 @@ const fields: Record<string, string> = {
 
 function project(condition: RuleCondition, index: number): NativeObject {
   if (condition.noResolve) {
-    return fail('rule', index, 'noResolve', 'no-resolve-not-supported');
+    logger.warn(OUTPUT_ERROR.NO_RESOLVE_NOT_SUPPORTED, { data: condition, field: 'noResolve' });
+
+    return fail('rule', index, 'noResolve', OUTPUT_ERROR.NO_RESOLVE_NOT_SUPPORTED);
   }
 
   if (condition.children) {
@@ -51,7 +54,9 @@ function project(condition: RuleCondition, index: number): NativeObject {
   const field = fields[condition.type];
 
   if (!field || condition.value === undefined) {
-    return fail('rule', index, 'rule', 'unsupported-singbox-rule');
+    logger.warn(OUTPUT_ERROR.UNSUPPORTED_SINGBOX_RULE, { data: condition, field: 'rule' });
+
+    return fail('rule', index, 'rule', OUTPUT_ERROR.UNSUPPORTED_SINGBOX_RULE);
   }
 
   if (['port', 'source_port', 'ip_version', 'user_id'].includes(field)) {
@@ -64,7 +69,9 @@ function project(condition: RuleCondition, index: number): NativeObject {
       ((field === 'port' || field === 'source_port') && (number < 1 || number > 65535)) ||
       (field === 'ip_version' && number !== 4 && number !== 6)
     ) {
-      return fail('rule', index, 'value', 'invalid-numeric-rule');
+      logger.warn(OUTPUT_ERROR.INVALID_NUMERIC_RULE, { data: condition, field: 'value' });
+
+      return fail('rule', index, 'value', OUTPUT_ERROR.INVALID_NUMERIC_RULE);
     }
 
     return { [field]: number };
@@ -74,7 +81,9 @@ function project(condition: RuleCondition, index: number): NativeObject {
     const range = /^(\d+):(\d+)$/.exec(condition.value);
 
     if (!range || Number(range[1]) < 1 || Number(range[2]) > 65535 || Number(range[1]) > Number(range[2])) {
-      return fail('rule', index, 'value', 'invalid-port-range');
+      logger.warn(OUTPUT_ERROR.INVALID_PORT_RANGE, { data: condition, field: 'value' });
+
+      return fail('rule', index, 'value', OUTPUT_ERROR.INVALID_PORT_RANGE);
     }
   }
 
@@ -86,7 +95,9 @@ export function transform(rules: OutputElements['rules'], context: OutputContext
 
   for (const { condition, policy, index } of boundRules(rules, context)) {
     if (condition.noResolve) {
-      return fail('rule', index, 'noResolve', 'no-resolve-not-supported');
+      logger.warn(OUTPUT_ERROR.NO_RESOLVE_NOT_SUPPORTED, { data: rules[index], field: 'noResolve' });
+
+      return fail('rule', index, 'noResolve', OUTPUT_ERROR.NO_RESOLVE_NOT_SUPPORTED);
     }
 
     if (condition.type === 'MATCH') {

@@ -1,3 +1,5 @@
+import logger from '@/lib/api/logger';
+import { OUTPUT_ERROR } from './errors';
 import type { ProxyNodeFields } from '../../types/proxy-node';
 
 const ssCiphers = new Set([
@@ -27,9 +29,21 @@ const ssCiphers = new Set([
   '2022-blake3-chacha8-poly1305',
 ]);
 
-export function ssNode(node: ProxyNodeFields): ProxyNodeFields | undefined {
+export function ssNode(node: ProxyNodeFields, target: 'ss' | 'sssub'): ProxyNodeFields | undefined {
   if (node.type === 'ssr') {
     if (node.protocol !== 'origin' || node.obfs !== 'plain' || !ssCiphers.has(node.cipher)) {
+      logger.warn(OUTPUT_ERROR.UNSUPPORTED_NODE_FOR_TARGET, {
+        target,
+        data: {
+          id: node.id,
+          name: node.name,
+          type: node.type,
+          protocol: node.protocol,
+          obfs: node.obfs,
+          cipher: node.cipher,
+        },
+      });
+
       return undefined;
     }
 
@@ -42,5 +56,14 @@ export function ssNode(node: ProxyNodeFields): ProxyNodeFields | undefined {
     return { ...fields, type: 'ss' };
   }
 
-  return node.type === 'ss' ? node : undefined;
+  if (node.type !== 'ss') {
+    logger.warn(OUTPUT_ERROR.UNSUPPORTED_NODE_FOR_TARGET, {
+      target,
+      data: { id: node.id, name: node.name, type: node.type },
+    });
+
+    return undefined;
+  }
+
+  return node;
 }

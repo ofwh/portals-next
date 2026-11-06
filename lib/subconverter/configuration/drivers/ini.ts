@@ -1,4 +1,5 @@
 import { parse, ParsingError } from 'js-ini';
+import logger from '@/lib/api/logger';
 import type { ConfigObject } from '../../types/configuration';
 import { ConfigSyntaxError } from '../errors';
 import { createObject, entryFor } from '../model';
@@ -18,6 +19,8 @@ function decode(value: string, line: number, column: number): string {
 
     if (char === quote) {
       if (index !== value.length - 1) {
+        logger.warn('Unexpected content after quoted value', { data: value });
+
         throw new ConfigSyntaxError('ini', line, column + index + 1, 'Unexpected content after quoted value');
       }
 
@@ -32,6 +35,8 @@ function decode(value: string, line: number, column: number): string {
       result += char;
     }
   }
+
+  logger.warn('Unterminated quoted value', { data: value });
 
   throw new ConfigSyntaxError('ini', line, column, 'Unterminated quoted value');
 }
@@ -57,6 +62,8 @@ export function parseIni(content: string): ConfigObject {
       const name = section?.[1].trim();
 
       if (!name) {
+        logger.warn('Invalid section header', { data: line });
+
         throw new ConfigSyntaxError('ini', index + 1, column, 'Invalid section header');
       }
 
@@ -79,6 +86,8 @@ export function parseIni(content: string): ConfigObject {
         comment: ['#', ';', '//'],
         autoTyping(value: string, _section: string | symbol, key: string) {
           if (!key) {
+            logger.warn('Assignment requires a key', { data: line });
+
             throw new ConfigSyntaxError('ini', index + 1, column, 'Assignment requires a key');
           }
 

@@ -1,5 +1,6 @@
 import type { AST } from 'toml-eslint-parser';
 import { ParseError, parseTOML } from 'toml-eslint-parser';
+import logger from '@/lib/api/logger';
 import type { ConfigObject, ConfigValue } from '../../types/configuration';
 import { ConfigSyntaxError } from '../errors';
 import { createObject, entryFor, isObject, valuesOf } from '../model';
@@ -90,6 +91,12 @@ export function parseToml(content: string): ConfigObject {
     return root;
   } catch (error) {
     if (error instanceof ParseError) {
+      logger.warn(error.message, {
+        data: content.split(/\r\n|\n|\r/)[error.lineNumber - 1],
+        line: error.lineNumber,
+        column: error.column + 1,
+      });
+
       throw new ConfigSyntaxError('toml', error.lineNumber, error.column + 1, error.message);
     }
 

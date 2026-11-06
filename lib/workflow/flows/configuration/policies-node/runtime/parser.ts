@@ -1,9 +1,10 @@
+import logger from '@/lib/api/logger';
 import { splitFields } from '@/lib/subconverter/providers/ini/utils';
 import type { ConfigObject } from '@/lib/subconverter/types/configuration';
 import type { PolicyGroupFields } from '@/lib/subconverter/types/policies';
 import type { PolicyConfigFields } from '@/lib/subconverter/types/policies';
 import { readPolicyNodes } from './dataset';
-import { ConfigurationFieldError, integer } from '../../utils/configuration';
+import { ConfigurationFieldError, integer } from '../../utils/parser';
 import { readPolicyGroupFields } from '../model/fields';
 import { policyGroupTypes, timedPolicyGroupTypes } from '../model/options';
 import type { PolicyConfigNode } from '../model/types';
@@ -15,8 +16,12 @@ function adaptObject(original: PolicyConfigNode, toml: boolean): PolicyConfigNod
 
   if (!supported) {
     if (toml) {
+      logger.warn('Unsupported policy type', { field: 'type', data: original });
+
       throw new ConfigurationFieldError('type', 'Unsupported policy type');
     }
+
+    logger.warn('不支持的策略类型，已过滤', { data: original });
 
     return undefined;
   }
@@ -26,12 +31,16 @@ function adaptObject(original: PolicyConfigNode, toml: boolean): PolicyConfigNod
 
   if (toml) {
     if (timed && (node.url === undefined || node.interval === undefined)) {
+      logger.warn('Timed policies require url and interval', { field: 'policies', data: original });
+
       throw new ConfigurationFieldError('policies', 'Timed policies require url and interval');
     }
 
     node.timeout ??= '5';
 
     if (rules.length === 0 && node.use?.length === 0) {
+      logger.warn('A policy requires members or providers', { field: 'policies', data: original });
+
       throw new ConfigurationFieldError('policies', 'A policy requires members or providers');
     }
 
@@ -42,13 +51,24 @@ function adaptObject(original: PolicyConfigNode, toml: boolean): PolicyConfigNod
       /^https?:\/\//i.test(rules[0]) &&
       node.use?.length === 0
     ) {
+      logger.warn('A policy requires members after extracting the health-check URL', {
+        field: 'policies',
+        data: original,
+      });
+
       throw new ConfigurationFieldError('policies', 'A policy requires members after extracting the health-check URL');
     }
   } else {
     // YAML readGroup 不转发 use；其最少成员数与 INI 绑定器不同。
+    if (node.use?.length) {
+      logger.warn('当前配置格式不支持策略供应者，已忽略', { data: original.use, field: 'use' });
+    }
+
     node.use = [];
 
     if (rules.length < (node.type === 'ssid' ? 2 : 1)) {
+      logger.warn('策略成员数量不足，已过滤', { data: original });
+
       return undefined;
     }
 
@@ -56,6 +76,10 @@ function adaptObject(original: PolicyConfigNode, toml: boolean): PolicyConfigNod
       node.url ??= 'https://www.gstatic.com/generate_204';
       node.interval ??= '300';
     } else if (node.type === 'select' || node.type === 'ssid') {
+      if ([node.url, node.interval, node.timeout, node.tolerance].some((value) => value !== undefined)) {
+        logger.warn('当前策略类型不支持健康检查参数，已忽略', { data: original });
+      }
+
       delete node.url;
       delete node.interval;
       delete node.timeout;
@@ -93,6 +117,8 @@ function transform(nodes: readonly (string | PolicyConfigNode)[]): PolicyConfigF
       const [groupName, groupType, ...fields] = splitFields(node, '`');
 
       if (fields.length === 0 || !policyGroupTypes.some((candidate) => candidate === groupType)) {
+        logger.warn('策略参数缺失或类型不支持，已过滤', { data: node });
+
         continue;
       }
 
@@ -101,6 +127,8 @@ function transform(nodes: readonly (string | PolicyConfigNode)[]): PolicyConfigF
 
       if (timedPolicyGroupTypes.some((candidate) => candidate === type)) {
         if (fields.length < 3) {
+          logger.warn('策略健康检查参数不足，已过滤', { data: node });
+
           continue;
         }
 
@@ -152,7 +180,13 @@ function transform(nodes: readonly (string | PolicyConfigNode)[]): PolicyConfigF
       group.members.pop();
     }
 
-    result.push(readPolicyGroupFields({ ...group, type }));
+    try {
+      result.push(readPolicyGroupFields({ ...group, type }));
+    } catch (error) {
+      logger.warn(error instanceof Error ? error.message : '策略字段转换失败', { data: node });
+
+      throw error;
+    }
   }
 
   return result;

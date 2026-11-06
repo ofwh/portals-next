@@ -1,8 +1,9 @@
+import logger from '@/lib/api/logger';
 import type { ConfigObject } from '@/lib/subconverter/types/configuration';
 import type { RuleGroupFields, RuleResourceFormat, RuleSourceFormat } from '@/lib/subconverter/types/rulesets';
 import type { RuleSetConfigFields } from '@/lib/subconverter/types/rulesets';
 import { readRulesetNodes } from './dataset';
-import { ConfigurationFieldError, integer, rejectImport } from '../../utils/configuration';
+import { ConfigurationFieldError, integer, rejectImport } from '../../utils/parser';
 import { defaultRuleInterval, ruleSourceFormats } from '../model/options';
 import type { RuleSetConfigNode } from '../model/types';
 
@@ -11,15 +12,29 @@ function adaptObject(original: RuleSetConfigNode, toml: boolean): RuleSetConfigN
 
   if (toml) {
     if (node.ruleset === undefined) {
+      logger.warn('Required', { field: 'ruleset', data: original });
+
       throw new ConfigurationFieldError('ruleset', 'Required');
     }
 
     node.type ??= 'surge-ruleset';
+    if (node.rule !== undefined) {
+      logger.warn('当前配置格式使用远程规则来源，忽略内联规则', { data: original.rule, field: 'rule' });
+    }
+
     delete node.rule;
   } else {
+    if (node.type !== undefined) {
+      logger.warn('当前配置格式不支持规则类型参数，已忽略', { data: original.type, field: 'type' });
+    }
+
     delete node.type;
     // YAML readRuleset 优先非空远程来源，缺失时才使用内联规则。
     if (node.ruleset) {
+      if (node.rule) {
+        logger.warn('已使用远程规则来源，忽略内联规则', { data: original.rule, field: 'rule' });
+      }
+
       delete node.rule;
     } else {
       delete node.ruleset;
@@ -47,6 +62,8 @@ function sourceFormat(type: string): RuleSourceFormat {
   );
 
   if (!format) {
+    logger.warn('Unsupported ruleset type', { field: 'type', data: type });
+
     throw new ConfigurationFieldError('type', 'Unsupported ruleset type');
   }
 
@@ -67,6 +84,8 @@ function transform(nodes: readonly (string | RuleSetConfigNode)[]): RuleSetConfi
       const first = node.indexOf(',');
 
       if (first < 0) {
+        logger.warn('规则参数格式错误，已过滤', { data: node });
+
         continue;
       }
 
@@ -88,6 +107,8 @@ function transform(nodes: readonly (string | RuleSetConfigNode)[]): RuleSetConfi
       policy = node.group;
 
       if (node.rule !== undefined && node.ruleset !== undefined) {
+        logger.warn('rule and ruleset are mutually exclusive', { field: 'rulesets', data: node });
+
         throw new ConfigurationFieldError('rulesets', 'rule and ruleset are mutually exclusive');
       }
 
@@ -98,6 +119,8 @@ function transform(nodes: readonly (string | RuleSetConfigNode)[]): RuleSetConfi
       }
 
       if (node.ruleset === undefined) {
+        logger.warn('规则内容与规则来源均缺失，已过滤', { data: node });
+
         continue;
       }
 
@@ -122,6 +145,7 @@ function transform(nodes: readonly (string | RuleSetConfigNode)[]): RuleSetConfi
 
       if (option === 'no-resolve') {
         noResolve = true;
+        continue;
       }
 
       if (option.startsWith('stash-format=')) {
@@ -129,12 +153,17 @@ function transform(nodes: readonly (string | RuleSetConfigNode)[]): RuleSetConfi
 
         if (format === 'yaml' || format === 'text' || format === 'mrs') {
           if (resourceFormat && resourceFormat !== format) {
+            logger.warn('Conflicting rule resource formats', { field: 'options', data: raw });
+
             throw new ConfigurationFieldError('options', 'Conflicting rule resource formats');
           }
 
           resourceFormat = format;
+          continue;
         }
       }
+
+      logger.warn('不支持的规则选项，已忽略', { data: raw });
     }
 
     const prefix = ruleSourceFormats.find((candidate) => source.startsWith(`${candidate}:`));

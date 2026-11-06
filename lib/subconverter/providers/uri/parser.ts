@@ -1,3 +1,5 @@
+import logger from '@/lib/api/logger';
+import { NODE_ERROR } from '@/lib/subconverter/proxy-node/errors';
 import { debugNode } from '../../proxy-node/debug';
 import type { UriConfig, UriProxyNode, UriUrlProxyNode } from '../../types/providers/uri';
 import { parseIni } from '../ini/parser';
@@ -251,6 +253,12 @@ export function parse(content: string): UriConfig {
       .split(/\r?\n/)
       .some((line) => line.trim() && !['#', ';', '//'].some((prefix) => line.trim().startsWith(prefix)))
   ) {
+    logger.warn('Expected a URI subscription', {
+      data: content
+        .split(/\r?\n/)
+        .find((line) => line.trim() && !['#', ';', '//'].some((prefix) => line.trim().startsWith(prefix))),
+    });
+
     throw new Error('Expected a URI subscription');
   }
 
@@ -266,8 +274,14 @@ export function parse(content: string): UriConfig {
 
       try {
         nodes.push(parseUri(uri));
-      } catch {
-        debugNode('uri', 'parse', index, 'invalid-or-unsupported-node');
+      } catch (error) {
+        debugNode(
+          'uri',
+          'parse',
+          index,
+          error instanceof Error ? error.message : NODE_ERROR.INVALID_OR_UNSUPPORTED_NODE,
+          uri,
+        );
       }
     }
   }

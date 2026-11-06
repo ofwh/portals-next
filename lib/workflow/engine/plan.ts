@@ -7,7 +7,10 @@ import { nodeRegistry } from '../node/core/registry';
 
 export function buildExecutionPlan(raw: WorkflowDefinition, registry: NodeRegistry = nodeRegistry): ExecutionPlan {
   const plan = validateArrangement(raw, (type) => registry.getNode(type).manifest, registry.types);
-  const nodes = plan.nodes.map((node) => ({ ...node, config: registry.getNode(node.type).parseConfig(node.config) }));
+  const nodes = plan.nodes.map((node) => ({
+    ...node,
+    config: registry.getNode(node.type).parseConfig(node.config, { nodeId: node.id }),
+  }));
 
   return freezeDeep(cloneJson({ ...plan, nodes }));
 }

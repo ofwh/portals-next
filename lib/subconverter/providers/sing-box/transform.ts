@@ -1,5 +1,5 @@
 import { singBoxProxyNode, singBoxWireGuardEndpoint } from './parser';
-import { rejectNode } from '../../proxy-node/debug';
+import { NODE_ERROR, rejectNode } from '../../proxy-node/errors';
 import { expand, flatten, get, projectWireGuard, put, remove } from '../../proxy-node/mapping';
 import { createTransform } from '../../proxy-node/transform';
 import type { SingBoxConfig, SingBoxNode } from '../../types/providers/sing-box';
@@ -1850,13 +1850,13 @@ export function readNode(value: unknown): SingBoxNode {
     const psk = node.psk ?? '';
 
     if (![4, 6].includes(version) || !psk || (node.userkey?.length ?? 0) > 255) {
-      return rejectNode('invalid-snell-configuration');
+      return rejectNode(NODE_ERROR.INVALID_SNELL_CONFIGURATION);
     }
 
     const networks = node.network === undefined ? [] : typeof node.network === 'string' ? [node.network] : node.network;
 
     if (networks.some((network) => !['tcp', 'udp'].includes(network)) || new Set(networks).size !== networks.length) {
-      return rejectNode('invalid-snell-network');
+      return rejectNode(NODE_ERROR.INVALID_SNELL_NETWORK);
     }
 
     if (
@@ -1865,7 +1865,7 @@ export function readNode(value: unknown): SingBoxNode {
         !['', 'none', 'http'].includes(node.obfsMode ?? '') ||
         ((node.obfsHost ?? '') !== '' && node.obfsMode !== 'http'))
     ) {
-      return rejectNode('invalid-snell-obfuscation');
+      return rejectNode(NODE_ERROR.INVALID_SNELL_OBFUSCATION);
     }
 
     if (
@@ -1876,7 +1876,7 @@ export function readNode(value: unknown): SingBoxNode {
         (node.obfsHost ?? '') !== '' ||
         !['', 'default', 'unshaped', 'unsafe-raw'].includes(node.mode ?? ''))
     ) {
-      return rejectNode('invalid-snell-configuration');
+      return rejectNode(NODE_ERROR.INVALID_SNELL_CONFIGURATION);
     }
   }
 
@@ -1962,14 +1962,14 @@ export const transform = createTransform({
 
     if (type === 'snell') {
       if (![4, 6].includes(Number(node.version))) {
-        return rejectNode('unsupported-snell-version');
+        return rejectNode(NODE_ERROR.UNSUPPORTED_SNELL_VERSION);
       }
 
       return flatten('snell', source, bindings.snell);
     }
 
     if (type === 'socks5' && node.version !== undefined && String(node.version) !== '5') {
-      return rejectNode('unsupported-socks-version');
+      return rejectNode(NODE_ERROR.UNSUPPORTED_SOCKS_VERSION);
     }
 
     const network = get(source, 'transport.type');
@@ -1987,7 +1987,7 @@ export const transform = createTransform({
       packetNetwork !== undefined &&
       !['ss', 'vmess', 'vless', 'trojan', 'socks5', 'hysteria', 'hysteria2', 'tuic'].includes(type)
     ) {
-      return rejectNode('unsupported-packet-network');
+      return rejectNode(NODE_ERROR.UNSUPPORTED_PACKET_NETWORK);
     }
 
     if (packetNetwork !== undefined) {
@@ -1999,7 +1999,7 @@ export const transform = createTransform({
       const values = Array.isArray(packetNetwork) ? packetNetwork : [packetNetwork];
 
       if (values.some((item) => !['tcp', 'udp'].includes(String(item)))) {
-        return rejectNode('invalid-packet-network');
+        return rejectNode(NODE_ERROR.INVALID_PACKET_NETWORK);
       }
 
       if (values.includes('tcp')) {
@@ -2057,7 +2057,7 @@ export const transform = createTransform({
       get(fields, 'packetNetworks') !== undefined &&
       !['ss', 'vmess', 'vless', 'trojan', 'socks5', 'hysteria', 'hysteria2', 'tuic'].includes(fields.type)
     ) {
-      return rejectNode('unrepresentable-packet-network');
+      return rejectNode(NODE_ERROR.UNREPRESENTABLE_PACKET_NETWORK);
     }
 
     const udp = get(fields, 'udp');
@@ -2066,13 +2066,13 @@ export const transform = createTransform({
       if (
         !['ss', 'vmess', 'vless', 'trojan', 'socks5', 'hysteria', 'hysteria2', 'tuic', 'snell'].includes(fields.type)
       ) {
-        return rejectNode('unrepresentable-udp-control');
+        return rejectNode(NODE_ERROR.UNREPRESENTABLE_UDP_CONTROL);
       }
 
       const networks = get(fields, 'packetNetworks');
 
       if (networks !== undefined && Array.isArray(networks) && networks.includes('udp') !== udp) {
-        return rejectNode('conflicting-packet-networks');
+        return rejectNode(NODE_ERROR.CONFLICTING_PACKET_NETWORKS);
       }
 
       put(fixed, 'udp', udp);
@@ -2085,7 +2085,7 @@ export const transform = createTransform({
 
     if (fields.type === 'ss') {
       if (fields.plugin && !isSimpleObfs(fields.plugin) && fields.plugin !== 'v2ray-plugin') {
-        return rejectNode('unsupported-ss-plugin');
+        return rejectNode(NODE_ERROR.UNSUPPORTED_SS_PLUGIN);
       }
 
       return readNode(pluginOutput(output));

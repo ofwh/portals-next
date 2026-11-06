@@ -1,7 +1,8 @@
 import { getMessages } from 'next-intl/server';
 import 'server-only';
-import { appError } from '@/lib/api';
+import { appError, businessCode, errorMessage } from '@/lib/api';
 import type { Locale } from '@/lib/api';
+import logger from '@/lib/api/logger';
 import repository from '@/lib/repositories/subscriptions';
 import type { WorkflowNodeCatalog } from '@/lib/types/workflow';
 import type { RunEvent } from '@/lib/workflow/model';
@@ -74,7 +75,15 @@ export function run(raw: unknown, context: WorkflowRunContext) {
   }
 
   if (!subscription.flowDraft) {
-    throw appError('workflow.DRAFT_NOT_FOUND');
+    const failure = appError('workflow.DRAFT_NOT_FOUND');
+
+    logger.warn(errorMessage(failure, context.locale), {
+      code: businessCode(failure.code),
+      workflowId: id,
+      runId,
+    });
+
+    throw failure;
   }
 
   const snapshot = restoreSnapshot(subscription.flowDraft);
@@ -87,7 +96,19 @@ export function run(raw: unknown, context: WorkflowRunContext) {
   const timeout = value.timeout === undefined ? undefined : v.positiveInteger(value.timeout);
 
   const token = crypto.randomUUID();
-  const handle = (context.runtime ?? workflowRuntime).start({ runId, workflow }, token, context.emit, {
+  const emit = (event: RunEvent) => {
+    if (event.type === 'node.updated' && event.node.error) {
+      logger.log(event.node.status === 'cancelled' ? 'info' : 'error', '工作流节点返回错误', {
+        workflowId: id,
+        runId: event.runId,
+        nodeId: event.node.nodeId,
+        data: event.node.error,
+      });
+    }
+
+    context.emit(event);
+  };
+  const handle = (context.runtime ?? workflowRuntime).start({ runId, workflow }, token, emit, {
     timeout,
     locale: context.locale,
     signal: context.signal,

@@ -1,5 +1,6 @@
+import logger from '@/lib/api/logger';
 import type { ConfigObject, ConfigValue } from '@/lib/subconverter/types/configuration';
-import { entry, objectValue, rejectImport, requiredText, section, text, texts } from '../../utils/configuration';
+import { entry, objectValue, rejectImport, requiredText, section, text, texts } from '../../utils/parser';
 import type { RuleSetConfigNode } from '../model/types';
 
 function readObject(value: ConfigValue, toml = false): RuleSetConfigNode {
@@ -7,10 +8,22 @@ function readObject(value: ConfigValue, toml = false): RuleSetConfigNode {
 
   rejectImport(object);
 
+  for (const item of object.entries) {
+    if (!['group', 'rule', 'ruleset', 'type', 'interval', 'options', 'import'].includes(item.key)) {
+      logger.warn('不支持的配置参数，已忽略', { field: item.key, data: item.values });
+    }
+  }
+
   const node: RuleSetConfigNode = { group: toml ? requiredText(object, 'group') : (text(object, 'group') ?? '') };
 
   for (const key of ['rule', 'ruleset', 'type', 'interval'] as const) {
     if (!toml && key === 'type') {
+      const ignored = entry(object, key);
+
+      if (ignored) {
+        logger.warn('当前配置格式不支持规则类型参数，已忽略', { field: key, data: ignored.values });
+      }
+
       continue;
     }
 

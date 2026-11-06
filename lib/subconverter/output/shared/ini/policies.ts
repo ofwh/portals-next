@@ -1,8 +1,9 @@
+import logger from '@/lib/api/logger';
 import { token } from './token';
 import type { IniNodeProjection } from './types';
 import type { ConvertedNodes, OutputContext } from '../../../types/output';
 import type { PolicyConfigFields, PolicyGroupType } from '../../../types/policies';
-import { fail } from '../errors';
+import { fail, OUTPUT_ERROR } from '../errors';
 import { resolvePolicies } from '../policies';
 
 export function projectPolicies(
@@ -28,14 +29,18 @@ export function groupLine(
   timeoutKey = 'timeout',
 ): string {
   if (!allowed.includes(definition.type)) {
-    return fail('policy', index, 'type', 'unsupported-group-type');
+    logger.warn(OUTPUT_ERROR.UNSUPPORTED_GROUP_TYPE, { data: definition, field: 'type' });
+
+    return fail('policy', index, 'type', OUTPUT_ERROR.UNSUPPORTED_GROUP_TYPE);
   }
 
   if (
     (definition.type === 'select' || definition.type === 'smart') &&
     (definition.url || definition.interval || definition.timeout || definition.tolerance)
   ) {
-    return fail('policy', index, 'fields', 'unsupported-group-health-check');
+    logger.warn(OUTPUT_ERROR.UNSUPPORTED_GROUP_HEALTH_CHECK, { data: definition, field: 'fields' });
+
+    return fail('policy', index, 'fields', OUTPUT_ERROR.UNSUPPORTED_GROUP_HEALTH_CHECK);
   }
 
   const options: string[] = [];

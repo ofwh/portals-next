@@ -21,6 +21,7 @@ async function generate(context: RouteContext<'subscriptions'>): Promise<void> {
   })();
 
   let content: string | undefined;
+  let failureMessage: string | undefined;
   let completed = false;
   const runId = crypto.randomUUID();
   const run = workflowRuntime.start(
@@ -41,7 +42,7 @@ async function generate(context: RouteContext<'subscriptions'>): Promise<void> {
       }
 
       if (event.type === 'run.failed' || event.type === 'run.cancelled') {
-        console.error('订阅路由工作流执行失败', { runId, subscriptionId: context.config.id, message: event.message });
+        failureMessage = event.message;
       }
     },
     { signal: context.req.signal },
@@ -50,7 +51,7 @@ async function generate(context: RouteContext<'subscriptions'>): Promise<void> {
   await run.done;
 
   if (!completed || content === undefined) {
-    throw new Error('Subscription workflow failed or produced no subscription output.');
+    throw new Error(failureMessage ?? 'Subscription workflow produced no subscription output.');
   }
 
   context.response = new Response(content, {
@@ -97,8 +98,6 @@ export async function handle(input: ConsumerRequest): Promise<Response> {
 
     return context.response;
   } catch (error) {
-    console.error('订阅路由处理失败', { pathname: input.pathname }, error);
-
     if (error instanceof AppError && error.code === 'subscriptions.ROUTE_CONFIG_ERROR') {
       return routeError('config');
     }

@@ -1,4 +1,5 @@
-import { fail } from './errors';
+import logger from '@/lib/api/logger';
+import { fail, OUTPUT_ERROR } from './errors';
 import type { UriNode } from '../../types/providers/uri';
 
 const nativeNames: Readonly<Record<string, string>> = {
@@ -30,7 +31,9 @@ export function stringify(node: UriNode, index: number): string {
   if ('config' in node) {
     if (node.scheme !== 'ssr') {
       if ('arguments' in node.config) {
-        return fail('node', index, 'config', 'unsupported-node-or-dependency');
+        logger.warn(OUTPUT_ERROR.UNSUPPORTED_NODE_OR_DEPENDENCY, { data: node, field: 'config' });
+
+        return fail('node', index, 'config', OUTPUT_ERROR.UNSUPPORTED_NODE_OR_DEPENDENCY);
       }
 
       return `vmess://${Buffer.from(JSON.stringify(node.config), 'utf8').toString('base64')}`;
@@ -39,7 +42,9 @@ export function stringify(node: UriNode, index: number): string {
     const config = node.config;
 
     if (config.plugin || config.pluginOpts) {
-      return fail('node', index, 'plugin', 'unsupported-node-or-dependency');
+      logger.warn(OUTPUT_ERROR.UNSUPPORTED_NODE_OR_DEPENDENCY, { data: node, field: 'plugin' });
+
+      return fail('node', index, 'plugin', OUTPUT_ERROR.UNSUPPORTED_NODE_OR_DEPENDENCY);
     }
 
     const encode = (value: string) => Buffer.from(value, 'utf8').toString('base64url');

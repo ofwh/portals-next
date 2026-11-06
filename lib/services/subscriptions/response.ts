@@ -15,8 +15,8 @@ export async function routeError(type: keyof typeof errors): Promise<Response> {
 
   try {
     locale = resolveLocale(await getLocale());
-  } catch (error) {
-    console.error('订阅路由错误响应语言读取失败', error);
+  } catch {
+    locale = 'en';
   }
 
   const { code, status } = errors[type];

@@ -1,6 +1,8 @@
 import { parse as parseYaml } from 'yaml';
+import logger from '@/lib/api/logger';
+import { withRequestId } from '@/lib/api/request-context';
 import type { RuleSetConfigFields } from '@/lib/subconverter/types/rulesets';
-import { fail } from './errors';
+import { fail, OUTPUT_ERROR, OutputError } from './errors';
 import { resolveSymbol } from './policies';
 import { splitFields } from '../../providers/ini/parser';
 import type { MaterializedRuleSource, OutputContext, OutputTarget } from '../../types/output';
@@ -33,10 +35,14 @@ export function parseCondition(line: string, index: number, sourcePolicy = false
   try {
     fields = splitFields(line);
   } catch {
-    return fail('rule', index, 'rule', 'invalid-rule-syntax');
+    logger.warn(OUTPUT_ERROR.INVALID_RULE_SYNTAX, { data: line, field: 'rule' });
+
+    return fail('rule', index, 'rule', OUTPUT_ERROR.INVALID_RULE_SYNTAX);
   }
   if (/[\r\n\0]/.test(line)) {
-    return fail('rule', index, 'rule', 'invalid-rule-line-break');
+    logger.warn(OUTPUT_ERROR.INVALID_RULE_LINE_BREAK, { data: line, field: 'rule' });
+
+    return fail('rule', index, 'rule', OUTPUT_ERROR.INVALID_RULE_LINE_BREAK);
   }
 
   const original = fields.shift()?.toUpperCase() ?? '';
@@ -54,7 +60,9 @@ export function parseCondition(line: string, index: number, sourcePolicy = false
   }
 
   if ((terminal && fields.length) || (!terminal && fields.length !== 1) || !type) {
-    return fail('rule', index, 'rule', 'invalid-rule-arity');
+    logger.warn(OUTPUT_ERROR.INVALID_RULE_ARITY, { data: line, field: 'rule' });
+
+    return fail('rule', index, 'rule', OUTPUT_ERROR.INVALID_RULE_ARITY);
   }
 
   if (terminal) {
@@ -64,17 +72,23 @@ export function parseCondition(line: string, index: number, sourcePolicy = false
   const value = fields[0];
 
   if (!value) {
-    return fail('rule', index, 'rule', 'empty-rule-value');
+    logger.warn(OUTPUT_ERROR.EMPTY_RULE_VALUE, { data: line, field: 'rule' });
+
+    return fail('rule', index, 'rule', OUTPUT_ERROR.EMPTY_RULE_VALUE);
   }
 
   if (['AND', 'OR', 'NOT'].includes(type)) {
     if (!value.startsWith('(') || !value.endsWith(')')) {
-      return fail('rule', index, 'rule', 'invalid-logical-rule');
+      logger.warn(OUTPUT_ERROR.INVALID_LOGICAL_RULE, { data: line, field: 'rule' });
+
+      return fail('rule', index, 'rule', OUTPUT_ERROR.INVALID_LOGICAL_RULE);
     }
 
     const children = splitFields(value.slice(1, -1)).map((part) => {
       if (!part.startsWith('(') || !part.endsWith(')')) {
-        return fail('rule', index, 'rule', 'invalid-logical-condition');
+        logger.warn(OUTPUT_ERROR.INVALID_LOGICAL_CONDITION, { data: part, field: 'rule' });
+
+        return fail('rule', index, 'rule', OUTPUT_ERROR.INVALID_LOGICAL_CONDITION);
       }
 
       return parseCondition(part.slice(1, -1), index);
@@ -85,7 +99,9 @@ export function parseCondition(line: string, index: number, sourcePolicy = false
       (type === 'NOT' && children.length !== 1) ||
       children.some((child) => child.type === 'MATCH')
     ) {
-      return fail('rule', index, 'rule', 'invalid-logical-operands');
+      logger.warn(OUTPUT_ERROR.INVALID_LOGICAL_OPERANDS, { data: line, field: 'rule' });
+
+      return fail('rule', index, 'rule', OUTPUT_ERROR.INVALID_LOGICAL_OPERANDS);
     }
 
     return { type, children, noResolve };
@@ -122,20 +138,28 @@ export function boundRules(rules: readonly RuleSetConfigFields[], context: Outpu
         : context.ruleSources.find((source) => source.index === index)?.lines;
 
     if (!Number.isSafeInteger(definition.interval) || definition.interval < 0) {
-      fail('rule', index, 'interval', 'invalid-rule-interval');
+      logger.warn(OUTPUT_ERROR.INVALID_RULE_INTERVAL, { data: definition, field: 'interval' });
+
+      fail('rule', index, 'interval', OUTPUT_ERROR.INVALID_RULE_INTERVAL);
     }
 
     if (/[\r\n\0,]/.test(policy)) {
-      fail('rule', index, 'policy', 'invalid-rule-policy-name');
+      logger.warn(OUTPUT_ERROR.INVALID_RULE_POLICY_NAME, { data: definition, field: 'policy' });
+
+      fail('rule', index, 'policy', OUTPUT_ERROR.INVALID_RULE_POLICY_NAME);
     }
 
     if (!lines) {
-      return fail('rule', index, 'url', 'rule-source-not-materialized');
+      logger.warn(OUTPUT_ERROR.RULE_SOURCE_NOT_MATERIALIZED, { data: definition, field: 'url' });
+
+      return fail('rule', index, 'url', OUTPUT_ERROR.RULE_SOURCE_NOT_MATERIALIZED);
     }
 
     for (const line of lines) {
       if (terminated) {
-        fail('rule', index, 'rule', 'rule-after-terminal');
+        logger.warn(OUTPUT_ERROR.RULE_AFTER_TERMINAL, { data: line, field: 'rule' });
+
+        fail('rule', index, 'rule', OUTPUT_ERROR.RULE_AFTER_TERMINAL);
       }
 
       const condition = parseCondition(line, index, definition.type === 'remote');
@@ -158,7 +182,9 @@ function readPayload(
   index: number,
 ): string[] {
   if (definition.resourceFormat === 'mrs') {
-    return fail('rule', index, 'resourceFormat', 'binary-source-requires-native-provider');
+    logger.warn(OUTPUT_ERROR.BINARY_SOURCE_REQUIRES_NATIVE_PROVIDER, { data: definition, field: 'resourceFormat' });
+
+    return fail('rule', index, 'resourceFormat', OUTPUT_ERROR.BINARY_SOURCE_REQUIRES_NATIVE_PROVIDER);
   }
 
   let lines: string[];
@@ -173,7 +199,9 @@ function readPayload(
       !Array.isArray(parsed.payload) ||
       !parsed.payload.every((item: unknown) => typeof item === 'string')
     ) {
-      return fail('rule', index, 'url', 'invalid-rule-payload');
+      logger.warn(OUTPUT_ERROR.INVALID_RULE_PAYLOAD, { data: definition, field: 'url' });
+
+      return fail('rule', index, 'url', OUTPUT_ERROR.INVALID_RULE_PAYLOAD);
     }
 
     lines = parsed.payload;
@@ -195,7 +223,9 @@ function readPayload(
         }
 
         if (line.includes('*')) {
-          return fail('rule', index, 'payload', 'unsupported-domain-wildcard');
+          logger.warn(OUTPUT_ERROR.UNSUPPORTED_DOMAIN_WILDCARD, { data: line, field: 'payload' });
+
+          return fail('rule', index, 'payload', OUTPUT_ERROR.UNSUPPORTED_DOMAIN_WILDCARD);
         }
 
         return `DOMAIN,${line}`;
@@ -233,7 +263,9 @@ export async function materializeRules(
     }
 
     if (definition.resourceFormat === 'mrs') {
-      return fail('rule', index, 'resourceFormat', 'binary-source-requires-native-provider');
+      logger.warn(OUTPUT_ERROR.BINARY_SOURCE_REQUIRES_NATIVE_PROVIDER, { data: definition, field: 'resourceFormat' });
+
+      return fail('rule', index, 'resourceFormat', OUTPUT_ERROR.BINARY_SOURCE_REQUIRES_NATIVE_PROVIDER);
     }
 
     let url: URL;
@@ -241,28 +273,42 @@ export async function materializeRules(
     try {
       url = new URL(definition.url);
     } catch {
-      return fail('rule', index, 'url', 'invalid-rule-url');
+      logger.warn(OUTPUT_ERROR.INVALID_RULE_URL, { data: definition, field: 'url' });
+
+      return fail('rule', index, 'url', OUTPUT_ERROR.INVALID_RULE_URL);
     }
     if (!['http:', 'https:'].includes(url.protocol)) {
-      return fail('rule', index, 'url', 'unsupported-rule-url');
+      logger.warn(OUTPUT_ERROR.UNSUPPORTED_RULE_URL, { data: definition, field: 'url' });
+
+      return fail('rule', index, 'url', OUTPUT_ERROR.UNSUPPORTED_RULE_URL);
     }
 
     let content = cache.get(definition.url);
 
     if (content === undefined) {
       try {
-        const response = await fetch(url, { signal: AbortSignal.any([signal, AbortSignal.timeout(30000)]) });
+        const response = await fetch(url, {
+          headers: withRequestId(),
+          signal: AbortSignal.any([signal, AbortSignal.timeout(30000)]),
+        });
 
         if (!response.ok) {
-          return fail('rule', index, 'url', 'rule-download-failed');
+          logger.warn(OUTPUT_ERROR.RULE_DOWNLOAD_FAILED, { data: definition, field: 'url' });
+
+          return fail('rule', index, 'url', OUTPUT_ERROR.RULE_DOWNLOAD_FAILED);
         }
 
         content = await response.text();
         cache.set(definition.url, content);
-      } catch {
+      } catch (error) {
         signal.throwIfAborted();
+        if (error instanceof OutputError) {
+          throw error;
+        }
 
-        return fail('rule', index, 'url', 'rule-download-failed');
+        logger.warn(OUTPUT_ERROR.RULE_DOWNLOAD_FAILED, { data: definition, field: 'url' });
+
+        return fail('rule', index, 'url', OUTPUT_ERROR.RULE_DOWNLOAD_FAILED);
       }
     }
 
@@ -270,7 +316,9 @@ export async function materializeRules(
       sources.push({ index, lines: readPayload(content, definition, index) });
     } catch (error) {
       if (error instanceof Error && error.name === 'YAMLParseError') {
-        return fail('rule', index, 'url', 'invalid-rule-payload');
+        logger.warn(OUTPUT_ERROR.INVALID_RULE_PAYLOAD, { data: definition, field: 'url' });
+
+        return fail('rule', index, 'url', OUTPUT_ERROR.INVALID_RULE_PAYLOAD);
       }
 
       throw error;
@@ -287,11 +335,15 @@ export function validateRule(
   noResolve = false,
 ): void {
   if (!allowed.includes(condition.type) || (condition.noResolve && !noResolve)) {
-    fail('rule', index, 'rule', 'unsupported-rule-or-option');
+    logger.warn(OUTPUT_ERROR.UNSUPPORTED_RULE_OR_OPTION, { data: condition, field: 'rule' });
+
+    fail('rule', index, 'rule', OUTPUT_ERROR.UNSUPPORTED_RULE_OR_OPTION);
   }
 
   if (condition.noResolve && !['IP-CIDR', 'IP-CIDR6', 'GEOIP'].includes(condition.type)) {
-    fail('rule', index, 'noResolve', 'unsupported-no-resolve-condition');
+    logger.warn(OUTPUT_ERROR.UNSUPPORTED_NO_RESOLVE_CONDITION, { data: condition, field: 'noResolve' });
+
+    fail('rule', index, 'noResolve', OUTPUT_ERROR.UNSUPPORTED_NO_RESOLVE_CONDITION);
   }
 
   condition.children?.forEach((child) => validateRule(child, allowed, index, noResolve));

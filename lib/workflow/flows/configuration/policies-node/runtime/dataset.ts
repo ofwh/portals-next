@@ -1,11 +1,26 @@
+import logger from '@/lib/api/logger';
 import type { ConfigObject, ConfigValue } from '@/lib/subconverter/types/configuration';
-import { entry, objectValue, rejectImport, requiredText, section, text, texts } from '../../utils/configuration';
+import { entry, objectValue, rejectImport, requiredText, section, text, texts } from '../../utils/parser';
 import type { PolicyConfigNode } from '../model/types';
 
 function readObject(value: ConfigValue, toml: boolean): PolicyConfigNode {
   const object = objectValue(value, 'policies');
 
   rejectImport(object);
+
+  if (!toml) {
+    const ignored = entry(object, 'use');
+
+    if (ignored) {
+      logger.warn('当前配置格式不支持策略供应者，已忽略', { field: 'use', data: ignored.values });
+    }
+  }
+
+  for (const item of object.entries) {
+    if (!['name', 'type', 'rule', 'use', 'url', 'interval', 'timeout', 'tolerance', 'import'].includes(item.key)) {
+      logger.warn('不支持的配置参数，已忽略', { field: item.key, data: item.values });
+    }
+  }
 
   const node: PolicyConfigNode = {
     name: toml ? requiredText(object, 'name') : (text(object, 'name') ?? ''),

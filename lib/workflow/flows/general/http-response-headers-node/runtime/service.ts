@@ -1,5 +1,7 @@
 import 'server-only';
-import { appError } from '@/lib/api';
+import { appError, businessCode, errorMessage } from '@/lib/api';
+import logger from '@/lib/api/logger';
+import { getRequestId } from '@/lib/api/request-context';
 import { request } from '@/lib/shared/http';
 import type { ExecutionContext } from '@/lib/workflow/node/types';
 import type { HttpResponseHeadersConfig, HttpResponseHeadersOutput } from '../model/types';
@@ -12,6 +14,7 @@ export async function headers(
 
   try {
     const response = await request(config.url, {
+      requestId: getRequestId(),
       method: config.method,
       headers: config.headers,
       ...(config.method === 'POST' ? { body: config.body } : {}),
@@ -25,10 +28,20 @@ export async function headers(
     context.signal.throwIfAborted();
 
     return headers;
-  } catch {
+  } catch (error) {
     context.signal.throwIfAborted();
 
-    throw appError('workflow.HTTP_REQUEST_FAILED');
+    const failure = appError('workflow.HTTP_REQUEST_FAILED');
+
+    logger.error(errorMessage(failure), {
+      code: businessCode(failure.code),
+      runId: context.runId,
+      nodeId: context.nodeId,
+      data: { method: config.method, url: config.url },
+      error: error instanceof Error ? error.message : error,
+    });
+
+    throw failure;
   }
 }
 

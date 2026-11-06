@@ -14,6 +14,8 @@ export async function execute(
   try {
     return templates.parse(input, config.format);
   } catch {
-    throw appError('workflow.SUBSCRIPTION_TEMPLATE_PARSE_FAILED', { format: config.format });
+    const failure = appError('workflow.SUBSCRIPTION_TEMPLATE_PARSE_FAILED', { format: config.format });
+
+    throw failure;
   }
 }

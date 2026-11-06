@@ -1,7 +1,8 @@
+import logger from '@/lib/api/logger';
 import type { PolicyGroupType } from '@/lib/subconverter/types/policies';
 import type { PolicyConfigFields } from '@/lib/subconverter/types/policies';
 import type { ConvertedNodes, NativeObject, OutputContext } from '../../types/output';
-import { fail } from '../shared/errors';
+import { fail, OUTPUT_ERROR } from '../shared/errors';
 import { resolvePolicies } from '../shared/policies';
 
 export function transform(
@@ -14,7 +15,9 @@ export function transform(
   const result = resolvePolicies(policies, nodes, context.symbols);
   const value: NativeObject[] = result.entries.map(({ definition, members }, index) => {
     if (!allowed.includes(definition.type)) {
-      return fail('policy', index, 'type', 'unsupported-group-type');
+      logger.warn(OUTPUT_ERROR.UNSUPPORTED_GROUP_TYPE, { data: definition, field: 'type' });
+
+      return fail('policy', index, 'type', OUTPUT_ERROR.UNSUPPORTED_GROUP_TYPE);
     }
 
     if (
@@ -22,7 +25,9 @@ export function transform(
       ((definition.type !== 'relay' && (definition.url || definition.timeout || definition.tolerance)) ||
         (definition.type === 'relay' && definition.tolerance))
     ) {
-      return fail('policy', index, 'fields', 'unsupported-stash-group-benchmark');
+      logger.warn(OUTPUT_ERROR.UNSUPPORTED_STASH_GROUP_BENCHMARK, { data: definition, field: 'fields' });
+
+      return fail('policy', index, 'fields', OUTPUT_ERROR.UNSUPPORTED_STASH_GROUP_BENCHMARK);
     }
 
     const group: NativeObject = { name: definition.name, type: definition.type, proxies: members };

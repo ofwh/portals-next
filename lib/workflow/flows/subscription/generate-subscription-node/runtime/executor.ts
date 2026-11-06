@@ -30,6 +30,7 @@ export async function execute(
   } catch (error) {
     context.signal.throwIfAborted();
     const failure = error instanceof OutputError ? error : undefined;
+
     const params: ErrorParams = {
       target: outputFormatLabels[config.format],
       field: failure?.field ?? 'config',
@@ -52,6 +53,8 @@ export async function execute(
         failure && Object.hasOwn(reasons, failure.message) ? reasons[failure.message] : details.unknownReason;
     }
 
-    throw appError('workflow.SUBSCRIPTION_GENERATE_FAILED', params);
+    const generationFailure = appError('workflow.SUBSCRIPTION_GENERATE_FAILED', params);
+
+    throw generationFailure;
   }
 }

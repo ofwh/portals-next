@@ -1,5 +1,5 @@
 import { ssrProxyNode } from './parser';
-import { rejectNode } from '../../proxy-node/debug';
+import { NODE_ERROR, rejectNode } from '../../proxy-node/errors';
 import { expand, flatten, get, put } from '../../proxy-node/mapping';
 import { createTransform } from '../../proxy-node/transform';
 import type { SSRConfig, SSRNode } from '../../types/providers/ssr';
@@ -294,7 +294,7 @@ function pluginInput(node: object): object {
       const key = camelCase(equal < 0 ? part : part.slice(0, equal));
 
       if (get(options, key) !== undefined) {
-        rejectNode('duplicate-plugin-parameter');
+        rejectNode(NODE_ERROR.DUPLICATE_PLUGIN_PARAMETER);
       }
 
       put(options, key, equal < 0 ? 'true' : part.slice(equal + 1));
@@ -312,7 +312,7 @@ function pluginOutput(node: object): object {
   if (options !== undefined) {
     const parts = Object.entries(object(options)).map(([key, value]) => {
       if (typeof value === 'object') {
-        return rejectNode('unrepresentable-plugin-parameter');
+        return rejectNode(NODE_ERROR.UNREPRESENTABLE_PLUGIN_PARAMETER);
       }
 
       return `${key.replace(/[A-Z]/g, (char) => `-${char.toLowerCase()}`)}=${String(value)}`;

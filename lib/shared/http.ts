@@ -5,6 +5,7 @@ export interface HttpHeader {
 
 export interface HttpRequestOptions extends Omit<RequestInit, 'headers'> {
   headers?: readonly HttpHeader[];
+  requestId?: string;
 }
 
 export function createHeaders(values: readonly HttpHeader[]): Headers {
@@ -18,7 +19,14 @@ export function createHeaders(values: readonly HttpHeader[]): Headers {
 }
 
 export function request(url: string, options: HttpRequestOptions = {}): Promise<Response> {
-  const { headers = [], ...init } = options;
+  const { headers = [], requestId, ...init } = options;
+  const requestHeaders = createHeaders(headers);
 
-  return fetch(url, { ...init, headers: createHeaders(headers) });
+  if (requestId) {
+    requestHeaders.set(REQUEST_ID_HEADER, requestId);
+  }
+
+  return fetch(url, { ...init, headers: requestHeaders });
 }
+
+export const REQUEST_ID_HEADER = 'X-Request-Id';

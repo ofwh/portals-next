@@ -1,8 +1,9 @@
+import logger from '@/lib/api/logger';
 import { token } from './token';
 import type { IniNodeProjection } from './types';
 import { camelCase } from '../../../providers/schema';
 import type { IniNode } from '../../../types/providers/ini';
-import { fail } from '../errors';
+import { fail, OUTPUT_ERROR } from '../errors';
 
 const nativeNames = new Map(
   [
@@ -109,7 +110,9 @@ export function projectNode(node: IniNode, index: number, style: 'surge' | 'loon
     }
 
     if (style !== 'surge') {
-      return fail('node', index, 'wireGuard', 'unsupported-wireguard-layout');
+      logger.warn(OUTPUT_ERROR.UNSUPPORTED_WIREGUARD_LAYOUT, { data: node, field: 'wireGuard' });
+
+      return fail('node', index, 'wireGuard', OUTPUT_ERROR.UNSUPPORTED_WIREGUARD_LAYOUT);
     }
 
     const section = `generated-${index}`;
@@ -128,7 +131,9 @@ export function projectNode(node: IniNode, index: number, style: 'surge' | 'loon
     }
 
     if (settings.keepAlive !== undefined) {
-      return fail('node', index, 'keepAlive', 'unsupported-wireguard-keepalive');
+      logger.warn(OUTPUT_ERROR.UNSUPPORTED_WIREGUARD_KEEPALIVE, { data: node, field: 'keepAlive' });
+
+      return fail('node', index, 'keepAlive', OUTPUT_ERROR.UNSUPPORTED_WIREGUARD_KEEPALIVE);
     }
 
     lines.push(
@@ -172,7 +177,9 @@ export function projectNode(node: IniNode, index: number, style: 'surge' | 'loon
     const native = nativeNames.get(key);
 
     if (!native) {
-      return fail('node', index, key, 'unsupported-ini-option');
+      logger.warn(OUTPUT_ERROR.UNSUPPORTED_INI_OPTION, { data: node, field: key });
+
+      return fail('node', index, key, OUTPUT_ERROR.UNSUPPORTED_INI_OPTION);
     }
 
     if (style === 'quanx' && key === 'skipCertVerify') {
@@ -193,7 +200,9 @@ function projectLoonWireGuard(node: IniNode, index: number): IniNodeProjection {
   const keepAlive = settings.peers[0]?.keepAlive ?? settings.keepAlive;
 
   if (settings.peers.some((peer) => peer.keepAlive !== undefined && peer.keepAlive !== keepAlive)) {
-    return fail('node', index, 'keepAlive', 'inconsistent-loon-wireguard-keepalive');
+    logger.warn(OUTPUT_ERROR.INCONSISTENT_LOON_WIREGUARD_KEEPALIVE, { data: node, field: 'keepAlive' });
+
+    return fail('node', index, 'keepAlive', OUTPUT_ERROR.INCONSISTENT_LOON_WIREGUARD_KEEPALIVE);
   }
 
   for (const address of settings.addresses) {

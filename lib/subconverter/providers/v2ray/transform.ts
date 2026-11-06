@@ -1,5 +1,5 @@
 import { v2rayNProxyNode, v2rayProxyNode } from './parser';
-import { rejectNode } from '../../proxy-node/debug';
+import { NODE_ERROR, rejectNode } from '../../proxy-node/errors';
 import { expand, flatten, get, nativeFingerprint, put, remove } from '../../proxy-node/mapping';
 import { createTransform } from '../../proxy-node/transform';
 import type { V2RayConfig, V2RayNode } from '../../types/providers/v2ray';
@@ -293,10 +293,10 @@ export const transform = createTransform({
             ? 'ss'
             : node.configType === 4
               ? 'socks5'
-              : rejectNode('unsupported-protocol');
+              : rejectNode(NODE_ERROR.UNSUPPORTED_PROTOCOL);
 
       if (type === 'socks5' && node.id) {
-        return rejectNode('unrepresentable-socks-auth');
+        return rejectNode(NODE_ERROR.UNREPRESENTABLE_SOCKS_AUTH);
       }
 
       return flatten(type, source, type === 'vmess' ? clientBindings : type === 'ss' ? ssBindings : socksBindings, [
@@ -306,7 +306,7 @@ export const transform = createTransform({
     }
 
     if (node.settings.vnext.length !== 1 || node.settings.vnext[0].users.length !== 1) {
-      return rejectNode('ambiguous-vmess-endpoints');
+      return rejectNode(NODE_ERROR.AMBIGUOUS_VMESS_ENDPOINTS);
     }
 
     const source = { ...node };

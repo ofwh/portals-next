@@ -1,4 +1,5 @@
-import { fail, OutputError } from './errors';
+import logger from '@/lib/api/logger';
+import { fail, OUTPUT_ERROR, OutputError } from './errors';
 import type { ConvertedNode, ConvertedNodes, NativeObject, OutputIssue } from '../../types/output';
 import type { ProxyNodeFields } from '../../types/proxy-node';
 
@@ -11,7 +12,9 @@ export function convertNodes<N>(
 
   nodes.forEach((node, index) => {
     if (!node.name.trim() || names.has(node.name)) {
-      fail('node', index, 'name', 'missing-or-ambiguous-name');
+      logger.warn(OUTPUT_ERROR.MISSING_OR_AMBIGUOUS_NAME, { data: node, field: 'name' });
+
+      fail('node', index, 'name', OUTPUT_ERROR.MISSING_OR_AMBIGUOUS_NAME);
     }
 
     names.add(node.name);
@@ -34,7 +37,9 @@ export function convertNodes<N>(
     const outputName = name(value);
 
     if (outputName === undefined || !names.has(outputName) || byName.has(outputName)) {
-      fail('node', -1, 'name', 'missing-or-ambiguous-name');
+      logger.warn(OUTPUT_ERROR.MISSING_OR_AMBIGUOUS_NAME, { data: value, field: 'name' });
+
+      fail('node', -1, 'name', OUTPUT_ERROR.MISSING_OR_AMBIGUOUS_NAME);
     }
 
     byName.set(outputName, value);
@@ -47,7 +52,12 @@ export function convertNodes<N>(
     const value = byName.get(fields.name);
 
     if (value === undefined) {
-      issues.push({ stage: 'node', index: sourceIndex, field: 'nodes', message: 'unsupported-node-or-dependency' });
+      issues.push({
+        stage: 'node',
+        index: sourceIndex,
+        field: 'nodes',
+        message: OUTPUT_ERROR.UNSUPPORTED_NODE_OR_DEPENDENCY,
+      });
 
       continue;
     }
@@ -89,7 +99,8 @@ export function filterUnsupportedNodes<N>(
         !(error instanceof OutputError) ||
         error.stage !== 'node' ||
         !selected[error.index] ||
-        (!error.message.startsWith('unsupported-') && error.message !== 'inconsistent-loon-wireguard-keepalive')
+        (!error.message.startsWith('UNSUPPORTED_') &&
+          error.message !== OUTPUT_ERROR.INCONSISTENT_LOON_WIREGUARD_KEEPALIVE)
       ) {
         throw error;
       }
@@ -103,7 +114,9 @@ export function filterUnsupportedNodes<N>(
 
 export function nativeObject(value: unknown): NativeObject {
   if (value === null || typeof value !== 'object' || Array.isArray(value)) {
-    return fail('node', -1, 'fields', 'invalid-native-object');
+    logger.warn(OUTPUT_ERROR.INVALID_NATIVE_OBJECT, { data: value, field: 'fields' });
+
+    return fail('node', -1, 'fields', OUTPUT_ERROR.INVALID_NATIVE_OBJECT);
   }
 
   return value as NativeObject;

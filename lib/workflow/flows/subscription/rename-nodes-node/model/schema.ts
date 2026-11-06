@@ -1,7 +1,8 @@
-import { appError } from '@/lib/api';
+import { appError, AppError, errorMessage } from '@/lib/api';
 import { isRecord } from '@/lib/shared/data';
 import { compilePattern } from '@/lib/shared/regex';
 import type { Parser } from '@/lib/types/workflow';
+import type { ConfigIssue, NodeConfigValidationContext } from '@/lib/workflow/node/types';
 import type { RenameConfig, RenameRule } from './types';
 import { schema } from '../../schema';
 
@@ -44,3 +45,37 @@ export const configSchema: Parser<RenameConfig> = {
     return { rules };
   },
 };
+
+export function validateConfig(value: unknown, context?: NodeConfigValidationContext): ConfigIssue[] {
+  const issues: ConfigIssue[] = [];
+
+  if (isConfig(value)) {
+    value.rules.forEach((rule, index) => {
+      try {
+        compilePattern(rule.pattern, 'g');
+      } catch {
+        issues.push({
+          path: ['rules', index, 'pattern'],
+          message: errorMessage(appError('common.INVALID_PARAMS'), context?.locale),
+        });
+      }
+    });
+  }
+
+  if (issues.length) {
+    return issues;
+  }
+
+  try {
+    configSchema.parse(value);
+  } catch (error) {
+    return [
+      {
+        path: [],
+        message: errorMessage(error instanceof AppError ? error : appError('common.INVALID_PARAMS'), context?.locale),
+      },
+    ];
+  }
+
+  return [];
+}

@@ -1,4 +1,5 @@
-import { OutputError } from './errors';
+import logger from '@/lib/api/logger';
+import { OUTPUT_ERROR, OutputError } from './errors';
 import { convertNodes, filterUnsupportedNodes } from './nodes';
 import { ssNode } from './ss';
 import { name, stringify } from './uri-links';
@@ -18,10 +19,19 @@ const protocols: Record<LinkTarget, readonly ProxyType[]> = {
 
 function compatibleNode(target: LinkTarget, node: ProxyNodeFields): ProxyNodeFields | undefined {
   if (target === 'ss') {
-    return ssNode(node);
+    return ssNode(node, target);
   }
 
-  return protocols[target].includes(node.type) ? node : undefined;
+  if (!protocols[target].includes(node.type)) {
+    logger.warn(OUTPUT_ERROR.UNSUPPORTED_NODE_FOR_TARGET, {
+      target,
+      data: { id: node.id, name: node.name, type: node.type },
+    });
+
+    return undefined;
+  }
+
+  return node;
 }
 
 export function generate(target: LinkTarget, elements: OutputElements, signal: AbortSignal): ConfigArtifact<string[]> {
@@ -34,7 +44,7 @@ export function generate(target: LinkTarget, elements: OutputElements, signal: A
     const fields = compatibleNode(target, node);
 
     if (!fields) {
-      issues.push({ stage: 'node', index, field: 'type', message: 'unsupported-node-for-target' });
+      issues.push({ stage: 'node', index, field: 'type', message: OUTPUT_ERROR.UNSUPPORTED_NODE_FOR_TARGET });
 
       continue;
     }

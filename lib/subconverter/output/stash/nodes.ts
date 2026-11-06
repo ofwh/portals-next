@@ -1,6 +1,7 @@
+import logger from '@/lib/api/logger';
 import type { NativeObject, OutputElements } from '../../types/output';
 import { transform as clashNodes } from '../clash/nodes';
-import { fail } from '../shared/errors';
+import { fail, OUTPUT_ERROR } from '../shared/errors';
 
 const common = ['type', 'name', 'id', 'sourceId', 'groupId', 'group', 'server', 'port', 'udp', 'tcpFastOpen'];
 const tls = ['tls', 'serverName', 'allowInsecure', 'alpn'];
@@ -25,7 +26,9 @@ export function transform(nodes: OutputElements['nodes']) {
     const allowed = fields[node.type];
 
     if (!allowed || Object.keys(node).some((key) => !common.includes(key) && !allowed.includes(key))) {
-      fail('node', index, 'fields', 'unsupported-stash-node-field');
+      logger.warn(OUTPUT_ERROR.UNSUPPORTED_STASH_NODE_FIELD, { data: node, field: 'fields' });
+
+      fail('node', index, 'fields', OUTPUT_ERROR.UNSUPPORTED_STASH_NODE_FIELD);
     }
 
     if (
@@ -33,7 +36,9 @@ export function transform(nodes: OutputElements['nodes']) {
       node.network !== undefined &&
       !['tcp', 'ws', 'grpc', ...(node.type === 'vmess' || node.type === 'vless' ? ['http'] : [])].includes(node.network)
     ) {
-      fail('node', index, 'network', 'unsupported-stash-transport');
+      logger.warn(OUTPUT_ERROR.UNSUPPORTED_STASH_TRANSPORT, { data: node, field: 'network' });
+
+      fail('node', index, 'network', OUTPUT_ERROR.UNSUPPORTED_STASH_TRANSPORT);
     }
 
     if (
@@ -41,14 +46,18 @@ export function transform(nodes: OutputElements['nodes']) {
       node.plugin &&
       !['obfs', 'obfs-local', 'simple-obfs', 'v2ray-plugin'].includes(node.plugin)
     ) {
-      fail('node', index, 'plugin', 'unsupported-stash-plugin');
+      logger.warn(OUTPUT_ERROR.UNSUPPORTED_STASH_PLUGIN, { data: node, field: 'plugin' });
+
+      fail('node', index, 'plugin', OUTPUT_ERROR.UNSUPPORTED_STASH_PLUGIN);
     }
 
     if (
       node.type === 'snell' &&
       (node.snellVersion === undefined || node.snellVersion > 5 || (node.udp && node.snellVersion < 3))
     ) {
-      fail('node', index, 'version', 'unsupported-stash-snell-version');
+      logger.warn(OUTPUT_ERROR.UNSUPPORTED_STASH_SNELL_VERSION, { data: node, field: 'version' });
+
+      fail('node', index, 'version', OUTPUT_ERROR.UNSUPPORTED_STASH_SNELL_VERSION);
     }
   });
   const result = clashNodes(nodes);
@@ -91,7 +100,9 @@ export function transform(nodes: OutputElements['nodes']) {
           !peer.allowedIps.includes('0.0.0.0/0') ||
           !peer.allowedIps.includes('::/0')
         ) {
-          return fail('node', entry.sourceIndex, 'wireGuardPeers', 'unsupported-stash-wireguard-layout');
+          logger.warn(OUTPUT_ERROR.UNSUPPORTED_STASH_WIREGUARD_LAYOUT, { data: node, field: 'wireGuardPeers' });
+
+          return fail('node', entry.sourceIndex, 'wireGuardPeers', OUTPUT_ERROR.UNSUPPORTED_STASH_WIREGUARD_LAYOUT);
         }
 
         delete value.peers;

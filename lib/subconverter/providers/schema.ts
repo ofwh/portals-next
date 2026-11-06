@@ -1,4 +1,4 @@
-import { debugNode, rejectNode } from '../proxy-node/debug';
+import { NODE_ERROR, rejectNode } from '../proxy-node/errors';
 import type { Parsed, Reader, Shape, ShapeValue } from '../types/providers/schema';
 
 const nativeWriters = new WeakMap<Reader<unknown>, (value: unknown) => unknown>();
@@ -104,7 +104,7 @@ export function entries<T>(read: Reader<T>): Reader<{ name: string; value: T }[]
           const entry = object(item);
 
           if (Object.keys(entry).some((key) => key !== 'name' && key !== 'value')) {
-            return rejectNode('unrepresentable-header');
+            return rejectNode(NODE_ERROR.UNREPRESENTABLE_HEADER);
           }
 
           return { name: text(field(entry, 'name')), value: read(field(entry, 'value')) };
@@ -172,7 +172,7 @@ export function shape<S extends Shape<S>>(fields: S, strict = false): Reader<Sha
       const source = object(value);
 
       if (strict && Object.keys(source).some((key) => !Object.hasOwn(fields, key))) {
-        return rejectNode('unrepresentable-parameter');
+        return rejectNode(NODE_ERROR.UNREPRESENTABLE_PARAMETER);
       }
 
       const result = camelObject(source);
@@ -261,26 +261,6 @@ export function tagged<S extends Shape<S>>(key: string, readers: S): Reader<Pars
     (value) => select(value)(value),
     (value) => toNative(select(value), value),
   );
-}
-
-export function nodeItems<T>(read: Reader<T>, provider: string): Reader<T[]> {
-  return (value) => {
-    if (!Array.isArray(value)) {
-      throw new Error('Expected a node array');
-    }
-
-    const result: T[] = [];
-
-    for (const [index, item] of value.entries()) {
-      try {
-        result.push(read(item));
-      } catch {
-        debugNode(provider, 'parse', index, 'invalid-or-unsupported-node');
-      }
-    }
-
-    return result;
-  };
 }
 
 export function strictShape<S extends Shape<S>>(fields: S): Reader<ShapeValue<S>> {

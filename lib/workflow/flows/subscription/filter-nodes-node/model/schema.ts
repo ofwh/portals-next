@@ -1,8 +1,9 @@
-import { appError } from '@/lib/api';
+import { appError, AppError, errorMessage } from '@/lib/api';
 import { isRecord } from '@/lib/shared/data';
 import { compilePattern } from '@/lib/shared/regex';
 import type { ProxyType } from '@/lib/subconverter/types';
 import type { Parser } from '@/lib/types/workflow';
+import type { ConfigIssue, NodeConfigValidationContext } from '@/lib/workflow/node/types';
 import { protocolOptions } from './definition';
 import type { FilterConfig, FilterRule } from './types';
 import { schema } from '../../schema';
@@ -59,3 +60,37 @@ export const configSchema: Parser<FilterConfig> = {
     };
   },
 };
+
+export function validateConfig(value: unknown, context?: NodeConfigValidationContext): ConfigIssue[] {
+  const issues: ConfigIssue[] = [];
+
+  if (isConfig(value)) {
+    getNameRules(value).forEach((rule, index) => {
+      try {
+        compilePattern(rule.pattern);
+      } catch {
+        issues.push({
+          path: ['namePattern', index, 'pattern'],
+          message: errorMessage(appError('common.INVALID_PARAMS'), context?.locale),
+        });
+      }
+    });
+  }
+
+  if (issues.length) {
+    return issues;
+  }
+
+  try {
+    configSchema.parse(value);
+  } catch (error) {
+    return [
+      {
+        path: [],
+        message: errorMessage(error instanceof AppError ? error : appError('common.INVALID_PARAMS'), context?.locale),
+      },
+    ];
+  }
+
+  return [];
+}

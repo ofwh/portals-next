@@ -1,7 +1,9 @@
 import 'server-only';
 import { appError, errorMessage } from '@/lib/api';
 import type { Locale } from '@/lib/api';
+import logger from '@/lib/api/logger';
 import { cloneJson, nonempty } from '@/lib/shared/data';
+import { RUNTIME_ERROR } from './errors';
 import { buildExecutionPlan, executeFlow } from '../engine';
 import type { RunEvent, RunRequest } from '../model';
 import { nodeRegistry } from '../node';
@@ -51,13 +53,28 @@ export class WorkflowRuntime {
       cancel();
     }
 
-    const timer = setTimeout(cancel, options.timeout ?? 300000);
+    const timeout = options.timeout ?? 300000;
+    const timer = setTimeout(() => {
+      if (controller.signal.aborted) {
+        return;
+      }
+
+      logger.warn(RUNTIME_ERROR.EXECUTION_TIMEOUT, { workflowId: request.workflow.id, runId: request.runId, timeout });
+      cancel();
+    }, timeout);
 
     this.runs.set(request.runId, { owner, controller });
     const dispatch = (event: RunEvent) => {
       try {
         emit(cloneJson(event));
-      } catch {
+      } catch (error) {
+        logger.error(RUNTIME_ERROR.EVENT_DISPATCH_FAILED, {
+          workflowId: request.workflow.id,
+          runId: request.runId,
+          eventType: event.type,
+          error: error instanceof Error ? error.message : error,
+        });
+
         cancel();
       }
     };
@@ -65,7 +82,12 @@ export class WorkflowRuntime {
       .then(() =>
         executeFlow(
           plan,
-          { runId: request.runId, signal: controller.signal, emit: dispatch, locale: options.locale },
+          {
+            runId: request.runId,
+            signal: controller.signal,
+            emit: dispatch,
+            locale: options.locale,
+          },
           this.registry,
         ),
       )

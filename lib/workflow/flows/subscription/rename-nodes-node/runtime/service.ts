@@ -1,7 +1,6 @@
 import 'server-only';
-import { appError } from '@/lib/api';
-import { compilePattern } from '@/lib/shared/regex';
 import type { ExecutionContext } from '@/lib/workflow/node/types';
+import { applyRules, compileRules } from '../model/rules';
 import type { RenameConfig, RenameOutput, RenameRunInput } from '../model/types';
 
 export async function rename(
@@ -10,21 +9,11 @@ export async function rename(
   context: ExecutionContext,
 ): Promise<RenameOutput> {
   context.signal.throwIfAborted();
-  const rules = config.rules.map((rule) => ({
-    regex: compilePattern(rule.pattern, 'g'),
-    replacement: rule.replacement,
-  }));
+  const rules = compileRules(config.rules);
 
   return nodes.map((node) => {
     context.signal.throwIfAborted();
-    let name = node.name;
-
-    for (const rule of rules) {
-      name = name.replace(rule.regex, rule.replacement);
-    }
-    if (!name.trim()) {
-      throw appError('workflow.SUBSCRIPTION_EMPTY_NAME');
-    }
+    const name = applyRules(node.name, rules);
 
     return { ...node, name };
   });

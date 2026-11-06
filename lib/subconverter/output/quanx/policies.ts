@@ -1,5 +1,6 @@
+import logger from '@/lib/api/logger';
 import type { ConvertedNodes, OutputContext, OutputElements } from '../../types/output';
-import { fail } from '../shared/errors';
+import { fail, OUTPUT_ERROR } from '../shared/errors';
 import { ini } from '../shared/ini';
 import type { IniNodeProjection } from '../shared/ini';
 
@@ -17,7 +18,9 @@ export const transform = (
 ) =>
   ini.projectPolicies(policies, nodes, context, (definition, members, index) => {
     if (!(definition.type in behaviors) || definition.url || definition.timeout || definition.tolerance) {
-      return fail('policy', index, 'fields', 'unsupported-quanx-group-option');
+      logger.warn(OUTPUT_ERROR.UNSUPPORTED_QUANX_GROUP_OPTION, { data: definition, field: 'fields' });
+
+      return fail('policy', index, 'fields', OUTPUT_ERROR.UNSUPPORTED_QUANX_GROUP_OPTION);
     }
 
     const behavior = behaviors[definition.type as keyof typeof behaviors];

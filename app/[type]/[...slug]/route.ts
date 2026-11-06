@@ -1,4 +1,5 @@
 import { notFound } from 'next/navigation';
+import { withRequestContext } from '@/lib/api/request-context';
 import { ROUTE_TYPE } from '@/lib/constants';
 import shortcuts from '@/lib/services/shortcuts';
 import type { RouteHandlerContext } from '@/lib/types/route';
@@ -12,16 +13,18 @@ const services = {
 };
 
 async function handle(req: Request, context: RouteHandlerContext): Promise<Response> {
-  const params = await context.params;
-  const match = shortcuts.resolve('/' + [params.type, ...params.slug].join('/'));
+  return withRequestContext(req, async () => {
+    const params = await context.params;
+    const match = shortcuts.resolve('/' + [params.type, ...params.slug].join('/'));
 
-  if (!match) {
-    notFound();
-  }
+    if (!match) {
+      notFound();
+    }
 
-  const { default: service } = await services[match.type]();
+    const { default: service } = await services[match.type]();
 
-  return service.handle({ req, params, pathname: match.pathname });
+    return service.handle({ req, params, pathname: match.pathname });
+  });
 }
 
 export async function GET(req: Request, context: RouteHandlerContext): Promise<Response> {

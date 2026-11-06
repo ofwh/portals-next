@@ -3,7 +3,7 @@
 import { ScrollArea as ScrollAreaPrimitive } from '@base-ui/react/scroll-area';
 import { cn } from 'cn';
 import { Pencil } from 'lucide-react';
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import type { ComponentType, FormEvent } from 'react';
 import { useEffect, useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
@@ -19,10 +19,11 @@ import { Empty, EmptyDescription } from '@/components/ui/empty';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useWorkflow } from '@/hooks/use-workflow';
+import { resolveLocale } from '@/i18n/config';
 import { cloneJson } from '@/lib/shared/data';
 import type { NodeInstance } from '@/lib/workflow/model';
 import { nodeViewRegistry } from '@/lib/workflow/node/client';
-import type { NodeFormProps } from '@/lib/workflow/node/types';
+import type { ConfigIssue, NodeFormProps } from '@/lib/workflow/node/types';
 import styles from '@/styles/ui.module.css';
 
 interface NodeConfigEditorProps {
@@ -34,6 +35,7 @@ interface NodeConfigEditorProps {
 
 function NodeConfigEditor({ node, Form, className, onClose }: NodeConfigEditorProps) {
   const t = useTranslations();
+  const locale = resolveLocale(useLocale());
   const { saving, updateNode, notifyError, manifest } = useWorkflow((state) => ({
     saving: state.saving || state.running,
     updateNode: state.updateNode,
@@ -43,6 +45,7 @@ function NodeConfigEditor({ node, Form, className, onClose }: NodeConfigEditorPr
   const [editingName, setEditingName] = useState(false);
   const nameInput = useRef<HTMLInputElement>(null);
   const [displayName, setDisplayName] = useState(node.displayName ?? '');
+  const [issues, setIssues] = useState<ConfigIssue[]>([]);
   const [draft, setDraft] = useState(() => cloneJson(node.config));
   const originalName = manifest?.nameKey ? t(manifest.nameKey) : node.name;
 
@@ -75,6 +78,13 @@ function NodeConfigEditor({ node, Form, className, onClose }: NodeConfigEditorPr
     }
 
     try {
+      const issues = nodeViewRegistry.getNodeView(node.type)?.config?.validate?.(draft, { locale }) ?? [];
+
+      setIssues(issues);
+      if (issues.length) {
+        return;
+      }
+
       updateNode(node.id, { config: draft });
       onClose();
     } catch (error) {
@@ -150,7 +160,15 @@ function NodeConfigEditor({ node, Form, className, onClose }: NodeConfigEditorPr
           <ScrollArea className="flex min-h-0 flex-1 flex-col overflow-hidden [&>[data-slot=scroll-area-viewport]]:min-h-0 [&>[data-slot=scroll-area-viewport]]:overscroll-contain">
             <ScrollAreaPrimitive.Content className="p-6">
               {Form ? (
-                <Form value={draft} disabled={saving} issues={[]} onChange={setDraft} />
+                <Form
+                  value={draft}
+                  disabled={saving}
+                  issues={issues}
+                  onChange={(value) => {
+                    setDraft(value);
+                    setIssues([]);
+                  }}
+                />
               ) : (
                 <Empty>
                   <EmptyDescription>

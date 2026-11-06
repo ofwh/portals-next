@@ -1,4 +1,5 @@
 import type { SingBoxConfig } from '../../types/providers/sing-box';
+import { nodeItems } from '../node-items';
 import {
   array,
   boolean,
@@ -6,7 +7,6 @@ import {
   entries,
   field,
   json,
-  nodeItems,
   number,
   object,
   oneOf,

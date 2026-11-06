@@ -1,4 +1,5 @@
-import { appError } from '@/lib/api';
+import { appError, businessCode, errorMessage } from '@/lib/api';
+import logger from '@/lib/api/logger';
 import type { TypeDescriptor } from '@/lib/types/workflow';
 import { policyGroupsSchema } from '@/lib/workflow/flows/configuration/policies-node/model/output-schema';
 import { ruleGroupsSchema } from '@/lib/workflow/flows/configuration/rulesets-node/model/output-schema';
@@ -26,11 +27,29 @@ export function parseInput(
   context: ExecutionContext,
 ): GenerateSubscriptionElements {
   if (!values.length) {
-    throw appError('workflow.REQUIRED_INPUT');
+    const failure = appError('workflow.REQUIRED_INPUT');
+
+    logger.warn(errorMessage(failure), {
+      code: businessCode(failure.code),
+      runId: context.runId,
+      nodeId: context.nodeId,
+      data: { inputCount: values.length, sourceCount: context.inputSources?.length },
+    });
+
+    throw failure;
   }
 
   if (context.inputSources?.length !== values.length) {
-    throw appError('workflow.INVALID_CONNECTION');
+    const failure = appError('workflow.INVALID_CONNECTION');
+
+    logger.warn(errorMessage(failure), {
+      code: businessCode(failure.code),
+      runId: context.runId,
+      nodeId: context.nodeId,
+      data: { inputCount: values.length, sourceCount: context.inputSources?.length },
+    });
+
+    throw failure;
   }
 
   const elements: GenerateSubscriptionElements = {};
@@ -40,7 +59,17 @@ export function parseInput(
 
     if (!Array.isArray(value)) {
       if (elements.template) {
-        throw appError('workflow.SUBSCRIPTION_TEMPLATE_DUPLICATE');
+        const failure = appError('workflow.SUBSCRIPTION_TEMPLATE_DUPLICATE');
+
+        logger.warn(errorMessage(failure), {
+          code: businessCode(failure.code),
+          runId: context.runId,
+          nodeId: context.nodeId,
+          data: { format: value.format },
+          inputNodeId: context.inputSources![index].nodeId,
+        });
+
+        throw failure;
       }
 
       elements.template = schema.template.parse(value);
@@ -51,7 +80,17 @@ export function parseInput(
     } else if (sameType(source, policyGroupsSchema.descriptor)) {
       (elements.policies ??= []).push(...policyGroupsSchema.parse(value));
     } else {
-      throw appError('workflow.INCOMPATIBLE_TYPE');
+      const failure = appError('workflow.INCOMPATIBLE_TYPE');
+
+      logger.warn(errorMessage(failure), {
+        code: businessCode(failure.code),
+        runId: context.runId,
+        nodeId: context.nodeId,
+        data: source,
+        inputNodeId: context.inputSources![index].nodeId,
+      });
+
+      throw failure;
     }
   });
 

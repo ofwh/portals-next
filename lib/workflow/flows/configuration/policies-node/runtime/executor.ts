@@ -14,6 +14,8 @@ export async function execute(
   try {
     return parsePolicies(configParser.parse(input, config.type ?? 'ini'));
   } catch {
-    throw appError('workflow.CONFIGURATION_PARSE_FAILED');
+    const failure = appError('workflow.CONFIGURATION_PARSE_FAILED');
+
+    throw failure;
   }
 }

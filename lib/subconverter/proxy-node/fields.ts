@@ -1,4 +1,4 @@
-import { rejectNode } from './debug';
+import { NODE_ERROR, rejectNode } from './errors';
 import {
   array,
   boolean,
@@ -2607,7 +2607,7 @@ export function readFields(value: unknown): ProxyNodeFields {
   const keys = field(allowed, type);
 
   if (!Array.isArray(keys) || Object.keys(object(value)).some((key) => !keys.includes(key))) {
-    return rejectNode('unrepresentable-parameter');
+    return rejectNode(NODE_ERROR.UNREPRESENTABLE_PARAMETER);
   }
 
   const result = tagged('type', readers)(value);
@@ -2621,7 +2621,7 @@ export function readFields(value: unknown): ProxyNodeFields {
       return { ...result, uuid: result.uuid, password: result.password, token: undefined };
     }
 
-    return rejectNode('invalid-tuic-authentication');
+    return rejectNode(NODE_ERROR.INVALID_TUIC_AUTHENTICATION);
   }
 
   return result;

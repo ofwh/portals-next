@@ -1,5 +1,6 @@
 import type { MessageKeys, NestedKeyOf } from 'next-intl';
 import type { ComponentType } from 'react';
+import type { Locale } from '@/lib/api';
 import type { NamedType, Parser, TypeDescriptor, ValueSchema } from '@/lib/types/workflow';
 import type { nodeMessages } from './messages';
 import type { NodeInstance, NodeStatus } from '../model';
@@ -63,7 +64,7 @@ export interface NodeModuleGroup extends NodeLabel {
 export interface RegisteredNode {
   manifest: NodeManifest;
   defaultConfig: unknown;
-  parseConfig(raw: unknown): unknown;
+  parseConfig(raw: unknown, context?: Partial<ExecutionContext>): unknown;
   run(values: readonly unknown[], config: unknown, context: ExecutionContext): Promise<unknown>;
 }
 export interface ConfigIssue {
@@ -76,7 +77,11 @@ export interface NodeFormProps<C> {
   disabled: boolean;
   issues: readonly ConfigIssue[];
 }
+export interface NodeConfigValidationContext {
+  locale?: Locale;
+}
 export interface NodeConfigView<C> {
+  validate?(value: C, context?: NodeConfigValidationContext): ConfigIssue[];
   className?: string;
   Form: ComponentType<NodeFormProps<C>>;
 }

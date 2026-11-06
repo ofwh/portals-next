@@ -1,15 +1,12 @@
+import logger from '@/lib/api/logger';
 import type { TransformDirection } from '../types/proxy-node/transform';
 
-export function debugNode(provider: string, direction: TransformDirection, index: number, reason: string): void {
-  console.debug('[subconverter]', { provider, direction, index, reason });
-}
-
-export class NodeConversionError extends Error {
-  constructor(readonly reason: string) {
-    super(reason);
-  }
-}
-
-export function rejectNode(reason: string): never {
-  throw new NodeConversionError(reason);
+export function debugNode(
+  provider: string,
+  direction: TransformDirection,
+  index: number,
+  reason: string,
+  data: unknown,
+): void {
+  logger.warn(reason, { provider, direction, index, data });
 }

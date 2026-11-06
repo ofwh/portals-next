@@ -1,6 +1,7 @@
 import { projectOptions } from './output';
 import { splitFields } from './parser';
-import { debugNode, rejectNode } from '../../proxy-node/debug';
+import { debugNode } from '../../proxy-node/debug';
+import { NODE_ERROR, rejectNode } from '../../proxy-node/errors';
 import {
   assertCovered,
   convert,
@@ -100,7 +101,7 @@ export function endpoint(value: string): { server: string; port: number } {
   const match = /^(\[[^\]]+\]|[^:]+):(\d+)$/.exec(value);
 
   if (!match) {
-    return rejectNode('invalid-endpoint');
+    return rejectNode(NODE_ERROR.INVALID_ENDPOINT);
   }
 
   return { server: match[1].replace(/^\[|\]$/g, ''), port: Number(convert(match[2], 'port')) };
@@ -117,7 +118,7 @@ function peers(value: string): IniWireGuardSettings['peers'] {
   const matches = [...value.matchAll(/[({]([^(){}]*)[)}]/g)];
 
   if (!matches.length) {
-    return rejectNode('invalid-wireguard-peers');
+    return rejectNode(NODE_ERROR.INVALID_WIREGUARD_PEERS);
   }
 
   return matches.map((match) => {
@@ -127,7 +128,7 @@ function peers(value: string): IniWireGuardSettings['peers'] {
       const equal = part.indexOf('=');
 
       if (equal < 1) {
-        return rejectNode('invalid-wireguard-peer');
+        return rejectNode(NODE_ERROR.INVALID_WIREGUARD_PEER);
       }
 
       put(options, camelCase(part.slice(0, equal).trim()), scalar(part.slice(equal + 1).trim()));
@@ -187,7 +188,7 @@ function wireGuard(node: IniNode): IniWireGuardSettings {
   const peerText = options.peer ?? options.peers;
 
   if (!peerText) {
-    return rejectNode('missing-wireguard-peers');
+    return rejectNode(NODE_ERROR.MISSING_WIREGUARD_PEERS);
   }
 
   return {
@@ -271,7 +272,7 @@ export function extract(config: IniConfig): IniNode[] {
         );
 
         if (!section) {
-          rejectNode('missing-wireguard-section');
+          rejectNode(NODE_ERROR.MISSING_WIREGUARD_SECTION);
         }
 
         const options = { ...declaration.options };
@@ -280,7 +281,7 @@ export function extract(config: IniConfig): IniNode[] {
           const equal = line.indexOf('=');
 
           if (equal < 1) {
-            rejectNode('invalid-wireguard-section');
+            rejectNode(NODE_ERROR.INVALID_WIREGUARD_SECTION);
           }
 
           put(options, camelCase(line.slice(0, equal).trim()), scalar(line.slice(equal + 1).trim()));
@@ -291,8 +292,14 @@ export function extract(config: IniConfig): IniNode[] {
       }
 
       result.push(readNode(node));
-    } catch {
-      debugNode('ini', 'parse', index, 'invalid-or-unsupported-node');
+    } catch (error) {
+      debugNode(
+        'ini',
+        'parse',
+        index,
+        error instanceof Error ? error.message : NODE_ERROR.INVALID_OR_UNSUPPORTED_NODE,
+        declaration,
+      );
     }
   }
 
@@ -447,7 +454,7 @@ export function toFields(node: IniNode): ProxyNodeFields {
 
   if (options.tlsAlpn !== undefined) {
     if (!/^(?:[0-9a-f]{2})+$/i.test(options.tlsAlpn)) {
-      return rejectNode('invalid-alpn');
+      return rejectNode(NODE_ERROR.INVALID_ALPN);
     }
 
     const bytes = Buffer.from(options.tlsAlpn, 'hex');
@@ -457,7 +464,7 @@ export function toFields(node: IniNode): ProxyNodeFields {
       const length = bytes[i++];
 
       if (!length || i + length > bytes.length) {
-        return rejectNode('invalid-alpn');
+        return rejectNode(NODE_ERROR.INVALID_ALPN);
       }
 
       protocols.push(bytes.subarray(i, i + length).toString('utf8'));
@@ -477,7 +484,7 @@ export function toFields(node: IniNode): ProxyNodeFields {
 
   if (type === 'anytls' && get(options, 'blockQuic') !== undefined) {
     if (get(options, 'blockQuic') !== 'false') {
-      return rejectNode('unrepresentable-quic-policy');
+      return rejectNode(NODE_ERROR.UNREPRESENTABLE_QUIC_POLICY);
     }
 
     remove(options, 'blockQuic');
@@ -486,7 +493,7 @@ export function toFields(node: IniNode): ProxyNodeFields {
   if (args.length) {
     if (['ss', 'ssr', 'vmess'].includes(type)) {
       if (args.length < 2) {
-        return rejectNode('missing-positional-credentials');
+        return rejectNode(NODE_ERROR.MISSING_POSITIONAL_CREDENTIALS);
       }
 
       put(options, 'encryptMethod', args.shift());
@@ -511,7 +518,7 @@ export function toFields(node: IniNode): ProxyNodeFields {
     }
 
     if (args.length) {
-      return rejectNode('unrepresentable-positional-parameters');
+      return rejectNode(NODE_ERROR.UNREPRESENTABLE_POSITIONAL_PARAMETERS);
     }
   }
 
@@ -560,7 +567,7 @@ export function toFields(node: IniNode): ProxyNodeFields {
       put(options, 'obfs', 'websocket');
       remove(options, 'obfsUri');
     } else if (!['http', 'tls'].includes(mode)) {
-      return rejectNode('unsupported-ss-plugin');
+      return rejectNode(NODE_ERROR.UNSUPPORTED_SS_PLUGIN);
     } else {
       put(source, 'plugin', 'obfs-local');
     }
@@ -571,7 +578,7 @@ export function toFields(node: IniNode): ProxyNodeFields {
 
     if (obfs !== undefined) {
       if (!['ws', 'wss', 'over-tls', 'http', 'none'].includes(text(obfs))) {
-        return rejectNode('unsupported-transport');
+        return rejectNode(NODE_ERROR.UNSUPPORTED_TRANSPORT);
       }
 
       put(source, 'network', obfs === 'ws' || obfs === 'wss' ? 'ws' : 'tcp');
@@ -625,7 +632,7 @@ export function toNode(fields: ProxyNodeFields, style: IniStyle): IniNode {
     fields.network !== undefined &&
     !['tcp', 'ws', ...(style === 'loon' ? ['http'] : [])].includes(fields.network)
   ) {
-    return rejectNode('unsupported-transport');
+    return rejectNode(NODE_ERROR.UNSUPPORTED_TRANSPORT);
   }
 
   const bindings = protocolBindings(fields.type).filter((binding) => binding.path !== 'network');
@@ -673,7 +680,7 @@ export function toNode(fields: ProxyNodeFields, style: IniStyle): IniNode {
 
   if (get(output, 'plugin') !== undefined) {
     if (!isSimpleObfs(get(output, 'plugin')) && !(style === 'quanx' && get(output, 'plugin') === 'v2ray-plugin')) {
-      return rejectNode('unsupported-ss-plugin');
+      return rejectNode(NODE_ERROR.UNSUPPORTED_SS_PLUGIN);
     }
   }
 
@@ -686,7 +693,7 @@ export function toNode(fields: ProxyNodeFields, style: IniStyle): IniNode {
 
   if (style === 'surge' && network !== undefined) {
     if (!['tcp', 'ws'].includes(text(network))) {
-      return rejectNode('unsupported-transport');
+      return rejectNode(NODE_ERROR.UNSUPPORTED_TRANSPORT);
     }
 
     put(options, 'ws', String(network === 'ws'));
@@ -705,7 +712,7 @@ export function toNode(fields: ProxyNodeFields, style: IniStyle): IniNode {
 
   if (style === 'quanx' && network !== undefined) {
     if (!['tcp', 'ws'].includes(text(network))) {
-      return rejectNode('unsupported-transport');
+      return rejectNode(NODE_ERROR.UNSUPPORTED_TRANSPORT);
     }
 
     const tls = get(fields, 'tls') === true;

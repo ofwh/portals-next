@@ -1,5 +1,6 @@
 import 'server-only';
 import { fetch } from 'undici';
+import { withRequestId } from '@/lib/api/request-context';
 import repository from '@/lib/repositories/proxies';
 import { validPathname } from '@/lib/shared/validation';
 import type {
@@ -93,7 +94,7 @@ class ProxyConsumer implements ProxyRouteConsumer {
     try {
       const upstream = await fetch(outbound.url, {
         method: outbound.method,
-        headers: [...outbound.headers],
+        headers: [...withRequestId(outbound.headers)],
         body: outbound.body,
         dispatcher: outbound.dispatcher,
         redirect: 'follow',

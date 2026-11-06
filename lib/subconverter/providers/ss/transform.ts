@@ -1,6 +1,6 @@
 import { ssProxyNode } from './parser';
 import { escapeOption, isSimpleObfs, parseOptions } from './plugin';
-import { rejectNode } from '../../proxy-node/debug';
+import { NODE_ERROR, rejectNode } from '../../proxy-node/errors';
 import { expand, flatten, get, put } from '../../proxy-node/mapping';
 import { createTransform } from '../../proxy-node/transform';
 import type { SSConfig, SSNode } from '../../types/providers/ss';
@@ -281,7 +281,7 @@ export function pluginInput(node: object): object {
 
       if (existing !== undefined) {
         if (existing !== content) {
-          rejectNode('duplicate-plugin-parameter');
+          rejectNode(NODE_ERROR.DUPLICATE_PLUGIN_PARAMETER);
         }
 
         continue;
@@ -308,7 +308,7 @@ export function pluginOutput(node: object): object {
   if (options !== undefined) {
     const parts = Object.entries(object(options)).map(([key, value]) => {
       if (typeof value === 'object') {
-        return rejectNode('unrepresentable-plugin-parameter');
+        return rejectNode(NODE_ERROR.UNREPRESENTABLE_PLUGIN_PARAMETER);
       }
 
       const nativeKey =

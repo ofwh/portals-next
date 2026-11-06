@@ -1,4 +1,5 @@
-import { debugNode, NodeConversionError, rejectNode } from './debug';
+import { debugNode } from './debug';
+import { NODE_ERROR, NodeConversionError, rejectNode } from './errors';
 import { get, validateFields } from './mapping';
 import type { ProxyType, SupportedNodeFields } from '../types/proxy-node/common';
 import type { ProxyNodeFields } from '../types/proxy-node/fields';
@@ -32,6 +33,8 @@ export function createTransform<N, const S extends readonly ProxyType[]>(
           for (const fields of collection) {
             if (isSupported(fields, options.supports)) {
               entries.push({ index, fields, value: fields });
+            } else {
+              debugNode(options.provider, targetType, index, NODE_ERROR.UNSUPPORTED_PROTOCOL, fields);
             }
           }
         } else {
@@ -39,6 +42,8 @@ export function createTransform<N, const S extends readonly ProxyType[]>(
 
           if (isSupported(fields, options.supports)) {
             entries.push({ index, fields, value: options.toNode(fields) });
+          } else {
+            debugNode(options.provider, targetType, index, NODE_ERROR.UNSUPPORTED_PROTOCOL, input);
           }
         }
       } catch (error) {
@@ -46,7 +51,12 @@ export function createTransform<N, const S extends readonly ProxyType[]>(
           options.provider,
           targetType,
           index,
-          error instanceof NodeConversionError ? error.reason : 'invalid-node-data',
+          error instanceof NodeConversionError
+            ? error.reason
+            : error instanceof Error
+              ? error.message
+              : NODE_ERROR.INVALID_NODE_DATA,
+          input,
         );
       }
     }
@@ -102,7 +112,13 @@ export function createTransform<N, const S extends readonly ProxyType[]>(
     return entries
       .filter((entry) => {
         if (status.get(entry) === false) {
-          debugNode(options.provider, targetType, entry.index, 'missing-ambiguous-or-cyclic-dependency');
+          debugNode(
+            options.provider,
+            targetType,
+            entry.index,
+            NODE_ERROR.MISSING_AMBIGUOUS_OR_CYCLIC_DEPENDENCY,
+            entry.fields,
+          );
 
           return false;
         }
@@ -119,7 +135,7 @@ export function supportsType<T extends ProxyType>(value: string, supports: reado
   const type = supports.find((item) => item === value);
 
   if (!type) {
-    return rejectNode('unsupported-protocol');
+    return rejectNode(NODE_ERROR.UNSUPPORTED_PROTOCOL);
   }
 
   return type;

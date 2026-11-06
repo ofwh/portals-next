@@ -1,12 +1,12 @@
 import { parse as parseYaml } from 'yaml';
 import type { ClashConfig } from '../../types/providers/clash';
+import { nodeItems } from '../node-items';
 import {
   array,
   boolean,
   camelObject,
   entries,
   field,
-  nodeItems,
   number,
   object,
   oneOf,

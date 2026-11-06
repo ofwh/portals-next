@@ -17,7 +17,7 @@ export const adapter: OutputAdapter<NativeObject, never[], never[], NativeObject
           new SSProvider().transform(
             'node',
             values.flatMap((node) => {
-              const compatible = ssNode(node);
+              const compatible = ssNode(node, 'sssub');
 
               return compatible ? [compatible] : [];
             }),
