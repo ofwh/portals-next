@@ -100,11 +100,13 @@ const eslintConfig = defineConfig([
   },
   globalIgnores([
     '.next/**',
+    'draft/**',
     'out/**',
     'build/**',
     'dist/**',
     'coverage/**',
     'components/ui/**',
+    'components/reui/**',
     'scripts/**',
     'next-env.d.ts',
   ]),
