@@ -1,4 +1,5 @@
 {
   "common": "Common",
-  "proxy": "Nodes"
+  "proxy": "Nodes",
+  "configuration": "Configuration"
 }

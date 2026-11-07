@@ -15,6 +15,8 @@ import { parseWireGuard } from './drivers/wireguard';
 import { transform } from './transform';
 import type { ProviderNode } from './types';
 import { decodeBase64 } from '../shared/base64';
+import { PROVIDER_ERROR_CODES } from '../shared/errors';
+import type { ProviderEntryErrorCode, ProviderInputErrorCode } from '../shared/errors';
 import type { ProxyNode, ProxyProtocol } from '../types/proxy-node';
 
 type Driver = {
@@ -50,14 +52,14 @@ const byScheme = new Map(drivers.flatMap((driver) => driver.schemes.map((scheme)
 
 type LineDiagnostic = {
   severity: 'error';
-  code: 'INVALID_URI' | 'LINE_TOO_LARGE';
+  code: ProviderEntryErrorCode;
   line: number;
   protocol: ProxyProtocol;
 };
 
 export type ProviderResult =
   | { ok: true; nodes: ProxyNode[]; diagnostics: LineDiagnostic[] }
-  | { ok: false; error: { severity: 'error'; code: 'INVALID_BASE64' | 'INPUT_TOO_LARGE' } };
+  | { ok: false; error: { severity: 'error'; code: ProviderInputErrorCode } };
 
 const maxInputLength = 8 * 1024 * 1024;
 const maxLineLength = 64 * 1024;
@@ -65,9 +67,12 @@ const maxLines = 100_000;
 
 export function parseProviders(input: string, enabledProtocols: ReadonlySet<ProxyProtocol>): ProviderResult {
   if (input.length > maxInputLength) {
-    logger.warn('Provider input exceeds the size limit', { code: 'INPUT_TOO_LARGE', inputLength: input.length });
+    logger.warn('Provider input exceeds the size limit', {
+      code: PROVIDER_ERROR_CODES.INPUT_TOO_LARGE,
+      inputLength: input.length,
+    });
 
-    return { ok: false, error: { severity: 'error', code: 'INPUT_TOO_LARGE' } };
+    return { ok: false, error: { severity: 'error', code: PROVIDER_ERROR_CODES.INPUT_TOO_LARGE } };
   }
 
   let decoded: string;
@@ -75,17 +80,17 @@ export function parseProviders(input: string, enabledProtocols: ReadonlySet<Prox
   try {
     decoded = decodeBase64(input.trim());
   } catch {
-    logger.warn('Provider input is not valid Base64 UTF-8 text', { code: 'INVALID_BASE64' });
+    logger.warn('Provider input is not valid Base64 UTF-8 text', { code: PROVIDER_ERROR_CODES.INVALID_BASE64 });
 
-    return { ok: false, error: { severity: 'error', code: 'INVALID_BASE64' } };
+    return { ok: false, error: { severity: 'error', code: PROVIDER_ERROR_CODES.INVALID_BASE64 } };
   }
 
   const lines = decoded.split('\n', maxLines + 1);
 
   if (lines.length > maxLines) {
-    logger.warn('Provider input exceeds the line limit', { code: 'INPUT_TOO_LARGE', maxLines });
+    logger.warn('Provider input exceeds the line limit', { code: PROVIDER_ERROR_CODES.INPUT_TOO_LARGE, maxLines });
 
-    return { ok: false, error: { severity: 'error', code: 'INPUT_TOO_LARGE' } };
+    return { ok: false, error: { severity: 'error', code: PROVIDER_ERROR_CODES.INPUT_TOO_LARGE } };
   }
 
   const nodes: ProxyNode[] = [];
@@ -121,11 +126,16 @@ export function parseProviders(input: string, enabledProtocols: ReadonlySet<Prox
 
     if (line.length > maxLineLength) {
       logger.warn('Provider node exceeds the line size limit', {
-        code: 'LINE_TOO_LARGE',
+        code: PROVIDER_ERROR_CODES.LINE_TOO_LARGE,
         protocol: driver.protocol,
         line: index + 1,
       });
-      diagnostics.push({ severity: 'error', code: 'LINE_TOO_LARGE', protocol: driver.protocol, line: index + 1 });
+      diagnostics.push({
+        severity: 'error',
+        code: PROVIDER_ERROR_CODES.LINE_TOO_LARGE,
+        protocol: driver.protocol,
+        line: index + 1,
+      });
       continue;
     }
 
@@ -144,12 +154,17 @@ export function parseProviders(input: string, enabledProtocols: ReadonlySet<Prox
       }
     } catch {
       logger.warn('Provider node parsing failed', {
-        code: 'INVALID_URI',
+        code: PROVIDER_ERROR_CODES.INVALID_URI,
         protocol: driver.protocol,
         scheme,
         line: index + 1,
       });
-      diagnostics.push({ severity: 'error', code: 'INVALID_URI', protocol: driver.protocol, line: index + 1 });
+      diagnostics.push({
+        severity: 'error',
+        code: PROVIDER_ERROR_CODES.INVALID_URI,
+        protocol: driver.protocol,
+        line: index + 1,
+      });
     }
   }
 

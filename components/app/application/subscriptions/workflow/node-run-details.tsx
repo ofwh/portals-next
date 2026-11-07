@@ -37,11 +37,11 @@ export function NodeRunDetails({
       }}
     >
       <DialogContent
-        className="nodrag nopan flex h-[min(640px,85dvh)] max-h-[85dvh] w-[60%] max-w-[1280px] flex-col overflow-hidden sm:max-w-[1280px]"
+        className="nodrag nopan flex h-[min(640px,85dvh)] max-h-[85dvh] w-[60%] max-w-[1280px] flex-col gap-0 overflow-hidden p-0 sm:max-w-[1280px]"
         onClick={(event) => event.stopPropagation()}
         onDoubleClick={(event) => event.stopPropagation()}
       >
-        <DialogHeader>
+        <DialogHeader className="shrink-0 border-b p-4 pr-12 sm:px-6 sm:pr-12">
           <DialogTitle>{t('runDetailsTitle')}</DialogTitle>
           <DialogDescription>
             {t.rich('runDetailsDescription', {
@@ -54,7 +54,7 @@ export function NodeRunDetails({
             })}
           </DialogDescription>
         </DialogHeader>
-        <ResizablePanelGroup orientation="horizontal" className="min-h-0 flex-1">
+        <ResizablePanelGroup orientation="horizontal" className="min-h-0 flex-1 p-6">
           <ResizablePanel defaultSize="50%" minSize="20%" className="min-w-0">
             {!state.input?.length ? (
               <div

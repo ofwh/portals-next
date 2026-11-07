@@ -1,8 +1,9 @@
 import { isIP } from 'node:net';
 import type { PortRange, Tls } from './types';
+import { PROVIDER_ERROR_CODES } from '../shared/errors';
 
 export function invalid(): never {
-  throw new Error('INVALID_URI');
+  throw new Error(PROVIDER_ERROR_CODES.INVALID_URI);
 }
 
 export function required(value: string | undefined): string {

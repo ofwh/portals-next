@@ -1,0 +1,12 @@
+{
+  "ruleset": {
+    "name": "Parse rule sets",
+    "description": "Parse configuration into a rule set list",
+    "format": "Configuration format",
+    "formatHelp": "Input text format",
+    "formatPlaceholder": "Select a format",
+    "resolver": "Parsing method",
+    "resolverHelp": "Subscription type",
+    "resolverPlaceholder": "Select a parser"
+  }
+}
