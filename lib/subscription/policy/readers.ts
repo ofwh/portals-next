@@ -9,7 +9,6 @@ function iniEntries(input: string): PolicyEntry[] {
   const entries: PolicyEntry[] = [];
   let section = '';
   let hasCustom = false;
-  let customFields = 0;
   let hasContent = false;
 
   for (const [index, raw] of input.split(/\r\n|\n|\r/).entries()) {
@@ -45,14 +44,12 @@ function iniEntries(input: string): PolicyEntry[] {
       continue;
     }
 
-    customFields++;
-
     if (field?.[1].trim() === 'custom_proxy_group' || isImport) {
       entries.push({ value: isImport ? line : field![2], position });
     }
   }
 
-  if ((hasContent && !hasCustom) || (customFields > 0 && entries.length === 0)) {
+  if (hasContent && !hasCustom) {
     throw new DocumentError();
   }
 
@@ -91,17 +88,13 @@ export function readPolicyEntries(input: string, format: ConfigFormat, legacyYam
 
   if (isRecord(root)) {
     if (format === 'yaml') {
-      if (Object.keys(root).length > 0 && !isRecord(root.custom)) {
+      if (root.custom !== undefined && !isRecord(root.custom)) {
         throw new DocumentError(document.position(['custom']));
       }
 
       value = isRecord(root.custom) ? root.custom[key] : undefined;
     } else {
       value = root.custom_groups;
-    }
-
-    if (Object.keys(root).length > 0 && value === undefined) {
-      throw new DocumentError(document.position(path));
     }
   }
 

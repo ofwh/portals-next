@@ -15,5 +15,9 @@
     "formatPlaceholder": "Select a format",
     "resolver": "Parsing method",
     "resolverPlaceholder": "Select a parser"
+  },
+  "template": {
+    "name": "Parse templates",
+    "description": "Parse rendered template text into a format-tagged document"
   }
 }

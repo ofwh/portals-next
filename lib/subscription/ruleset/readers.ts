@@ -7,7 +7,6 @@ function iniEntries(input: string): RulesetEntry[] {
   const entries: RulesetEntry[] = [];
   let section = '';
   let hasCustom = false;
-  let customFields = 0;
   let hasContent = false;
 
   for (const [index, raw] of input.split(/\r\n|\n|\r/).entries()) {
@@ -41,7 +40,6 @@ function iniEntries(input: string): RulesetEntry[] {
       continue;
     }
 
-    customFields++;
     const key = field?.[1].trim();
 
     if (key === 'ruleset' || line.startsWith('!!import:')) {
@@ -49,7 +47,7 @@ function iniEntries(input: string): RulesetEntry[] {
     }
   }
 
-  if ((hasContent && !hasCustom) || (customFields > 0 && entries.length === 0)) {
+  if (hasContent && !hasCustom) {
     throw new DocumentError();
   }
 
@@ -84,17 +82,13 @@ export function readRulesetEntries(input: string, format: ConfigFormat): Ruleset
 
   if (isRecord(root)) {
     if (format === 'yaml') {
-      if (Object.keys(root).length > 0 && !isRecord(root.custom)) {
+      if (root.custom !== undefined && !isRecord(root.custom)) {
         throw new DocumentError(document.position(['custom']));
       }
 
       value = isRecord(root.custom) ? root.custom.rulesets : undefined;
     } else {
       value = root.rulesets;
-    }
-
-    if (Object.keys(root).length > 0 && value === undefined) {
-      throw new DocumentError(document.position(path));
     }
   }
 

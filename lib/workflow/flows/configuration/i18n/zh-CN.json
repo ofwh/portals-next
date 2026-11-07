@@ -15,5 +15,9 @@
     "formatPlaceholder": "请选择配置格式",
     "resolver": "解析方式",
     "resolverPlaceholder": "请选择解析类别"
+  },
+  "template": {
+    "name": "模板解析",
+    "description": "将已渲染的模板文本解析为带格式标记的文档"
   }
 }
