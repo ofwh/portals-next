@@ -11,10 +11,12 @@ const nodes = [fieldInputNode, mergeNode, httpRequestNode, httpResponseHeadersNo
 
 const group = {
   id: 'common',
-  ...nodeLabel('workflowNodes.common.group'),
+  ...nodeLabel('workflowNodes.groups.common'),
   nodes,
 } satisfies NodeModuleGroup;
 
 const groups = [group] as const satisfies readonly NodeModuleGroup[];
 
 export default groups;
+
+export { messages, errorMessages } from './messages';

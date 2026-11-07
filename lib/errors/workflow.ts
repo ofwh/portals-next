@@ -1,4 +1,4 @@
-import { errorMessages as commonMessages } from '@/lib/workflow/flows/general/i18n/errors';
+import { errorMessages as nodeMessages } from '@/lib/workflow/flows/i18n/errors';
 
 export const codes = {
   DUPLICATE_TYPE: 1301000,
@@ -25,7 +25,7 @@ export const reservedCodes = [1301018, 1301019, 1301021, 1301022, 1301023, 13010
 
 export const messages = {
   'zh-CN': {
-    ...commonMessages['zh-CN'],
+    ...nodeMessages['zh-CN'],
     DUPLICATE_TYPE: '工作流数据类型已注册',
     TYPE_NOT_FOUND: '工作流数据类型未注册',
     DUPLICATE_NODE: '工作流节点类型已注册',
@@ -45,7 +45,7 @@ export const messages = {
     DRAFT_NOT_FOUND: '尚未保存可运行的流程草稿',
   },
   en: {
-    ...commonMessages.en,
+    ...nodeMessages.en,
     DUPLICATE_TYPE: 'The workflow data type is already registered.',
     TYPE_NOT_FOUND: 'The workflow data type is not registered.',
     DUPLICATE_NODE: 'The workflow node type is already registered.',

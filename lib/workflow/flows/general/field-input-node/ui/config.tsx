@@ -9,8 +9,8 @@ import type { NodeFormProps } from '@/lib/workflow/node/types';
 import { isOutputFormat } from '../model/schema';
 import type { FieldInputConfig } from '../model/types';
 
-export function FieldInputForm({ value, onChange, disabled, issues }: NodeFormProps<FieldInputConfig>) {
-  const t = useTranslations('workflowNodes.common');
+function ConfigForm({ value, onChange, disabled, issues }: NodeFormProps<FieldInputConfig>) {
+  const t = useTranslations('workflowNodes.common.fieldInput');
   const id = useId();
 
   return (
@@ -18,8 +18,8 @@ export function FieldInputForm({ value, onChange, disabled, issues }: NodeFormPr
       <FieldGroup className="gap-1">
         <Field orientation="horizontal" className="min-w-0 gap-2">
           <FieldContent>
-            <FieldLabel htmlFor={`${id}-format`}>{t('fieldInput.outputFormat')}</FieldLabel>
-            <FieldDescription id={`${id}-format-help`}>{t('fieldInput.outputFormatHelp')}</FieldDescription>
+            <FieldLabel htmlFor={`${id}-format`}>{t('outputFormat')}</FieldLabel>
+            <FieldDescription id={`${id}-format-help`}>{t('outputFormatHelp')}</FieldDescription>
           </FieldContent>
           <div data-slot="field-control">
             <Select
@@ -32,21 +32,19 @@ export function FieldInputForm({ value, onChange, disabled, issues }: NodeFormPr
               }}
             >
               <SelectTrigger id={`${id}-format`} aria-describedby={`${id}-format-help`} className="w-full">
-                <SelectValue>
-                  {t(value.outputFormat === 'String' ? 'shared.formats.text' : 'shared.formats.json')}
-                </SelectValue>
+                <SelectValue>{t(value.outputFormat === 'String' ? 'formats.text' : 'formats.json')}</SelectValue>
               </SelectTrigger>
               <SelectContent side="bottom" alignItemWithTrigger={false}>
-                <SelectItem value="String">{t('shared.formats.text')}</SelectItem>
-                <SelectItem value="Object">{t('shared.formats.json')}</SelectItem>
+                <SelectItem value="String">{t('formats.text')}</SelectItem>
+                <SelectItem value="Object">{t('formats.json')}</SelectItem>
               </SelectContent>
             </Select>
           </div>
         </Field>
         <Field orientation="horizontal" className="min-w-0 gap-2">
           <FieldContent>
-            <FieldLabel htmlFor={`${id}-text`}>{t('fieldInput.text')}</FieldLabel>
-            <FieldDescription id={`${id}-help`}>{t('fieldInput.help')}</FieldDescription>
+            <FieldLabel htmlFor={`${id}-text`}>{t('text')}</FieldLabel>
+            <FieldDescription id={`${id}-help`}>{t('help')}</FieldDescription>
           </FieldContent>
           <div data-slot="field-control">
             <Textarea
@@ -68,4 +66,10 @@ export function FieldInputForm({ value, onChange, disabled, issues }: NodeFormPr
       )}
     </fieldset>
   );
+}
+
+export function useNodeConfig() {
+  const t = useTranslations('workflowNodes.common.fieldInput');
+
+  return { title: t('name'), description: t('description'), ConfigForm };
 }

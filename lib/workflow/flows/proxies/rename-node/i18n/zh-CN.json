@@ -1,0 +1,13 @@
+{
+  "add": "添加规则",
+  "description": "配置节点重命名规则",
+  "help": "按规则顺序对节点名称进行处理",
+  "moveDown": "下移",
+  "moveUp": "上移",
+  "name": "节点重命名",
+  "pattern": "匹配内容，支持正则",
+  "remove": "删除",
+  "replacement": "替换内容，为空时删除",
+  "rules": "重命名规则",
+  "summary": "{count} 条重命名规则"
+}

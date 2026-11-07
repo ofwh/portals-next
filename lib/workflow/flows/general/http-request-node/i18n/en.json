@@ -1,0 +1,20 @@
+{
+  "name": "HTTP request",
+  "method": "Request method",
+  "url": "URL",
+  "urlPlaceholder": "Request URL",
+  "headers": "Request headers",
+  "headerName": "Header name",
+  "headerValue": "Header value",
+  "addHeader": "Add header",
+  "removeHeader": "Remove header",
+  "body": "Request body",
+  "bodyHelp": "Enter the raw request body",
+  "methodHelp": "Select the HTTP request method",
+  "urlHelp": "Resource URL",
+  "headersHelp": "Set request header names and values",
+  "formats": {
+    "text": "Text"
+  },
+  "description": "Fetch content from the resource URL"
+}

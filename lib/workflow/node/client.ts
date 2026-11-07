@@ -1,11 +1,13 @@
 import { TypeRegistry } from './core/type-registry';
 import { NodeViewRegistry } from './core/views';
 import { registerCommonViews } from '../flows/general/client';
+import { registerProxyViews } from '../flows/proxies/client';
 
 export const typeRegistry = new TypeRegistry();
 export const nodeViewRegistry = new NodeViewRegistry();
 
 registerCommonViews(nodeViewRegistry);
+registerProxyViews(nodeViewRegistry, typeRegistry);
 
 export { defineNodeView } from './core/views';
 export const registerNodeView: NodeViewRegistry['registerNodeView'] = (view, isConfig) =>

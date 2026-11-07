@@ -80,10 +80,15 @@ export interface NodeFormProps<C> {
 export interface NodeConfigValidationContext {
   locale?: Locale;
 }
+export interface NodeConfigResult<C> {
+  title: string;
+  description: string;
+  ConfigForm?: ComponentType<NodeFormProps<C>>;
+}
 export interface NodeConfigView<C> {
+  useNodeConfig(): NodeConfigResult<C>;
   validate?(value: C, context?: NodeConfigValidationContext): ConfigIssue[];
   className?: string;
-  Form: ComponentType<NodeFormProps<C>>;
 }
 export interface NodeContentProps<C> {
   node: Readonly<NodeInstance<C>>;

@@ -1,8 +1,9 @@
 import 'server-only';
 import { registerNodeGroups } from './core/registry';
 import commonGroups from '../flows/general';
+import proxyGroups from '../flows/proxies';
 
-registerNodeGroups(commonGroups);
+registerNodeGroups([...commonGroups, ...proxyGroups]);
 
 export {
   defineNode,

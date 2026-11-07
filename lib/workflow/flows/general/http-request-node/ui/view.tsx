@@ -8,20 +8,20 @@ import type { HttpRequestConfig } from '../model/types';
 export const HttpRequestIcon = Globe;
 
 export function HttpRequestContent({ node, mode }: NodeContentProps<HttpRequestConfig>) {
-  const t = useTranslations('workflowNodes.common');
+  const t = useTranslations('workflowNodes.common.httpRequest');
 
   return (
     <div className="flex h-full min-w-0 flex-col justify-between gap-3 p-4">
       <div className="flex min-w-0 items-center gap-2">
         <HttpRequestIcon className="size-4 shrink-0" />
-        <span className="truncate font-medium">{mode === 'canvas' ? node.name : t('httpRequest.name')}</span>
+        <span className="truncate font-medium">{mode === 'canvas' ? node.name : t('name')}</span>
       </div>
       <p className="text-muted-foreground truncate text-xs" title={node.config.url}>
-        {node.config.url || t('http.urlPlaceholder')}
+        {node.config.url || t('urlPlaceholder')}
       </p>
       <div className="text-muted-foreground flex justify-between text-xs">
         <span>{node.config.method}</span>
-        <span>{t('shared.formats.text')}</span>
+        <span>{t('formats.text')}</span>
       </div>
     </div>
   );

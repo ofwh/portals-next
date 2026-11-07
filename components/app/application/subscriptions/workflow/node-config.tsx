@@ -4,7 +4,7 @@ import { ScrollArea as ScrollAreaPrimitive } from '@base-ui/react/scroll-area';
 import { cn } from 'cn';
 import { Pencil } from 'lucide-react';
 import { useLocale, useTranslations } from 'next-intl';
-import type { ComponentType, FormEvent } from 'react';
+import type { FormEvent } from 'react';
 import { useEffect, useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import {
@@ -23,17 +23,22 @@ import { resolveLocale } from '@/i18n/config';
 import { cloneJson } from '@/lib/shared/data';
 import type { NodeInstance } from '@/lib/workflow/model';
 import { nodeViewRegistry } from '@/lib/workflow/node/client';
-import type { ConfigIssue, NodeFormProps } from '@/lib/workflow/node/types';
+import type { ConfigIssue, NodeConfigResult, NodeConfigView } from '@/lib/workflow/node/types';
 import styles from '@/styles/ui.module.css';
+
+function useEmptyNodeConfig(): NodeConfigResult<unknown> {
+  return { title: '', description: '' };
+}
 
 interface NodeConfigEditorProps {
   node: NodeInstance;
-  Form?: ComponentType<NodeFormProps<unknown>>;
+  useNodeConfig?: NodeConfigView<unknown>['useNodeConfig'];
   className?: string;
   onClose(): void;
 }
 
-function NodeConfigEditor({ node, Form, className, onClose }: NodeConfigEditorProps) {
+function NodeConfigEditor({ node, useNodeConfig = useEmptyNodeConfig, className, onClose }: NodeConfigEditorProps) {
+  const { title, description, ConfigForm } = useNodeConfig();
   const t = useTranslations();
   const locale = resolveLocale(useLocale());
   const { saving, updateNode, notifyError, manifest } = useWorkflow((state) => ({
@@ -47,7 +52,7 @@ function NodeConfigEditor({ node, Form, className, onClose }: NodeConfigEditorPr
   const [displayName, setDisplayName] = useState(node.displayName ?? '');
   const [issues, setIssues] = useState<ConfigIssue[]>([]);
   const [draft, setDraft] = useState(() => cloneJson(node.config));
-  const originalName = manifest?.nameKey ? t(manifest.nameKey) : node.name;
+  const originalName = title || (manifest?.nameKey ? t(manifest.nameKey) : node.name);
 
   useEffect(() => {
     if (editingName) {
@@ -151,16 +156,14 @@ function NodeConfigEditor({ node, Form, className, onClose }: NodeConfigEditorPr
                 )}
               </span>
             </DialogTitle>
-            <DialogDescription className={cn('text-xs', editingName && 'invisible')}>
-              {t('admin.application.subscriptions.flowEditor.configHelp')}
-            </DialogDescription>
+            <DialogDescription className={cn('text-xs', editingName && 'invisible')}>{description}</DialogDescription>
           </div>
         </DialogHeader>
         <form noValidate onSubmit={submit} className={`flex min-h-0 flex-1 flex-col ${styles.highlight}`}>
           <ScrollArea className="flex min-h-0 flex-1 flex-col overflow-hidden [&>[data-slot=scroll-area-viewport]]:min-h-0 [&>[data-slot=scroll-area-viewport]]:overscroll-contain">
             <ScrollAreaPrimitive.Content className="p-6">
-              {Form ? (
-                <Form
+              {ConfigForm ? (
+                <ConfigForm
                   value={draft}
                   disabled={saving}
                   issues={issues}
@@ -204,7 +207,7 @@ export function NodeConfig({ id, onClose }: { id: string | null; onClose(): void
     <NodeConfigEditor
       key={node.id}
       node={node}
-      Form={view?.config?.Form}
+      useNodeConfig={view?.config?.useNodeConfig}
       className={view?.config?.className}
       onClose={onClose}
     />

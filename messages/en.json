@@ -507,7 +507,6 @@
           "displayName": "Node name",
           "editDisplayName": "Edit node name",
           "noConfigurationHelp": "This node has no configurable options.",
-          "configHelp": "Save to apply the configuration to the canvas draft.",
           "canvasHelp": "Drag to move · Double-click to configure · Drag between ports to connect",
           "configureNode": "Configure selected node",
           "removeSelected": "Remove selected node or connection",

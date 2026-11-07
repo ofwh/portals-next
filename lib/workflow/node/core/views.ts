@@ -25,6 +25,7 @@ export class NodeViewRegistry {
 
     const display = view.display;
     const config = view.config;
+    const forms = new Map<ComponentType<NodeFormProps<C>>, ComponentType<NodeFormProps<unknown>>>();
 
     if (
       !nonempty(view.type) ||
@@ -51,10 +52,27 @@ export class NodeViewRegistry {
       ...(config
         ? {
             config: {
+              useNodeConfig() {
+                const result = config.useNodeConfig();
+                const Form = result.ConfigForm;
+
+                if (!Form) {
+                  return { title: result.title, description: result.description };
+                }
+
+                let ConfigForm = forms.get(Form);
+
+                if (!ConfigForm) {
+                  ConfigForm = function CheckedConfigForm(props: NodeFormProps<unknown>) {
+                    return createElement(Form, { ...props, value: check(props.value) });
+                  };
+                  forms.set(Form, ConfigForm);
+                }
+
+                return { ...result, ConfigForm };
+              },
               className: config.className,
               validate: config.validate ? (value, context) => config.validate!(check(value), context) : undefined,
-              Form: (props: NodeFormProps<unknown>) =>
-                createElement(config.Form, { ...props, value: check(props.value) }),
             },
           }
         : {}),

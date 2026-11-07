@@ -8,17 +8,17 @@ import type { FieldInputConfig } from '../model/types';
 export const FieldInputIcon = FileText;
 
 export function FieldInputContent({ node, mode }: NodeContentProps<FieldInputConfig>) {
-  const t = useTranslations('workflowNodes.common');
+  const t = useTranslations('workflowNodes.common.fieldInput');
 
   return (
     <div className="flex h-full min-w-0 flex-col justify-between gap-3 p-4">
       <div className="flex min-w-0 items-center gap-2">
         <FieldInputIcon className="size-4 shrink-0" />
-        <span className="truncate font-medium">{mode === 'canvas' ? node.name : t('fieldInput.name')}</span>
+        <span className="truncate font-medium">{mode === 'canvas' ? node.name : t('name')}</span>
       </div>
       <p className="text-muted-foreground truncate text-xs">
-        {t(node.config.outputFormat === 'Object' ? 'shared.formats.json' : 'shared.formats.text')} ·{' '}
-        {t('fieldInput.summary', { count: node.config.text.length })}
+        {t(node.config.outputFormat === 'Object' ? 'formats.json' : 'formats.text')} ·{' '}
+        {t('summary', { count: node.config.text.length })}
       </p>
     </div>
   );

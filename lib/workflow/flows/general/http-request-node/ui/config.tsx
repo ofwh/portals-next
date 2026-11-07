@@ -12,8 +12,8 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip
 import type { NodeFormProps } from '@/lib/workflow/node/types';
 import type { HttpRequestConfig } from '../model/types';
 
-export function HttpRequestForm({ value, onChange, disabled, issues }: NodeFormProps<HttpRequestConfig>) {
-  const t = useTranslations('workflowNodes.common');
+function ConfigForm({ value, onChange, disabled, issues }: NodeFormProps<HttpRequestConfig>) {
+  const t = useTranslations('workflowNodes.common.httpRequest');
   const id = useId();
 
   return (
@@ -21,8 +21,8 @@ export function HttpRequestForm({ value, onChange, disabled, issues }: NodeFormP
       <FieldGroup className="gap-1">
         <Field orientation="horizontal" className="min-w-0 gap-2">
           <FieldContent>
-            <FieldLabel htmlFor={`${id}-method`}>{t('http.method')}</FieldLabel>
-            <FieldDescription id={`${id}-method-help`}>{t('http.methodHelp')}</FieldDescription>
+            <FieldLabel htmlFor={`${id}-method`}>{t('method')}</FieldLabel>
+            <FieldDescription id={`${id}-method-help`}>{t('methodHelp')}</FieldDescription>
           </FieldContent>
           <div data-slot="field-control">
             <Select
@@ -46,8 +46,8 @@ export function HttpRequestForm({ value, onChange, disabled, issues }: NodeFormP
         </Field>
         <Field orientation="horizontal" className="min-w-0 gap-2">
           <FieldContent>
-            <FieldLabel htmlFor={`${id}-url`}>{t('http.url')}</FieldLabel>
-            <FieldDescription id={`${id}-url-help`}>{t('http.urlHelp')}</FieldDescription>
+            <FieldLabel htmlFor={`${id}-url`}>{t('url')}</FieldLabel>
+            <FieldDescription id={`${id}-url-help`}>{t('urlHelp')}</FieldDescription>
           </FieldContent>
           <div data-slot="field-control">
             <Input
@@ -64,8 +64,8 @@ export function HttpRequestForm({ value, onChange, disabled, issues }: NodeFormP
         <Field>
           <div className="flex items-center justify-between gap-3">
             <FieldContent>
-              <FieldLabel id={`${id}-headers`}>{t('http.headers')}</FieldLabel>
-              <FieldDescription id={`${id}-headers-help`}>{t('http.headersHelp')}</FieldDescription>
+              <FieldLabel id={`${id}-headers`}>{t('headers')}</FieldLabel>
+              <FieldDescription id={`${id}-headers-help`}>{t('headersHelp')}</FieldDescription>
             </FieldContent>
             <Tooltip>
               <TooltipTrigger
@@ -75,7 +75,7 @@ export function HttpRequestForm({ value, onChange, disabled, issues }: NodeFormP
                     variant="outline"
                     size="icon-sm"
                     disabled={disabled}
-                    aria-label={t('http.addHeader')}
+                    aria-label={t('addHeader')}
                     onClick={() =>
                       onChange({
                         ...value,
@@ -87,7 +87,7 @@ export function HttpRequestForm({ value, onChange, disabled, issues }: NodeFormP
               >
                 <Plus />
               </TooltipTrigger>
-              <TooltipContent side="top">{t('http.addHeader')}</TooltipContent>
+              <TooltipContent side="top">{t('addHeader')}</TooltipContent>
             </Tooltip>
           </div>
           <div
@@ -99,8 +99,8 @@ export function HttpRequestForm({ value, onChange, disabled, issues }: NodeFormP
             {value.headers.map((header) => (
               <div key={header.id} className="grid grid-cols-[minmax(0,1fr)_minmax(0,1fr)_auto] gap-2">
                 <Input
-                  aria-label={t('http.headerName')}
-                  placeholder={t('http.headerName')}
+                  aria-label={t('headerName')}
+                  placeholder={t('headerName')}
                   value={header.name}
                   onChange={(event) =>
                     onChange({
@@ -112,8 +112,8 @@ export function HttpRequestForm({ value, onChange, disabled, issues }: NodeFormP
                   }
                 />
                 <Input
-                  aria-label={t('http.headerValue')}
-                  placeholder={t('http.headerValue')}
+                  aria-label={t('headerValue')}
+                  placeholder={t('headerValue')}
                   value={header.value}
                   onChange={(event) =>
                     onChange({
@@ -128,7 +128,7 @@ export function HttpRequestForm({ value, onChange, disabled, issues }: NodeFormP
                   type="button"
                   variant="destructive"
                   size="icon"
-                  aria-label={t('http.removeHeader')}
+                  aria-label={t('removeHeader')}
                   onClick={() => onChange({ ...value, headers: value.headers.filter((row) => row.id !== header.id) })}
                 >
                   <Trash2 />
@@ -140,8 +140,8 @@ export function HttpRequestForm({ value, onChange, disabled, issues }: NodeFormP
         {value.method === 'POST' && (
           <Field orientation="horizontal" className="min-w-0 gap-2">
             <FieldContent>
-              <FieldLabel htmlFor={`${id}-body`}>{t('http.body')}</FieldLabel>
-              <FieldDescription id={`${id}-body-help`}>{t('http.bodyHelp')}</FieldDescription>
+              <FieldLabel htmlFor={`${id}-body`}>{t('body')}</FieldLabel>
+              <FieldDescription id={`${id}-body-help`}>{t('bodyHelp')}</FieldDescription>
             </FieldContent>
             <div data-slot="field-control">
               <Textarea
@@ -164,4 +164,10 @@ export function HttpRequestForm({ value, onChange, disabled, issues }: NodeFormP
       )}
     </fieldset>
   );
+}
+
+export function useNodeConfig() {
+  const t = useTranslations('workflowNodes.common.httpRequest');
+
+  return { title: t('name'), description: t('description'), ConfigForm };
 }
