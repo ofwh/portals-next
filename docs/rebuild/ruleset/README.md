@@ -2,6 +2,8 @@
 
 输入为配置文本、必选的 `format` 和 `resolver`，输出为有序的 `RuleSet[]`。`format` 选择声明读取格式，`resolver` 选择订阅类型；类型与内部模式的处理见[规则解析器](resolvers.md)。
 
+规则解析器放在策略配置模块的 `resolvers` 子目录（`lib/subscription/ruleset/resolvers`），按解析类别组织实现。
+
 | 格式 | 字段                          | 条目                                                     |
 | ---- | ----------------------------- | -------------------------------------------------------- |
 | INI  | `[custom]` 下重复的 `ruleset` | group,source[,interval]，带可选管道分隔选项              |

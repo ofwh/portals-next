@@ -2,6 +2,8 @@
 
 输入为配置文本、`format` 和 `resolver`。格式读取器只抽取以下字段，产出带来源位置的有序条目。分组 resolver 处理条目内部语法并返回 `ProxyGroup[]`。
 
+分组解析器放在分组配置模块的 `resolvers` 子目录（`lib/subscription/policy/resolvers`），按解析类别组织实现。
+
 | 格式 | 路径                                     | 条目形态         |
 | ---- | ---------------------------------------- | ---------------- |
 | INI  | `[custom]` 下重复的 `custom_proxy_group` | 反引号分隔字符串 |
