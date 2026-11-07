@@ -4,24 +4,24 @@ import { useTranslations } from 'next-intl';
 import { useId } from 'react';
 import { Field, FieldContent, FieldDescription, FieldGroup, FieldLabel } from '@/components/ui/field';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { getRulesetResolver, isRulesetResolver, rulesetResolverOptions } from '@/lib/subscription/shared/ruleset';
+import { isRulesetTransformer, rulesetTransformerOptions } from '@/lib/subscription/ruleset/transformers/options';
 import type { NodeFormProps } from '@/lib/workflow/node/types';
 import { formatOptions } from '../model/definition';
-import { isFormat } from '../model/schema';
+import { getConfigTransformer, isFormat } from '../model/schema';
 import type { RulesetResolveConfig } from '../model/types';
 
 function ConfigForm({ value, onChange, disabled, issues }: NodeFormProps<RulesetResolveConfig>) {
-  const t = useTranslations('workflowNodes.configuration.ruleset');
+  const t = useTranslations('workflowNodes.configuration');
   const id = useId();
-  const resolver = getRulesetResolver(value.resolver);
+  const transformer = getConfigTransformer(value);
 
   return (
     <fieldset disabled={disabled} className="min-w-0 space-y-6">
       <FieldGroup className="gap-1">
         <Field orientation="horizontal" className="min-w-0 gap-2">
           <FieldContent>
-            <FieldLabel htmlFor={`${id}-format`}>{t('format')}</FieldLabel>
-            <FieldDescription id={`${id}-format-help`}>{t('formatHelp')}</FieldDescription>
+            <FieldLabel htmlFor={`${id}-format`}>{t('shared.format')}</FieldLabel>
+            <FieldDescription id={`${id}-format-help`}>{t('shared.formatHelp')}</FieldDescription>
           </FieldContent>
           <div data-slot="field-control">
             <Select
@@ -30,12 +30,12 @@ function ConfigForm({ value, onChange, disabled, issues }: NodeFormProps<Ruleset
               disabled={disabled}
               onValueChange={(format) => {
                 if (isFormat(format)) {
-                  onChange({ ...value, format, resolver: resolver ?? '' });
+                  onChange({ ...value, format });
                 }
               }}
             >
               <SelectTrigger id={`${id}-format`} aria-describedby={`${id}-format-help`} className="w-full">
-                <SelectValue placeholder={t('formatPlaceholder')}>
+                <SelectValue placeholder={t('shared.formatPlaceholder')}>
                   {isFormat(value.format) ? value.format.toUpperCase() : undefined}
                 </SelectValue>
               </SelectTrigger>
@@ -51,28 +51,28 @@ function ConfigForm({ value, onChange, disabled, issues }: NodeFormProps<Ruleset
         </Field>
         <Field orientation="horizontal" className="min-w-0 gap-2">
           <FieldContent>
-            <FieldLabel htmlFor={`${id}-resolver`}>{t('resolver')}</FieldLabel>
-            <FieldDescription id={`${id}-resolver-help`}>{t('resolverHelp')}</FieldDescription>
+            <FieldLabel htmlFor={`${id}-transformer`}>{t('shared.resolver')}</FieldLabel>
+            <FieldDescription id={`${id}-transformer-help`}>{t('ruleset.transformerHelp')}</FieldDescription>
           </FieldContent>
           <div data-slot="field-control">
             <Select
-              value={resolver ?? null}
+              value={transformer ?? null}
               required
               disabled={disabled}
-              onValueChange={(resolver) => {
-                if (isRulesetResolver(resolver)) {
-                  onChange({ ...value, resolver });
+              onValueChange={(transformer) => {
+                if (isRulesetTransformer(transformer)) {
+                  onChange({ format: value.format, transformer });
                 }
               }}
             >
-              <SelectTrigger id={`${id}-resolver`} aria-describedby={`${id}-resolver-help`} className="w-full">
-                <SelectValue placeholder={t('resolverPlaceholder')}>
-                  {resolver ? rulesetResolverOptions[resolver] : undefined}
+              <SelectTrigger id={`${id}-transformer`} aria-describedby={`${id}-transformer-help`} className="w-full">
+                <SelectValue placeholder={t('shared.resolverPlaceholder')}>
+                  {rulesetTransformerOptions.find((option) => option.value === transformer)?.label}
                 </SelectValue>
               </SelectTrigger>
               <SelectContent side="bottom" alignItemWithTrigger={false}>
-                {Object.entries(rulesetResolverOptions).map(([resolver, label]) => (
-                  <SelectItem key={resolver} value={resolver}>
+                {rulesetTransformerOptions.map(({ value: transformer, label }) => (
+                  <SelectItem key={transformer} value={transformer}>
                     {label}
                   </SelectItem>
                 ))}
@@ -93,7 +93,7 @@ function ConfigForm({ value, onChange, disabled, issues }: NodeFormProps<Ruleset
 }
 
 export function useNodeConfig() {
-  const t = useTranslations('workflowNodes.configuration.ruleset');
+  const t = useTranslations('workflowNodes.configuration');
 
-  return { title: t('name'), description: t('description'), ConfigForm };
+  return { title: t('ruleset.name'), description: t('ruleset.description'), ConfigForm };
 }

@@ -1,6 +1,5 @@
-export type RulesetFormat = 'ini' | 'yaml' | 'toml';
 export type RuleCategory = 'surge' | 'quanx' | 'clash-domain' | 'clash-ipcidr' | 'clash-classic';
-export type RulesetResolver = 'surge' | 'quanx' | 'clash';
+export type RulesetTransformer = 'surge' | 'quanx' | 'clash';
 
 export type Rule = { type: string; parameters: string[]; flags: string[] };
 

@@ -537,6 +537,7 @@
           "runDetailsTitle": "执行数据",
           "runDetailsDescription": "执行节点 <node>{name}</node>",
           "wrapLines": "自动换行",
+          "lineNumbers": "行号",
           "noWrapLines": "不换行",
           "runInput": "入参",
           "emptyRunInput": "无数据",

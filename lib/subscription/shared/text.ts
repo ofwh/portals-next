@@ -1,5 +1,9 @@
 export const textLimits = { length: 8 * 1024 * 1024, entries: 100_000, line: 64 * 1024, depth: 64 };
 
+export function sourceLine(input: string, line: number): string {
+  return input.split(/\r\n|\n|\r/, line)[line - 1] ?? '';
+}
+
 export function splitDelimited(input: string, delimiter = ',', nested = false, maxParts = Infinity): string[] {
   const result: string[] = [];
   let start = 0;

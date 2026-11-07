@@ -537,6 +537,7 @@
           "runDetailsTitle": "Execution data",
           "runDetailsDescription": "Execution node <node>{name}</node>",
           "wrapLines": "Wrap lines",
+          "lineNumbers": "Line numbers",
           "noWrapLines": "Do not wrap lines",
           "runInput": "Input",
           "emptyRunInput": "Empty",

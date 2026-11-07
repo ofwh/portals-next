@@ -1,15 +1,15 @@
-import { parseClashPayloadValue } from './shared';
-import { RULESET_ERROR_CODES } from '../../../shared/errors';
-import { EntryError } from '../../diagnostics';
-import { parseCommonRule, stripComment } from '../../rule';
-import { resolveDeclaration } from '../shared';
-import type { RulesetResolverModule } from '../types';
+import { parseClashPayloadValue } from './payload';
+import { resolveDeclaration } from './shared';
+import type { RulesetResolverModule } from './types';
+import { RULESET_ERROR_CODES } from '../../shared/errors';
+import { EntryError } from '../diagnostics';
+import { parseCommonRule, stripComment } from '../rule';
 
 const parse: RulesetResolverModule['parse'] = (input) => {
   const rule = parseClashPayloadValue(stripComment(input, true));
 
   if (!rule) {
-    throw new EntryError(RULESET_ERROR_CODES.INVALID_RULE);
+    throw new EntryError(RULESET_ERROR_CODES.INVALID_RULESET_RULE);
   }
 
   return rule;

@@ -1,29 +1,29 @@
-import { parseDelimitedDeclaration, parseStructuredDeclaration } from './declarations';
 import { diagnostic, EntryError } from './diagnostics';
 import { readRulesetEntries } from './readers';
-import { rulesetResolvers } from './resolvers';
+import { isRulesetTransformer, rulesetTransformers } from './transformers';
 import type { RulesetEntry } from './types';
+import { isConfigFormat } from '../shared/config';
 import { DocumentError } from '../shared/document';
 import { RULESET_ERROR_CODES } from '../shared/errors';
-import { isRulesetFormat, isRulesetResolver } from '../shared/ruleset';
-import { textLimits } from '../shared/text';
+import { sourceLine, textLimits } from '../shared/text';
 import type { Diagnostic, ParseResult } from '../types/diagnostic';
-import type { RuleSet, RulesetFormat, RulesetResolver } from '../types/ruleset';
+import type { RuleSet, RulesetTransformer } from '../types/ruleset';
+import type { ConfigFormat } from '../types/shared';
 
 export type RulesetParseOptions = {
-  format: RulesetFormat;
-  resolver: RulesetResolver;
+  format: ConfigFormat;
+  transformer: RulesetTransformer;
 };
 
 export function parseRulesets(input: string, options: RulesetParseOptions): ParseResult<RuleSet> {
-  const { format, resolver } = options;
+  const { format, transformer } = options;
 
-  if (!isRulesetFormat(format)) {
+  if (!isConfigFormat(format)) {
     return { ok: false, error: diagnostic(format, RULESET_ERROR_CODES.INVALID_FORMAT) };
   }
 
-  if (!isRulesetResolver(resolver)) {
-    return { ok: false, error: diagnostic(format, RULESET_ERROR_CODES.INVALID_CATEGORY) };
+  if (!isRulesetTransformer(transformer)) {
+    return { ok: false, error: diagnostic(format, RULESET_ERROR_CODES.INVALID_RULESET_TRANSFORMER) };
   }
 
   if (
@@ -38,13 +38,14 @@ export function parseRulesets(input: string, options: RulesetParseOptions): Pars
   try {
     entries = readRulesetEntries(input, format);
   } catch (error) {
+    const position = error instanceof DocumentError ? error.position : undefined;
+
     return {
       ok: false,
-      error: diagnostic(
-        format,
-        RULESET_ERROR_CODES.INVALID_DOCUMENT,
-        error instanceof DocumentError ? error.position : undefined,
-      ),
+      error: {
+        ...diagnostic(format, RULESET_ERROR_CODES.INVALID_DOCUMENT, position),
+        text: sourceLine(input, position?.line ?? 1),
+      },
     };
   }
 
@@ -63,25 +64,24 @@ export function parseRulesets(input: string, options: RulesetParseOptions): Pars
         throw new EntryError(RULESET_ERROR_CODES.INPUT_TOO_LARGE);
       }
 
-      const id = `ruleset:${index}`;
-
-      const declaration =
-        format === 'ini'
-          ? parseDelimitedDeclaration(String(entry.value), id)
-          : parseStructuredDeclaration(entry.value, format, id);
-
-      items.push(...rulesetResolvers[resolver].resolve(declaration));
+      items.push(rulesetTransformers[transformer].transform(entry.value, format, `ruleset:${index}`));
     } catch (error) {
       const issue = diagnostic(
         format,
-        error instanceof EntryError ? error.code : RULESET_ERROR_CODES.INVALID_ENTRY,
+        error instanceof EntryError ? error.code : RULESET_ERROR_CODES.INVALID_RULESET_ENTRY,
         position,
         error instanceof EntryError ? error.field : undefined,
       );
 
-      if (issue.code === RULESET_ERROR_CODES.RESOLVER_MISMATCH || issue.code === RULESET_ERROR_CODES.INVALID_CATEGORY) {
+      issue.text = typeof entry.value === 'string' ? entry.value : JSON.stringify(entry.value);
+
+      if (
+        issue.code === RULESET_ERROR_CODES.RULESET_TRANSFORMER_MISMATCH ||
+        issue.code === RULESET_ERROR_CODES.RULESET_RESOLVER_MISMATCH ||
+        issue.code === RULESET_ERROR_CODES.INVALID_RULESET_CATEGORY
+      ) {
         issue.severity = 'warning';
-        issue.ruleset = typeof entry.value === 'string' ? entry.value : JSON.stringify(entry.value);
+        issue.ruleset = issue.text;
       }
 
       diagnostics.push(issue);
@@ -93,7 +93,15 @@ export function parseRulesets(input: string, options: RulesetParseOptions): Pars
 
 export { parseRuleContent } from './content';
 export type { RuleContentOptions } from './content';
-export { clashResolver, quanxResolver, surgeResolver } from './resolvers';
-export type { RulesetTypeResolver } from './resolvers/types';
+export { rulesetResolvers } from './resolvers';
+export {
+  rulesetTransformers,
+  rulesetTransformerOptions,
+  isRulesetTransformer,
+  getRulesetTransformer,
+} from './transformers';
+export type { RulesetResolverModule } from './resolvers/types';
+export type { RulesetTransformerModule } from './transformers/types';
 export type { Diagnostic, ParseResult } from '../types/diagnostic';
-export type { Rule, RuleCategory, RuleSet, RulesetFormat, RuleSetOptions, RulesetResolver } from '../types/ruleset';
+export type { Rule, RuleCategory, RuleSet, RuleSetOptions, RulesetTransformer } from '../types/ruleset';
+export type { ConfigFormat } from '../types/shared';

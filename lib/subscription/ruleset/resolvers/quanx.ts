@@ -1,6 +1,6 @@
 import { resolveDeclaration } from './shared';
-import type { RulesetResolverModule, RulesetTypeResolver } from './types';
-import { parseRule } from '../rule';
+import type { RulesetResolverModule } from './types';
+import { parseCommonRule, parseRule } from '../rule';
 
 const aliases: Record<string, string> = {
   HOST: 'DOMAIN',
@@ -20,16 +20,10 @@ const parse: RulesetResolverModule['parse'] = (input) => {
   return parseRule(normalized, { hasPolicy: true });
 };
 
-const quanxModeResolver: RulesetResolverModule = {
+export const quanxResolver: RulesetResolverModule = {
   category: 'quanx',
   payload: false,
   parse,
-  parseInline: parse,
-  resolve: (declaration) => resolveDeclaration(declaration, quanxModeResolver),
-};
-
-export const quanxResolver: RulesetTypeResolver = {
-  type: 'quanx',
-  modes: [quanxModeResolver],
-  resolve: quanxModeResolver.resolve,
+  parseInline: parseCommonRule,
+  resolve: (declaration) => resolveDeclaration(declaration, quanxResolver),
 };

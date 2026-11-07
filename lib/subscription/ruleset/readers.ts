@@ -1,7 +1,7 @@
 import type { RulesetEntry } from './types';
 import { DocumentError, parseStructuredDocument } from '../shared/document';
 import { isRecord } from '../shared/text';
-import type { RulesetFormat } from '../types/ruleset';
+import type { ConfigFormat } from '../types/shared';
 
 function iniEntries(input: string): RulesetEntry[] {
   const entries: RulesetEntry[] = [];
@@ -56,7 +56,7 @@ function iniEntries(input: string): RulesetEntry[] {
   return entries;
 }
 
-export function readRulesetEntries(input: string, format: RulesetFormat): RulesetEntry[] {
+export function readRulesetEntries(input: string, format: ConfigFormat): RulesetEntry[] {
   if (format === 'ini') {
     return iniEntries(input);
   }

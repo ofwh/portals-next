@@ -1,5 +1,5 @@
 import { isIP } from 'node:net';
-import type { Rule } from '../../../types/ruleset';
+import type { Rule } from '../../types/ruleset';
 
 export function parseClashPayloadValue(input: string): Rule | undefined {
   const value = input.trim();

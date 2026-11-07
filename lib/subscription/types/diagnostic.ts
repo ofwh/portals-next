@@ -1,15 +1,21 @@
-import type { RulesetErrorCode } from '../shared/errors';
+import type { PolicyErrorCode, RulesetErrorCode } from '../shared/errors';
 
 export type SourcePosition = { line: number; column: number; index?: number };
 
-export type Diagnostic = {
+type DiagnosticContext = {
   severity: 'error' | 'warning';
-  module: 'ruleset';
   format: string;
-  code: RulesetErrorCode;
   position: SourcePosition;
   field?: string;
+  text?: string;
+};
+
+export type Diagnostic = DiagnosticContext & {
+  module: 'ruleset';
+  code: RulesetErrorCode;
   ruleset?: string;
 };
 
-export type ParseResult<T> = { ok: true; items: T[]; diagnostics: Diagnostic[] } | { ok: false; error: Diagnostic };
+export type PolicyDiagnostic = DiagnosticContext & { module: 'policy'; code: PolicyErrorCode };
+
+export type ParseResult<T, D = Diagnostic> = { ok: true; items: T[]; diagnostics: D[] } | { ok: false; error: D };

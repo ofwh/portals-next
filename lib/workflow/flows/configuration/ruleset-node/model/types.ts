@@ -1,6 +1,7 @@
-import type { RuleCategory, RulesetFormat, RulesetResolver } from '@/lib/subscription/types/ruleset';
+import type { RuleCategory, RulesetTransformer } from '@/lib/subscription/types/ruleset';
+import type { ConfigFormat } from '@/lib/subscription/types/shared';
 
-export type RulesetResolveConfig = {
-  format: RulesetFormat | '';
-  resolver: RulesetResolver | RuleCategory | '' | 'delimited' | 'structured';
-};
+export type RulesetResolveConfig = { format: ConfigFormat | '' } & (
+  | { transformer: RulesetTransformer | ''; resolver?: never }
+  | { resolver: RulesetTransformer | RuleCategory | '' | 'delimited' | 'structured'; transformer?: never }
+);

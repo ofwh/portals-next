@@ -19,7 +19,7 @@ function parseOptions(input: unknown): RuleSetOptions {
   }
 
   if (!Array.isArray(input) || !input.every((value): value is string => typeof value === 'string')) {
-    throw new EntryError(RULESET_ERROR_CODES.INVALID_OPTIONS, 'options');
+    throw new EntryError(RULESET_ERROR_CODES.INVALID_RULESET_OPTIONS, 'options');
   }
 
   const options: RuleSetOptions = {};
@@ -37,12 +37,12 @@ function parseOptions(input: unknown): RuleSetOptions {
       const format = option.slice('stash-format='.length) as 'yaml' | 'text' | 'mrs';
 
       if (options.stashFormat && options.stashFormat !== format) {
-        throw new EntryError(RULESET_ERROR_CODES.INVALID_OPTIONS, 'options');
+        throw new EntryError(RULESET_ERROR_CODES.INVALID_RULESET_OPTIONS, 'options');
       }
 
       options.stashFormat = format;
     } else {
-      throw new EntryError(RULESET_ERROR_CODES.INVALID_OPTIONS, 'options');
+      throw new EntryError(RULESET_ERROR_CODES.INVALID_RULESET_OPTIONS, 'options');
     }
   }
 
@@ -63,12 +63,12 @@ function intervalOptions(raw: unknown, options: unknown, legacy: boolean) {
     } else if (typeof raw === 'number' && Number.isSafeInteger(raw)) {
       interval = raw;
     } else {
-      throw new EntryError(RULESET_ERROR_CODES.INVALID_ENTRY, 'interval');
+      throw new EntryError(RULESET_ERROR_CODES.INVALID_RULESET_ENTRY, 'interval');
     }
   }
 
   if (!Number.isSafeInteger(interval)) {
-    throw new EntryError(RULESET_ERROR_CODES.INVALID_ENTRY, 'interval');
+    throw new EntryError(RULESET_ERROR_CODES.INVALID_RULESET_ENTRY, 'interval');
   }
 
   const parsed = parseOptions(options);
@@ -90,7 +90,7 @@ function makeDeclaration(
   options: RuleSetOptions,
 ): RulesetDeclaration {
   if (typeof group !== 'string' || !group.trim() || typeof rawSource !== 'string' || !rawSource.trim()) {
-    throw new EntryError(RULESET_ERROR_CODES.INVALID_ENTRY);
+    throw new EntryError(RULESET_ERROR_CODES.INVALID_RULESET_ENTRY);
   }
 
   if (group.length > textLimits.line || rawSource.length > textLimits.line) {
@@ -103,20 +103,21 @@ function makeDeclaration(
   const prefix = isRuleCategory(candidate) ? candidate : undefined;
 
   if (prefix) {
-    if (category !== undefined && category !== prefix) {
-      throw new EntryError(RULESET_ERROR_CODES.RESOLVER_MISMATCH, 'category');
+    address = address.slice(prefix.length + 1);
+
+    if (!address.startsWith('[]') && category !== undefined && category !== prefix) {
+      throw new EntryError(RULESET_ERROR_CODES.RULESET_RESOLVER_MISMATCH, 'category');
     }
 
     category = prefix;
-    address = address.slice(prefix.length + 1);
   }
 
   if (/^(?:\[\])?!!import:/.test(address)) {
-    throw new EntryError(RULESET_ERROR_CODES.IMPORT_FORBIDDEN);
+    throw new EntryError(RULESET_ERROR_CODES.RULESET_IMPORT_FORBIDDEN);
   }
 
   if (!address.trim()) {
-    throw new EntryError(RULESET_ERROR_CODES.INVALID_ENTRY, 'ruleset');
+    throw new EntryError(RULESET_ERROR_CODES.INVALID_RULESET_ENTRY, 'ruleset');
   }
 
   return {
@@ -131,13 +132,13 @@ function makeDeclaration(
 
 export function parseDelimitedDeclaration(input: string, id: string): RulesetDeclaration {
   if (input.trim().startsWith('!!import:')) {
-    throw new EntryError(RULESET_ERROR_CODES.IMPORT_FORBIDDEN);
+    throw new EntryError(RULESET_ERROR_CODES.RULESET_IMPORT_FORBIDDEN);
   }
 
   const fields = splitDelimited(input, ',', false, 2);
 
   if (fields.length !== 2) {
-    throw new EntryError(RULESET_ERROR_CODES.INVALID_ENTRY);
+    throw new EntryError(RULESET_ERROR_CODES.INVALID_RULESET_ENTRY);
   }
 
   const group = unquote(fields[0]);
@@ -163,20 +164,20 @@ export function parseStructuredDeclaration(input: unknown, format: 'yaml' | 'tom
   let category: RuleCategory | undefined;
 
   if (typeof input === 'string' && input.startsWith('!!import:')) {
-    throw new EntryError(RULESET_ERROR_CODES.IMPORT_FORBIDDEN);
+    throw new EntryError(RULESET_ERROR_CODES.RULESET_IMPORT_FORBIDDEN);
   }
 
   if (!isRecord(input)) {
-    throw new EntryError(RULESET_ERROR_CODES.INVALID_ENTRY);
+    throw new EntryError(RULESET_ERROR_CODES.INVALID_RULESET_ENTRY);
   }
 
   if (Object.hasOwn(input, 'import')) {
-    throw new EntryError(RULESET_ERROR_CODES.IMPORT_FORBIDDEN, 'import');
+    throw new EntryError(RULESET_ERROR_CODES.RULESET_IMPORT_FORBIDDEN, 'import');
   }
 
   if (format === 'toml' && input.type !== undefined) {
     if (typeof input.type !== 'string' || !Object.hasOwn(tomlCategories, input.type)) {
-      throw new EntryError(RULESET_ERROR_CODES.INVALID_CATEGORY, 'type');
+      throw new EntryError(RULESET_ERROR_CODES.INVALID_RULESET_CATEGORY, 'type');
     }
 
     category = tomlCategories[input.type];

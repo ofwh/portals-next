@@ -3,16 +3,15 @@ import { RULESET_ERROR_CODES } from '../shared/errors';
 import { splitDelimited, unquote } from '../shared/text';
 import type { Rule } from '../types/ruleset';
 
-const ruleTypes = new Set([
+const singleParameterTypes = new Set([
   'DOMAIN',
+  'DOMAIN-WILDCARD',
   'DOMAIN-SUFFIX',
   'DOMAIN-KEYWORD',
   'IP-CIDR',
   'IP-CIDR6',
   'SRC-IP-CIDR',
   'GEOIP',
-  'MATCH',
-  'FINAL',
   'SRC-PORT',
   'DST-PORT',
   'PROCESS-NAME',
@@ -33,11 +32,7 @@ const ruleTypes = new Set([
   'UID',
   'NETWORK',
   'DSCP',
-  'SUB-RULE',
   'RULE-SET',
-  'AND',
-  'OR',
-  'NOT',
   'USER-AGENT',
   'URL-REGEX',
   'DEST-PORT',
@@ -52,7 +47,7 @@ const ruleTypes = new Set([
   'USER',
   'USER-ID',
 ]);
-const flags = new Set(['no-resolve', 'extended-matching', 'pre-matching']);
+const flags = new Set(['no-resolve', 'no-track', 'extended-matching', 'pre-matching']);
 const commentTypes = new Set([
   'DOMAIN',
   'DOMAIN-SUFFIX',
@@ -130,18 +125,18 @@ type RuleParseOptions = { hasPolicy?: boolean };
 
 function validateConditions(type: string, input: string): void {
   if (!input.startsWith('(') || !input.endsWith(')')) {
-    throw new EntryError(RULESET_ERROR_CODES.INVALID_RULE);
+    throw new EntryError(RULESET_ERROR_CODES.INVALID_RULESET_RULE);
   }
 
   const conditions = splitDelimited(input.slice(1, -1), ',', true);
 
   if ((type === 'NOT' && conditions.length !== 1) || (type !== 'NOT' && conditions.length < 2)) {
-    throw new EntryError(RULESET_ERROR_CODES.INVALID_RULE);
+    throw new EntryError(RULESET_ERROR_CODES.INVALID_RULESET_RULE);
   }
 
   for (const condition of conditions) {
     if (!condition.startsWith('(') || !condition.endsWith(')')) {
-      throw new EntryError(RULESET_ERROR_CODES.INVALID_RULE);
+      throw new EntryError(RULESET_ERROR_CODES.INVALID_RULESET_RULE);
     }
 
     parseRule(condition.slice(1, -1));
@@ -158,8 +153,8 @@ export function parseRule(input: string, options: RuleParseOptions = {}): Rule {
   const tokens = splitDelimited(line, ',', logical);
   const type = tokens.shift()?.toUpperCase() ?? '';
 
-  if (!ruleTypes.has(type)) {
-    throw new EntryError(RULESET_ERROR_CODES.INVALID_RULE);
+  if (!/^[A-Z][A-Z0-9-]*$/.test(type)) {
+    throw new EntryError(RULESET_ERROR_CODES.INVALID_RULESET_RULE);
   }
 
   const ruleFlags: string[] = [];
@@ -173,7 +168,7 @@ export function parseRule(input: string, options: RuleParseOptions = {}): Rule {
 
   if (type === 'MATCH' || type === 'FINAL') {
     if (tokens.length > (options.hasPolicy ? 1 : 0)) {
-      throw new EntryError(RULESET_ERROR_CODES.INVALID_RULE);
+      throw new EntryError(RULESET_ERROR_CODES.INVALID_RULESET_RULE);
     }
 
     return { type, parameters: [], flags: ruleFlags };
@@ -185,11 +180,11 @@ export function parseRule(input: string, options: RuleParseOptions = {}): Rule {
 
   const commaValue = ['DOMAIN-REGEX', 'URL-REGEX', 'PROCESS-NAME-REGEX', 'PROCESS-PATH-REGEX'].includes(type);
 
-  if (!options.hasPolicy && !commaValue) {
+  if (!options.hasPolicy && !commaValue && (singleParameterTypes.has(type) || logical)) {
     const extraFlags = tokens.splice(parameterCount);
 
     if (extraFlags.some((value) => !value)) {
-      throw new EntryError(RULESET_ERROR_CODES.INVALID_RULE);
+      throw new EntryError(RULESET_ERROR_CODES.INVALID_RULESET_RULE);
     }
 
     ruleFlags.unshift(...extraFlags);
@@ -197,30 +192,30 @@ export function parseRule(input: string, options: RuleParseOptions = {}): Rule {
 
   const parameters = (commaValue ? [tokens.join(',')] : tokens).map(unquote);
 
-  if (!parameters.length || parameters.some((value) => !value)) {
-    throw new EntryError(RULESET_ERROR_CODES.INVALID_RULE);
+  if ((singleParameterTypes.has(type) && !parameters.length) || parameters.some((value) => !value)) {
+    throw new EntryError(RULESET_ERROR_CODES.INVALID_RULESET_RULE);
   }
 
   if (['AND', 'OR', 'NOT'].includes(type)) {
     if (parameters.length !== 1 || !parameters[0].startsWith('(')) {
-      throw new EntryError(RULESET_ERROR_CODES.INVALID_RULE);
+      throw new EntryError(RULESET_ERROR_CODES.INVALID_RULESET_RULE);
     }
 
     validateConditions(type, parameters[0]);
   } else if (type === 'SUB-RULE') {
     if (parameters.length !== 2) {
-      throw new EntryError(RULESET_ERROR_CODES.INVALID_RULE);
+      throw new EntryError(RULESET_ERROR_CODES.INVALID_RULESET_RULE);
     }
 
     const condition = parameters[0];
 
     if (!condition.startsWith('(') || !condition.endsWith(')')) {
-      throw new EntryError(RULESET_ERROR_CODES.INVALID_RULE);
+      throw new EntryError(RULESET_ERROR_CODES.INVALID_RULESET_RULE);
     }
 
     parseRule(condition.slice(1, -1));
-  } else if (parameters.length !== 1) {
-    throw new EntryError(RULESET_ERROR_CODES.INVALID_RULE);
+  } else if ((singleParameterTypes.has(type) || commaValue) && parameters.length !== 1) {
+    throw new EntryError(RULESET_ERROR_CODES.INVALID_RULESET_RULE);
   }
 
   return { type, parameters, flags: ruleFlags };

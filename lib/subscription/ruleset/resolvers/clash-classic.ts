@@ -1,6 +1,6 @@
-import { parseCommonRule } from '../../rule';
-import { resolveDeclaration } from '../shared';
-import type { RulesetResolverModule } from '../types';
+import { resolveDeclaration } from './shared';
+import type { RulesetResolverModule } from './types';
+import { parseCommonRule } from '../rule';
 
 export const clashClassicResolver: RulesetResolverModule = {
   category: 'clash-classic',

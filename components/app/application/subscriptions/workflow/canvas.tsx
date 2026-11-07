@@ -4,13 +4,13 @@ import { Background, Handle, MarkerType, Position, ReactFlow, useUpdateNodeInter
 import type { Edge, NodeProps } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import {
+  ChevronsDownUp,
+  ChevronsUpDown,
   CircleCheck,
   CircleX,
   Info,
   LoaderCircle,
   Maximize,
-  RectangleHorizontal,
-  Square,
   ZoomIn,
   ZoomOut,
 } from 'lucide-react';
@@ -269,7 +269,7 @@ export function Canvas({ canvas }: { canvas: ReturnType<typeof useWorkflowCanvas
                 />
               }
             >
-              {canvas.showNodeDetails ? <RectangleHorizontal /> : <Square />}
+              {canvas.showNodeDetails ? <ChevronsDownUp /> : <ChevronsUpDown />}
             </TooltipTrigger>
             <TooltipContent side="top">
               {t(canvas.showNodeDetails ? 'hideNodeDetails' : 'showNodeDetails')}

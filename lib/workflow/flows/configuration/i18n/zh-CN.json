@@ -2,11 +2,18 @@
   "ruleset": {
     "name": "规则集解析",
     "description": "解析配置并输出规则集列表",
+    "transformerHelp": "订阅类型解析器"
+  },
+  "policy": {
+    "name": "策略集解析",
+    "description": "解析配置并输出策略分组列表",
+    "transformerHelp": "订阅类型解析方式"
+  },
+  "shared": {
     "format": "配置格式",
     "formatHelp": "输入文本格式",
     "formatPlaceholder": "请选择配置格式",
     "resolver": "解析方式",
-    "resolverHelp": "订阅类型解析器",
     "resolverPlaceholder": "请选择解析类别"
   }
 }

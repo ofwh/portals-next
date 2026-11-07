@@ -1,6 +1,6 @@
 'use client';
 
-import { Copy, FileInput, WrapText } from 'lucide-react';
+import { Copy, FileInput, ListOrdered, WrapText } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { Fragment, useState } from 'react';
 import { toast } from 'sonner';
@@ -101,6 +101,7 @@ export function NodeRunDetails({
 function RunDataPanel({ label, value, emptyLabel }: { label: string; value: unknown; emptyLabel: string }) {
   const t = useTranslations();
   const [wrapLines, setWrapLines] = useState(true);
+  const [showLineNumbers, setShowLineNumbers] = useState(false);
   const content =
     value === undefined
       ? emptyLabel
@@ -109,6 +110,7 @@ function RunDataPanel({ label, value, emptyLabel }: { label: string; value: unkn
         : JSON.stringify(value, null, 2).replace(/\\([\s\S])/g, (escape, character: string) =>
             character === 'n' ? '\n' : escape,
           );
+  const lines = content.split('\n').map((text, index) => ({ text, number: index + 1 }));
 
   async function copyContent() {
     try {
@@ -125,13 +127,33 @@ function RunDataPanel({ label, value, emptyLabel }: { label: string; value: unkn
       <div className="group/run-data bg-muted relative min-h-0 flex-1 overflow-hidden rounded-md">
         <ScrollArea className="h-full min-w-0">
           <pre
-            className={`p-3 font-mono text-xs ${wrapLines ? 'wrap-anywhere whitespace-pre-wrap' : 'whitespace-pre'}`}
+            className={`grid p-3 font-mono text-xs ${showLineNumbers ? 'grid-cols-[auto_minmax(0,1fr)] gap-x-3' : 'grid-cols-[minmax(0,1fr)]'} ${wrapLines ? 'w-full wrap-anywhere whitespace-pre-wrap' : 'w-max min-w-full whitespace-pre'}`}
           >
-            {content}
+            {lines.map((line) => (
+              <Fragment key={line.number}>
+                {showLineNumbers && (
+                  <span aria-hidden="true" className="text-muted-foreground border-r pr-3 text-right select-none">
+                    {line.number}
+                  </span>
+                )}
+                <span className="min-h-lh">{line.text}</span>
+              </Fragment>
+            ))}
           </pre>
           {!wrapLines && <ScrollBar orientation="horizontal" />}
         </ScrollArea>
         <div className="absolute top-2 right-2 z-10 flex gap-1 opacity-0 transition-opacity group-focus-within/run-data:opacity-100 group-hover/run-data:opacity-100">
+          <Button
+            type="button"
+            variant="outline"
+            size="icon-sm"
+            aria-label={t('admin.application.subscriptions.flowEditor.lineNumbers')}
+            aria-pressed={showLineNumbers}
+            className="bg-popover"
+            onClick={() => setShowLineNumbers((current) => !current)}
+          >
+            <ListOrdered className="size-4" />
+          </Button>
           <Button
             type="button"
             variant="outline"

@@ -1,27 +1,17 @@
-import { clashResolver } from './clash';
+import { clashClassicResolver } from './clash-classic';
+import { clashDomainResolver } from './clash-domain';
+import { clashIpcidrResolver } from './clash-ipcidr';
 import { quanxResolver } from './quanx';
 import { surgeResolver } from './surge';
-import type { RulesetResolverModule, RulesetTypeResolver } from './types';
-import { RULESET_ERROR_CODES } from '../../shared/errors';
-import { ruleCategoryResolvers } from '../../shared/ruleset';
-import type { RuleCategory, RulesetResolver } from '../../types/ruleset';
-import { EntryError } from '../diagnostics';
+import type { RulesetResolverModule } from './types';
+import type { RuleCategory } from '../../types/ruleset';
 
-export const rulesetResolvers: Record<RulesetResolver, RulesetTypeResolver> = {
+export const rulesetResolvers: Record<RuleCategory, RulesetResolverModule> = {
   surge: surgeResolver,
   quanx: quanxResolver,
-  clash: clashResolver,
+  'clash-domain': clashDomainResolver,
+  'clash-ipcidr': clashIpcidrResolver,
+  'clash-classic': clashClassicResolver,
 };
 
-export function getRulesetMode(category: RuleCategory): RulesetResolverModule {
-  const resolver = rulesetResolvers[ruleCategoryResolvers[category]];
-  const mode = resolver.modes.find((mode) => mode.category === category);
-
-  if (!mode) {
-    throw new EntryError(RULESET_ERROR_CODES.INVALID_CATEGORY, 'category');
-  }
-
-  return mode;
-}
-
-export { clashResolver, quanxResolver, surgeResolver };
+export { surgeResolver, quanxResolver, clashDomainResolver, clashIpcidrResolver, clashClassicResolver };

@@ -1,10 +1,10 @@
 import { diagnostic, EntryError } from './diagnostics';
-import { getRulesetMode } from './resolvers';
+import { rulesetResolvers } from './resolvers';
 import { stripComment } from './rule';
 import { DocumentError, parseStructuredDocument } from '../shared/document';
 import { RULESET_ERROR_CODES } from '../shared/errors';
 import { isRuleCategory } from '../shared/ruleset';
-import { isRecord, textLimits } from '../shared/text';
+import { isRecord, sourceLine, textLimits } from '../shared/text';
 import type { Diagnostic, ParseResult, SourcePosition } from '../types/diagnostic';
 import type { Rule, RuleCategory } from '../types/ruleset';
 
@@ -15,10 +15,10 @@ export function parseRuleContent(input: string, options: RuleContentOptions): Pa
   const { category } = options;
 
   if (!isRuleCategory(category)) {
-    return { ok: false, error: diagnostic(String(category), RULESET_ERROR_CODES.INVALID_CATEGORY) };
+    return { ok: false, error: diagnostic(String(category), RULESET_ERROR_CODES.INVALID_RULESET_CATEGORY) };
   }
 
-  const resolver = getRulesetMode(category);
+  const resolver = rulesetResolvers[category];
   const format = resolver.payload ? 'yaml' : 'text';
 
   if (input.length > textLimits.length) {
@@ -52,13 +52,14 @@ export function parseRuleContent(input: string, options: RuleContentOptions): Pa
       }));
     }
   } catch (error) {
+    const position = error instanceof DocumentError ? error.position : undefined;
+
     return {
       ok: false,
-      error: diagnostic(
-        format,
-        RULESET_ERROR_CODES.INVALID_DOCUMENT,
-        error instanceof DocumentError ? error.position : undefined,
-      ),
+      error: {
+        ...diagnostic(format, RULESET_ERROR_CODES.INVALID_DOCUMENT, position),
+        text: sourceLine(input, position?.line ?? 1),
+      },
     };
   }
 
@@ -72,7 +73,7 @@ export function parseRuleContent(input: string, options: RuleContentOptions): Pa
   for (const [index, entry] of entries.entries()) {
     try {
       if (typeof entry.value !== 'string') {
-        throw new EntryError(RULESET_ERROR_CODES.INVALID_RULE);
+        throw new EntryError(RULESET_ERROR_CODES.INVALID_RULESET_RULE);
       }
 
       if (entry.value.length > textLimits.line) {
@@ -85,12 +86,17 @@ export function parseRuleContent(input: string, options: RuleContentOptions): Pa
         items.push(resolver.parse(value));
       }
     } catch (error) {
-      diagnostics.push(
-        diagnostic(format, error instanceof EntryError ? error.code : RULESET_ERROR_CODES.INVALID_RULE, {
+      const issue = diagnostic(
+        format,
+        error instanceof EntryError ? error.code : RULESET_ERROR_CODES.INVALID_RULESET_RULE,
+        {
           ...entry.position,
           index,
-        }),
+        },
       );
+
+      issue.text = typeof entry.value === 'string' ? entry.value : JSON.stringify(entry.value);
+      diagnostics.push(issue);
     }
   }
 
