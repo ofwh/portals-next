@@ -19,5 +19,12 @@
   "template": {
     "name": "Parse templates",
     "description": "Parse rendered template text into a format-tagged document"
+  },
+  "compile": {
+    "name": "Compile subscription",
+    "description": "Generate subscription content from proxy nodes, groups, rules and a template",
+    "target": "Output type",
+    "targetHelp": "Target subscription format",
+    "targetPlaceholder": "Select an output type"
   }
 }

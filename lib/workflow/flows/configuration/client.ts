@@ -3,6 +3,8 @@ import { ruleSetType } from '@/lib/subscription/schemas/ruleset';
 import { templateType } from '@/lib/subscription/schemas/template';
 import type { TypeRegistry } from '@/lib/workflow/node/core/type-registry';
 import type { NodeViewRegistry } from '@/lib/workflow/node/core/views';
+import { compileNodeView } from './compile-node/client';
+import { isConfig as isCompileConfig } from './compile-node/model/schema';
 import { policyResolveNodeView } from './policy-node/client';
 import { isConfig as isPolicyConfig } from './policy-node/model/schema';
 import { rulesetResolveNodeView } from './ruleset-node/client';
@@ -14,6 +16,7 @@ export function registerConfigurationViews(views: NodeViewRegistry, types: TypeR
   types.registerType(templateType);
   types.registerType(ruleSetType);
   types.registerType(proxyGroupType);
+  views.registerNodeView(compileNodeView, isCompileConfig);
   views.registerNodeView(templateResolveNodeView, isTemplateConfig);
   views.registerNodeView(rulesetResolveNodeView, isConfig);
   views.registerNodeView(policyResolveNodeView, isPolicyConfig);

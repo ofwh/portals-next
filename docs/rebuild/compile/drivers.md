@@ -1,21 +1,74 @@
-# 目标驱动与模板合并
+# 目标驱动与模板融合
 
-基线来自 [目标注册表](/Users/larify/Documents/github/SubConverter-Extended/src/handler/interfaces.cpp:109)、[生成器](/Users/larify/Documents/github/SubConverter-Extended/src/generator/config/subexport.cpp)及[规则生成器](/Users/larify/Documents/github/SubConverter-Extended/src/generator/config/ruleconvert.cpp)。下表记录各驱动应核对的合并点。每个保留目标在迁移前按生成器的节点分支冻结协议矩阵、版本差异及字段限制。
+驱动负责目标格式转换和最终数据融合，服务输入、参数默认值及执行顺序见[编译转换](README.md)。以下转换与融合均以参考应用对应目标的普通配置分支为准，未列出的字段细节继续遵循对应源码。
 
-| 目标                                                  | 源码入口                                                                                                                                         | 合并与输出契约                                                                                                                                                                     |
-| ----------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| clash / clashr                                        | proxyToClash、rulesetToClash、[external_rules.cpp](/Users/larify/Documents/github/SubConverter-Extended/src/generator/config/external_rules.cpp) | YAML。按模式写 proxies 或旧字段及 provider 数据，按名称更新组并保留未覆盖项。规则按选项保留或重建，处理原生 rule-providers 及 Clash 外部规则前后置。ClashR 单列协议能力            |
-| stash                                                 | proxyToStash、rulesetToStash                                                                                                                     | YAML。合并模板节点、组及 providers。区分无自定义组时保留基组和按声明生成组。按 Stash 原生规则集格式处理规则，检查节点、组、provider 和规则的引用闭合                               |
-| singbox                                               | proxyToSingBox、rulesetToSingBox                                                                                                                 | JSON。生成 outbounds，包括支持的组和内置动作对应的输出；WireGuard endpoint 模式合并 endpoints。按规则覆盖选项更新 route.rules、route.rule_set、route.final，保留适用的模板动作规则 |
-| surge / surfboard                                     | proxyToSurge、rulesetToSurge                                                                                                                     | INI。重建 Proxy、Proxy Group，按版本与目标处理 policy-path 及 Rule。Surfboard 走独立版本分支。Managed 配置头由调用层拼装                                                           |
-| quan                                                  | proxyToQuan、rulesetToSurge                                                                                                                      | INI。重建 SERVER、POLICY，规则写入 TCP                                                                                                                                             |
-| quanx                                                 | proxyToQuanX、rulesetToSurge                                                                                                                     | INI。重建 server_local、policy，处理 server_remote，规则写入 filter_local 或 filter_remote。保留适用的模板组                                                                       |
-| loon                                                  | proxyToLoon、rulesetToSurge                                                                                                                      | INI。重建 Proxy、Proxy Group，合并 Remote Proxy，规则写入 Rule 或 Remote Rule，处理远程别名与碰撞                                                                                  |
-| mellow                                                | proxyToMellow、rulesetToSurge                                                                                                                    | INI。生成 Endpoint、EndpointGroup、RoutingRule，核对原节条目的保留语义                                                                                                             |
-| sssub                                                 | proxyToSSSub                                                                                                                                     | SIP008 节点 JSON 数组。旧入口解析基础 JSON 对象，但最终只序列化节点数组，模板键不进入输出                                                                                          |
-| ssd                                                   | proxyToSSD                                                                                                                                       | 生成 SSD 数据与 Base64 包装，携带订阅元信息，使用节点列表                                                                                                                          |
-| v2rayn / v2rayng                                      | proxyToV2RayClient                                                                                                                               | 按客户端 profile 生成节点载荷及订阅包装，分别校验安全配置和传输约束                                                                                                                |
-| shadowrocket                                          | proxyToShadowrocket                                                                                                                              | 按目标分享链接能力输出；若选择 Mieru，按原资源归组还原多绑定                                                                                                                       |
-| ss / ssr / v2ray / trojan / vless / hysteria2 / mixed | proxyToSingle                                                                                                                                    | 按各 profile 的可表达集合生成 URI，按旧输出模式序列化。单协议目标分别对应 SS、SSR、VMess、Trojan、VLESS、Hysteria2；mixed 独立登记协议范围                                         |
+## 输出目标与分派
 
-最后五类以节点为主，模板、分组及规则能力由驱动声明；sssub 迁移时应锁定节点数组这一输出形状。完整目标与节点列表模式均应登记所消费的输入。Clash 当前使用 Mihomo 规范映射，其他目标主要用 legacy 投影。迁移需要验证同一公共模型能提供这两类驱动所需字段。涉及原生远程 providers 或 policy-path 的目标需要额外资源描述；由调用层通过显式上下文提供，基础四份数据仍可独立编译。
+支持以下目标，名称不参与格式推断；驱动由 `target` 显式选择。
+
+| target    | 显示名称     | 输出形式                         | 参考转换入口                             |
+| --------- | ------------ | -------------------------------- | ---------------------------------------- |
+| mixed     | Mixed        | Base64 编码的混合 URI 列表       | `proxyToSingle`，使用 Mixed 协议集合     |
+| clash     | Clash        | YAML 配置                        | `proxyToClash`                           |
+| loon      | Loon         | INI 配置                         | `proxyToLoon`                            |
+| singbox   | sing-box     | JSON 配置                        | `proxyToSingBox`                         |
+| quanx     | Quantumult X | INI 配置                         | `proxyToQuanX`                           |
+| surge     | Surge        | INI 配置                         | `proxyToSurge`，采用默认版本 3           |
+| surfboard | Surfboard    | INI 配置                         | `proxyToSurge`，采用 Surfboard 分支 `-3` |
+| mellow    | Mellow       | INI 配置                         | `proxyToMellow`                          |
+| v2rayn    | v2rayN       | Base64 编码的客户端配置 URI 列表 | `proxyToV2RayClient`，V2RayN 分支        |
+| v2rayng   | v2rayNG      | Base64 编码的客户端配置 URI 列表 | `proxyToV2RayClient`，V2RayNG 分支       |
+
+## 节点转换
+
+每个驱动在内部声明支持的节点协议；可输出范围同时受输入模块已支持的协议和目标生成器能力限制。不支持的协议、目标不支持的传输组合及参考生成器拒绝的节点按参考行为跳过，不能仅依据协议名称判断可输出。
+
+节点类型、字段别名、可选字段省略、默认字段、TLS 与传输层嵌套、插件限制、IPv6 地址、名称转义及冲突处理均依照对应 `proxyTo*` 分支。成功输出后的名称用于分组正则匹配及成员写入，不能继续使用转换前的名称或被过滤节点。
+
+Mixed 使用参考 Mixed 集合中的协议与分享链接生成方式，每条 URI 后追加换行，再对完整内容进行 Base64 编码。v2rayN/v2rayNG 使用各自的客户端配置载荷生成分支，形成 `v2rayn://<scheme>/<URL-safe Base64 载荷>` 行，再对完整列表进行 Base64 编码；不能退化为普通 Mixed URI 集合。WireGuard 等一节点多配置输出及失败回滚按参考客户端生成器处理。
+
+## 分组转换
+
+成员求值遵循 `groupGenerate` 及其匹配器：普通选择表达式匹配实际输出节点，保持节点遍历顺序并避免重复加入已匹配名称；`[]` 显式成员在目标允许时直接写入，供内置策略和其他分组引用使用。显式成员不套用普通匹配成员的统一去重规则；Mellow 沿用不启用显式成员插入的调用方式。不引入脚本选择分支。
+
+各目标的支持类型、类型降级、单成员处理、健康检查参数和空成员回退由驱动决定。例如 sing-box 将 select 转为 selector，将 url-test、fallback、load-balance 转为 urltest，但仅 url-test 分支写入其对应探测参数；Mellow 在无匹配成员时回退全部已输出节点，节点也为空时才回退 DIRECT。不能统一转换为 select 或统一删除空分组。
+
+节点重命名、分组直接引用和规则策略目标分别按照参考逻辑处理，不新增全局重命名传播、引用删除或强制引用闭合流程。模板规则可能引用已被替换的节点或分组，不能据此自动修改原规则。
+
+## 策略转换
+
+策略转换需要保留每条声明的目标、来源类别、来源地址、资源正文和选项。内联规则与资源规则分别走参考分支：原实现对支持类型过滤、目标插入及标志转换的处理可能不同，不能先统一处理后强行复用。
+
+正文展开时，按照参考的规则语法转换、空行及注释处理、目标支持类型过滤与策略目标写入逻辑生成规则。规则目标来自声明，不重新根据节点或分组猜测。`MATCH`/`FINAL`、IPv6 类型名称、逻辑规则和 `no-resolve` 等标志按目标分支处理；保留声明选项在不同目标中的实际适用范围。
+
+Clash 资源固定使用远程引用：HTTP/HTTPS 的 clash-domain、clash-ipcidr、clash-classic 分别生成 domain、ipcidr、classical 类型的 `rule-providers`，并按声明顺序写入 `RULE-SET`。provider key 按参考应用从原始来源地址提取去扩展名的文件名并进行 URL 解码；仅在本次生成项间追加空格和递增编号处理重名，不避让模板已有 key。同名模板 provider 在原对象上更新生成字段，其他字段保留；缓存路径仍避开已有路径。按来源扩展名生成 format，保留更新周期及适用的 no-resolve。编译节点不获取 Clash 规则资源正文；不能直接消费的类别或来源以诊断跳过，不执行下载、转换或展开。
+
+其他目标的远程资源是否展开由参考目标分支决定：Quantumult X 可将原生远程规则写入 `filter_remote`，Loon 可写入 `Remote Rule`，Surge/Surfboard 按其版本和来源类型选择原生规则引用或正文展开。保留引用所需的地址、目标与更新信息，不能一律下载展开。依赖未纳入范围的托管转换地址的分支不启用；需要正文的分支使用调用层提供的资源内容，空正文及无效条目按参考行为处理。
+
+sing-box 按单个资源声明内的目标字段及来源/目的属性分桶，桶内值去重，按参考有序映射的键顺序输出；不同声明之间不合桶。标量类型、字段数组、`action`、`outbound`、源地址匹配标志和 GEOIP/GEOSITE 辅助 rule-set 按参考转换器生成。终结规则更新独立的 final 状态，后出现的终结目标覆盖先前目标，不作为普通匹配规则加入数组。
+
+## 模板融合
+
+模板融合由驱动完成，模板模块只负责解析和保存数据。以下为普通配置分支的融合规则，参数行为见[服务参数与分支](README.md#参数与分支)。
+
+| 目标                     | 节点与分组融合                                                                                                                                                                  | 启用规则生成后的融合                                                                                         |
+| ------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------ |
+| Clash                    | 有输入节点或成功生成节点时替换 `proxies`；输入节点列表为空时保留模板 `proxies`。以生成分组整体替换 `proxy-groups`，同名生成分组仅保留首次结果；覆盖前提取允许继承的健康检查字段 | `false`：原 `rules` 在前、生成规则在后；`true`：仅写入生成规则。不因模板已有 MATCH 而重排追加位置            |
+| Surge / Surfboard        | 清空并重建 `[Proxy]`，先写入 `DIRECT = direct`；清空并重建 `[Proxy Group]`                                                                                                      | `false`：保留 `[Rule]` 后追加；`true`：清空该节再写入。Surfboard 使用自身能力限制，不直接套用 Surge 支持范围 |
+| Loon                     | 清空并重建 `[Proxy]`、`[Proxy Group]`；保留同名模板分组末尾可继承的 `img-url` 项                                                                                                | `false`：保留 `[Rule]`、`[Remote Rule]` 并分别追加对应规则；`true`：同时清空这两个节后写入                   |
+| Quantumult X             | 清空并重建 `[server_local]`、`[policy]`；保留同名模板分组末尾可继承的 `img-url` 项                                                                                              | `false`：保留 `[filter_local]`、`[filter_remote]` 并分别追加；`true`：同时清空这两个节后写入                 |
+| Mellow                   | 在模板 `[Endpoint]`、`[EndpointGroup]` 后追加生成项，不整体清空原节                                                                                                             | `false`：保留 `[RoutingRule]` 后追加；`true`：清空该节再写入                                                 |
+| sing-box                 | 用生成的 DIRECT、成功输出节点、生成分组及默认 GLOBAL 辅助分组整体替换 `outbounds`，不按 tag 合并模板 outbound                                                                   | 按下述 `route` 专用流程处理，不对整个 `route` 做替换                                                         |
+| Mixed / v2rayN / v2rayNG | 仅生成节点订阅                                                                                                                                                                  | 不读取模板、分组及策略，不生成配置文件规则                                                                   |
+
+Clash 的健康检查字段继承遵循参考实现：仅在同名、转换后类型一致且模板信息无歧义时，补入生成分组未提供的 `expected-status`、`timeout`、`lazy`。值是否合法、重复定义、显式空值及 YAML 合并键的优先级按参考辅助函数处理，不复制整个模板分组。配置文件中未被目标生成器修改的字段或节继续保留。
+
+sing-box 的规则融合顺序如下：
+
+1. 规则生成启用时，缺少 `route` 则创建对象，原 `route` 非对象则替换为对象；保留有效 route 对象中的其他成员。
+2. `overwriteOriginalRules=false` 时，以模板有效的 `route.rules` 数组为起点；为 `true` 时仅保留其中 `action` 为 sniff、hijack-dns、resolve、route-options 的对象，保持其相对顺序。
+3. 追加默认 Clash 模式规则，再追加策略转换得到的规则；不开启全局去重或终结规则重排。
+4. 保留模板有效的 `route.rule_set` 数组及其顺序，再按参考顺序补入 GEOIP/GEOSITE 需要的远程 rule-set，依据 tag 避免重复新增。按照模板的 HTTP client 信息处理下载字段，即使覆盖普通规则也不清空该数组。
+5. 用本次转换累计的 final 状态替换 `route.final`。没有生成终结目标时写入空字符串，即使保留原规则也不沿用模板 final。
+
+上述流程仅在规则生成启用时执行。关闭时，节点和分组仍替换 `outbounds`，但模板 `route`、其规则及辅助配置保持原状。
