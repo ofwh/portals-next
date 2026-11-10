@@ -1,7 +1,7 @@
 import { appError } from '@/lib/api';
 import { assertJson, isRecord, nonempty } from '@/lib/shared/data';
 import type { NamedType, TypeDescriptor } from '@/lib/types/workflow';
-import { isRuleCategory } from '../shared/ruleset';
+import { isRuleCategory, isSingboxRemoteAddress } from '../shared/ruleset';
 import type { Rule, RuleSet, RuleSetOptions } from '../types/ruleset';
 
 function stringArray(value: unknown): value is string[] {
@@ -25,7 +25,10 @@ function isRule(value: unknown): value is Rule {
 function isOptions(value: unknown): value is RuleSetOptions {
   return (
     isRecord(value) &&
-    onlyKeys(value, ['noResolve', 'stashFormat']) &&
+    onlyKeys(value, ['noResolve', 'stashFormat', 'tag', 'format', 'downloadDetour']) &&
+    (value.tag === undefined || nonempty(value.tag)) &&
+    (value.format === undefined || value.format === 'source' || value.format === 'binary') &&
+    (value.downloadDetour === undefined || (nonempty(value.downloadDetour) && value.downloadDetour !== 'REJECT')) &&
     (value.noResolve === undefined || typeof value.noResolve === 'boolean') &&
     (value.stashFormat === undefined ||
       value.stashFormat === 'yaml' ||
@@ -39,12 +42,33 @@ function isRuleSet(value: unknown): value is RuleSet {
     !isRecord(value) ||
     !onlyKeys(value, ['id', 'group', 'category', 'source', 'interval', 'options']) ||
     !nonempty(value.id) ||
-    !nonempty(value.group) ||
-    !isRuleCategory(value.category) ||
-    typeof value.interval !== 'number' ||
-    !Number.isSafeInteger(value.interval) ||
+    !(value.category === 'singbox' ? typeof value.group === 'string' : nonempty(value.group)) ||
+    !(value.category === 'singbox' || isRuleCategory(value.category)) ||
     !isOptions(value.options) ||
     !isRecord(value.source)
+  ) {
+    return false;
+  }
+
+  if (value.category === 'singbox') {
+    return (
+      (value.interval === undefined ||
+        (typeof value.interval === 'number' && Number.isSafeInteger(value.interval) && value.interval > 0)) &&
+      value.options.noResolve === undefined &&
+      value.options.stashFormat === undefined &&
+      value.source.kind === 'resource' &&
+      onlyKeys(value.source, ['kind', 'address']) &&
+      nonempty(value.source.address) &&
+      isSingboxRemoteAddress(value.source.address, value.options.format)
+    );
+  }
+
+  if (
+    typeof value.interval !== 'number' ||
+    !Number.isSafeInteger(value.interval) ||
+    value.options.tag !== undefined ||
+    value.options.format !== undefined ||
+    value.options.downloadDetour !== undefined
   ) {
     return false;
   }

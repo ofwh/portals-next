@@ -1,7 +1,7 @@
 import { rulesetTransformerLabels } from './options';
 import type { RulesetTransformerModule } from './types';
 import { RULESET_ERROR_CODES } from '../../shared/errors';
-import { parseDelimitedDeclaration, parseStructuredDeclaration } from '../declarations';
+import { parseDelimitedDeclaration, parseStructuredDeclaration } from '../declarations/shared';
 import { EntryError } from '../diagnostics';
 
 export function defineTransformer(

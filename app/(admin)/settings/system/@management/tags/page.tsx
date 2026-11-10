@@ -10,6 +10,14 @@ import { TagBadge } from '@/components/business/tag-badge';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog';
+import {
   Drawer,
   DrawerContent,
   DrawerDescription,
@@ -19,14 +27,6 @@ import {
   DrawerTrigger,
 } from '@/components/ui/drawer';
 import { Input } from '@/components/ui/input';
-import {
-  Popover,
-  PopoverContent,
-  PopoverDescription,
-  PopoverHeader,
-  PopoverTitle,
-  PopoverTrigger,
-} from '@/components/ui/popover';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -607,7 +607,7 @@ function TagDeleteConfirmation({
   }
 
   return (
-    <Popover
+    <Dialog
       open={open}
       onOpenChange={(nextOpen) => {
         if (!pending && (!nextOpen || !disabled)) {
@@ -616,12 +616,12 @@ function TagDeleteConfirmation({
         }
       }}
     >
-      <PopoverTrigger render={trigger} />
-      <PopoverContent side="top" align="center">
-        <PopoverHeader>
-          <PopoverTitle>{t('shared.deleteTitle')}</PopoverTitle>
-          <PopoverDescription className="break-words">{description}</PopoverDescription>
-        </PopoverHeader>
+      <DialogTrigger render={trigger} />
+      <DialogContent showCloseButton={false}>
+        <DialogHeader>
+          <DialogTitle>{t('shared.deleteTitle')}</DialogTitle>
+          <DialogDescription className="break-words">{description}</DialogDescription>
+        </DialogHeader>
         {error && (
           <p role="alert" className="text-destructive text-sm">
             {error}
@@ -636,8 +636,8 @@ function TagDeleteConfirmation({
             {t('shared.delete')}
           </Button>
         </div>
-      </PopoverContent>
-    </Popover>
+      </DialogContent>
+    </Dialog>
   );
 }
 

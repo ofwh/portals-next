@@ -1,8 +1,8 @@
 'use client';
-import { Ban, Copy, ExternalLink, LoaderCircle, Play, Trash2 } from 'lucide-react';
+import { Ban, Copy, ExternalLink, LoaderCircle, Play } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import type { ComponentType } from 'react';
-import { useRef, useState } from 'react';
+import { useState } from 'react';
 import { toast } from 'sonner';
 import { TagList } from '@/components/business/tag-list';
 import { Badge } from '@/components/ui/badge';
@@ -22,6 +22,7 @@ import { usePreferences } from '@/hooks/use-preferences';
 import type { RouteStatusActions } from '@/hooks/use-route-list';
 import { useRouteUrl } from '@/hooks/use-route-url';
 import type { RedirectListItem } from '@/lib/types/routes';
+import { RouteDelete as RemoveAction } from '../route-delete';
 import type { RouteDrawerProps } from '../route-drawer';
 import { RouteStatus } from '../route-status';
 import { RouteTable } from '../route-table';
@@ -209,7 +210,7 @@ export function RedirectTable({
                 <RedirectStatusAction redirect={redirect} statusActions={statusActions} disabled={actionsDisabled} />
                 <RemoveAction
                   label={t('shared.delete')}
-                  description={t('admin.routes.redirects.deleteConfirmation', { name: redirect.name })}
+                  description={t('admin.routes.shared.deleteConfirmation', { name: redirect.name })}
                   onRemove={() => onRemove(redirect.id)}
                   disabled={actionsDisabled}
                 />
@@ -327,108 +328,5 @@ function RedirectStatusAction({
         </>
       )}
     </div>
-  );
-}
-
-function RemoveAction({
-  label,
-  description,
-  onRemove,
-  disabled,
-  variant = 'link',
-}: {
-  label: string;
-  description: string;
-  onRemove: () => Promise<boolean>;
-  disabled: boolean;
-  variant?: 'link' | 'destructive';
-}) {
-  const t = useTranslations();
-
-  const [open, setOpen] = useState(false);
-  const [submitting, setSubmitting] = useState(false);
-  const [error, setError] = useState('');
-  const pending = useRef(false);
-
-  async function remove() {
-    if (pending.current || disabled) {
-      return;
-    }
-
-    pending.current = true;
-    setSubmitting(true);
-    setError('');
-
-    try {
-      if (await onRemove()) {
-        setOpen(false);
-      } else {
-        setError(t('admin.routes.redirects.deleteError'));
-      }
-    } catch (reason) {
-      setError(reason instanceof Error && reason.message ? reason.message : t('admin.routes.redirects.deleteError'));
-    } finally {
-      pending.current = false;
-      setSubmitting(false);
-    }
-  }
-
-  return (
-    <Popover
-      open={open}
-      onOpenChange={(nextOpen) => {
-        if (!submitting && (!nextOpen || !disabled)) {
-          setOpen(nextOpen);
-          setError('');
-        }
-      }}
-    >
-      <Tooltip>
-        <PopoverTrigger
-          render={
-            <TooltipTrigger
-              render={
-                <Button
-                  variant={variant === 'link' ? 'ghost' : variant}
-                  size={variant === 'link' ? 'icon-sm' : 'default'}
-                  className={variant === 'link' ? 'text-destructive' : undefined}
-                  disabled={disabled || submitting}
-                  aria-label={label}
-                />
-              }
-            />
-          }
-        >
-          {variant === 'link' ? <Trash2 /> : label}
-        </PopoverTrigger>
-        <TooltipContent side="top">{label}</TooltipContent>
-      </Tooltip>
-      <PopoverContent side="top" align="center">
-        <PopoverHeader>
-          <PopoverTitle>{t('shared.deleteTitle')}</PopoverTitle>
-          <PopoverDescription className="break-words">{description}</PopoverDescription>
-        </PopoverHeader>
-        {error && (
-          <p role="alert" className="text-destructive text-sm">
-            {error}
-          </p>
-        )}
-        <div className="flex justify-end gap-2">
-          <Button type="button" variant="outline" size="sm" disabled={submitting} onClick={() => setOpen(false)}>
-            {t('shared.cancel')}
-          </Button>
-          <Button
-            type="button"
-            variant="destructive"
-            size="sm"
-            disabled={submitting || disabled}
-            onClick={() => void remove()}
-          >
-            {submitting && <LoaderCircle className="animate-spin" />}
-            {t('shared.delete')}
-          </Button>
-        </div>
-      </PopoverContent>
-    </Popover>
   );
 }

@@ -53,7 +53,31 @@ export function compile(input: CompileParams, options: CompileOptions = {}): Com
     input.nodes.forEach((node) => proxyNodeType.parse(node));
     if (transformer.format !== 'uri') {
       input.groups.forEach((group) => proxyGroupType.parse(group));
+      if (input.target !== 'singbox') {
+        const index = input.groups.findIndex(
+          (group) => group.healthCheck !== undefined && group.healthCheck.url === undefined,
+        );
+
+        if (index !== -1) {
+          throw new CompileError('INVALID_INPUT', 'groups.healthCheck.url', index);
+        }
+      }
+
       input.rulesets.forEach((ruleset) => ruleSetType.parse(ruleset));
+      if (input.target !== 'singbox' && options?.enableRuleGenerator !== false) {
+        const index = input.rulesets.findIndex(
+          (ruleset) =>
+            ruleset.category === 'singbox' ||
+            (ruleset.source.kind === 'inline' &&
+              (ruleset.source.rule.type === 'PRIVATE' ||
+                (ruleset.source.rule.type === 'RULE-SET' && ruleset.source.rule.parameters.length > 1))),
+        );
+
+        if (index !== -1) {
+          throw new CompileError('UNSUPPORTED_RULE', 'rulesets', index);
+        }
+      }
+
       if (input.groups.some((group) => group.providerRefs.length)) {
         throw new CompileError('INVALID_INPUT', 'groups.providerRefs');
       }

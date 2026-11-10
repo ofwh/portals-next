@@ -8,7 +8,7 @@ export type MemberSelector =
   | { kind: 'script'; source: string }
   | { kind: 'group' | 'group-id' | 'insert' | 'type' | 'port' | 'server'; target: string; pattern?: string };
 
-export type GroupHealthCheck = { url: string; interval?: number; timeout?: number; tolerance?: number };
+export type GroupHealthCheck = { url?: string; interval?: number; timeout?: number; tolerance?: number };
 
 export type ProxyGroup = {
   name: string;
@@ -17,6 +17,7 @@ export type ProxyGroup = {
   providerRefs: string[];
   healthCheck?: GroupHealthCheck;
   disableUdp?: boolean;
+  interruptExistConnections?: boolean;
   lazy?: boolean;
   evaluateBeforeUse?: boolean;
   persistent?: boolean;

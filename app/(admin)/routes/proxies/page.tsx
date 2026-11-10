@@ -48,6 +48,7 @@ export default function Page() {
     removing,
     statusActions,
     removeSelected,
+    removeItem,
   } = useRouteList(ROUTE_TYPE.PROXY);
   const loading = state.status === 'loading';
   const snapshot = state.snapshot;
@@ -63,14 +64,35 @@ export default function Page() {
     const result = await removeSelected();
 
     if (!result) {
-      return;
+      return false;
     }
 
     if (result.failed > 0) {
-      toast.error(t('admin.routes.shared.deleteSelectedError', { deleted: result.deleted, failed: result.failed }));
+      throw new Error(
+        result.message ||
+          t('admin.routes.shared.deleteSelectedError', { deleted: result.deleted, failed: result.failed }),
+      );
     } else {
       toast.success(t('admin.routes.shared.deleteSelectedSuccess', { count: result.deleted }));
     }
+
+    return true;
+  }
+
+  async function deleteRoute(id: string): Promise<boolean> {
+    const result = await removeItem(id);
+
+    if (!result) {
+      return false;
+    }
+
+    if (result.failed > 0) {
+      throw new Error(result.message || t('admin.routes.shared.deleteError'));
+    }
+
+    toast.success(t('admin.routes.shared.deleteSuccess'));
+
+    return true;
   }
 
   return (
@@ -93,7 +115,7 @@ export default function Page() {
           onRefresh={refresh}
           selectedCount={selectedIds.length}
           removing={removing}
-          onDeleteSelected={() => void deleteSelected()}
+          onDeleteSelected={deleteSelected}
         />
         {state.status === 'error' && !snapshot ? (
           <Alert variant="destructive">
@@ -113,6 +135,7 @@ export default function Page() {
             initialLoading={loading && !snapshot}
             filtered={Boolean(snapshot?.params.search) || (snapshot?.params.status ?? 'all') !== 'all'}
             onUpdated={refresh}
+            onRemove={deleteRoute}
             statusActions={statusActions}
             selectedIds={selectedIds}
             onSelect={select}

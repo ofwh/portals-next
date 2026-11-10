@@ -1,6 +1,6 @@
 import type { PolicyTransformerModule } from './types';
 import { POLICY_ERROR_CODES } from '../../shared/errors';
-import { readGroupDeclaration } from '../declarations';
+import { readGroupDeclaration } from '../declarations/shared';
 import { EntryError } from '../diagnostics';
 
 export function defineTransformer(options: Omit<PolicyTransformerModule, 'transform'>): PolicyTransformerModule {

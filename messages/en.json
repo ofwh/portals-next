@@ -105,7 +105,11 @@
           "pathnameRequired": "Enter an access path",
           "urlInvalid": "Enter a valid absolute URL",
           "expiredAtInvalid": "Select a valid expiration date and time"
-        }
+        },
+        "deleteConfirmation": "Delete “{name}”? This cannot be undone",
+        "deleteSelectedConfirmation": "Delete {count} selected routes? This cannot be undone",
+        "deleteError": "Failed to delete routes. Please try again",
+        "deleteSuccess": "Route deleted"
       },
       "proxies": {
         "title": "Proxy routes",
@@ -204,11 +208,7 @@
           "urlRequired": "Enter a destination URL",
           "statusCodeInvalid": "Select a valid redirect status code"
         },
-        "openDestination": "Open destination URL in a new tab: {url}",
-        "deleteConfirmation": "Delete “{name}”? This cannot be undone",
-        "deleteSelectedConfirmation": "Delete {count} selected routes? This cannot be undone",
-        "deleteError": "Failed to delete routes. Please try again",
-        "deleteSuccess": "Route deleted"
+        "openDestination": "Open destination URL in a new tab: {url}"
       },
       "caches": {
         "title": "Cache routes",
@@ -272,10 +272,6 @@
           "languageHelp": "Content format",
           "contentHelp": "Response body"
         },
-        "deleteConfirmation": "Delete “{name}”? This cannot be undone",
-        "deleteSelectedConfirmation": "Delete {count} selected routes? This cannot be undone",
-        "deleteError": "Failed to delete routes. Please try again",
-        "deleteSuccess": "Route deleted",
         "validation": {
           "contentTypeRequired": "Enter a content type",
           "languageRequired": "Enter a language identifier"

@@ -1,11 +1,11 @@
-import { EntryError } from './diagnostics';
-import type { RulesetDeclaration } from './types';
-import { RULESET_ERROR_CODES } from '../shared/errors';
-import { isRuleCategory } from '../shared/ruleset';
-import { isRecord, splitDelimited, textLimits, unquote } from '../shared/text';
-import type { RuleCategory, RuleSetOptions } from '../types/ruleset';
+import { RULESET_ERROR_CODES } from '../../shared/errors';
+import { isRuleCategory } from '../../shared/ruleset';
+import { isRecord, splitDelimited, textLimits, unquote } from '../../shared/text';
+import type { RuleContentCategory, RuleSetOptions } from '../../types/ruleset';
+import { EntryError } from '../diagnostics';
+import type { RuleContentDeclaration } from '../types';
 
-const tomlCategories: Record<string, RuleCategory> = {
+const tomlCategories: Record<string, RuleContentCategory> = {
   'surge-ruleset': 'surge',
   quantumultx: 'quanx',
   'clash-domain': 'clash-domain',
@@ -84,11 +84,11 @@ function intervalOptions(raw: unknown, options: unknown, legacy: boolean) {
 function makeDeclaration(
   group: unknown,
   rawSource: unknown,
-  category: RuleCategory | undefined,
+  category: RuleContentCategory | undefined,
   id: string,
   interval: number,
   options: RuleSetOptions,
-): RulesetDeclaration {
+): RuleContentDeclaration {
   if (typeof group !== 'string' || !group.trim() || typeof rawSource !== 'string' || !rawSource.trim()) {
     throw new EntryError(RULESET_ERROR_CODES.INVALID_RULESET_ENTRY);
   }
@@ -130,7 +130,7 @@ function makeDeclaration(
   };
 }
 
-export function parseDelimitedDeclaration(input: string, id: string): RulesetDeclaration {
+export function parseDelimitedDeclaration(input: string, id: string): RuleContentDeclaration {
   if (input.trim().startsWith('!!import:')) {
     throw new EntryError(RULESET_ERROR_CODES.RULESET_IMPORT_FORBIDDEN);
   }
@@ -160,8 +160,12 @@ export function parseDelimitedDeclaration(input: string, id: string): RulesetDec
   return makeDeclaration(group, source, undefined, id, interval, options);
 }
 
-export function parseStructuredDeclaration(input: unknown, format: 'yaml' | 'toml', id: string): RulesetDeclaration {
-  let category: RuleCategory | undefined;
+export function parseStructuredDeclaration(
+  input: unknown,
+  format: 'yaml' | 'toml',
+  id: string,
+): RuleContentDeclaration {
+  let category: RuleContentCategory | undefined;
 
   if (typeof input === 'string' && input.startsWith('!!import:')) {
     throw new EntryError(RULESET_ERROR_CODES.RULESET_IMPORT_FORBIDDEN);

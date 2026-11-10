@@ -1,13 +1,14 @@
 import type { SourcePosition } from '../types/diagnostic';
-import type { RuleCategory, RuleSetOptions } from '../types/ruleset';
+import type { RuleContentCategory, RuleSetOptions } from '../types/ruleset';
 
-export type RulesetDeclaration = {
+type Declaration = {
   id: string;
   group: string;
-  category?: RuleCategory;
   source: { kind: 'inline'; content: string } | { kind: 'resource'; address: string };
-  interval: number;
   options: RuleSetOptions;
 };
+
+export type RuleContentDeclaration = Declaration & { category?: RuleContentCategory; interval: number };
+export type RulesetDeclaration = RuleContentDeclaration | (Declaration & { category: 'singbox'; interval?: number });
 
 export type RulesetEntry = { value: unknown; position: SourcePosition };

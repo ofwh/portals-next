@@ -27,6 +27,10 @@ export function ruleDelivery(target: CompileTarget, ruleset: RuleSet): 'inline' 
     return 'skip';
   }
 
+  if (ruleset.category === 'singbox') {
+    return target === 'singbox' ? 'remote' : 'skip';
+  }
+
   if (ruleset.source.kind === 'inline') {
     return 'inline';
   }

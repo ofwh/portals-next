@@ -64,7 +64,18 @@ export function parseRulesets(input: string, options: RulesetParseOptions): Pars
         throw new EntryError(RULESET_ERROR_CODES.INPUT_TOO_LARGE);
       }
 
-      items.push(rulesetTransformers[transformer].transform(entry.value, format, `ruleset:${index}`));
+      const item = rulesetTransformers[transformer].transform(entry.value, format, `ruleset:${index}`);
+
+      if (
+        transformer === 'singbox' &&
+        item.source.kind === 'inline' &&
+        ['FINAL', 'MATCH'].includes(item.source.rule.type) &&
+        index !== entries.length - 1
+      ) {
+        throw new EntryError(RULESET_ERROR_CODES.INVALID_RULESET_RULE);
+      }
+
+      items.push(item);
     } catch (error) {
       const issue = diagnostic(
         format,

@@ -1,13 +1,12 @@
 import { fieldInputNode } from './field-input-node';
 import { httpRequestNode } from './http-request-node';
 import { httpResponseHeadersNode } from './http-response-headers-node';
-import { mergeNode } from './merge-node';
 import type { NodeModuleGroup } from '../../node/types';
 import { nodeLabel } from '../../node/utils';
 
-export { fieldInputNode, httpRequestNode, mergeNode, httpResponseHeadersNode };
+export { fieldInputNode, httpRequestNode, httpResponseHeadersNode };
 
-const nodes = [fieldInputNode, mergeNode, httpRequestNode, httpResponseHeadersNode] as const;
+const nodes = [fieldInputNode, httpRequestNode, httpResponseHeadersNode] as const;
 
 const group = {
   id: 'common',

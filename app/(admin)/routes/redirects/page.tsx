@@ -14,13 +14,13 @@ import { ListPagination } from '@/components/business/list-pagination';
 import { Alert, AlertAction, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import {
-  Popover,
-  PopoverContent,
-  PopoverDescription,
-  PopoverHeader,
-  PopoverTitle,
-  PopoverTrigger,
-} from '@/components/ui/popover';
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog';
 import { useRouteForm } from '@/hooks/use-route-form';
 import { useRouteList } from '@/hooks/use-route-list';
 import { ROUTE_TYPE } from '@/lib/constants';
@@ -96,7 +96,7 @@ export default function Page() {
       return false;
     }
 
-    toast.success(t('admin.routes.redirects.deleteSuccess'));
+    toast.success(t('admin.routes.shared.deleteSuccess'));
 
     return true;
   }
@@ -113,12 +113,10 @@ export default function Page() {
       if (await deleteSelected()) {
         setDeleteOpen(false);
       } else {
-        setDeleteError(t('admin.routes.redirects.deleteError'));
+        setDeleteError(t('admin.routes.shared.deleteError'));
       }
     } catch (reason) {
-      setDeleteError(
-        reason instanceof Error && reason.message ? reason.message : t('admin.routes.redirects.deleteError'),
-      );
+      setDeleteError(reason instanceof Error && reason.message ? reason.message : t('admin.routes.shared.deleteError'));
     } finally {
       pendingDelete.current = false;
       setDeleting(false);
@@ -146,7 +144,7 @@ export default function Page() {
           selectedCount={selectedIds.length}
           removing={removing}
           deleteAction={
-            <Popover
+            <Dialog
               open={deleteOpen}
               onOpenChange={(open) => {
                 if (!deleting && (!open || (!loading && !removing))) {
@@ -155,16 +153,16 @@ export default function Page() {
                 }
               }}
             >
-              <PopoverTrigger render={<Button variant="destructive" disabled={loading || removing || deleting} />}>
+              <DialogTrigger render={<Button variant="destructive" disabled={loading || removing || deleting} />}>
                 {t('shared.deleteSelected', { count: selectedIds.length })}
-              </PopoverTrigger>
-              <PopoverContent side="top" align="center">
-                <PopoverHeader>
-                  <PopoverTitle>{t('shared.deleteTitle')}</PopoverTitle>
-                  <PopoverDescription>
-                    {t('admin.routes.redirects.deleteSelectedConfirmation', { count: selectedIds.length })}
-                  </PopoverDescription>
-                </PopoverHeader>
+              </DialogTrigger>
+              <DialogContent showCloseButton={false}>
+                <DialogHeader>
+                  <DialogTitle>{t('shared.deleteTitle')}</DialogTitle>
+                  <DialogDescription>
+                    {t('admin.routes.shared.deleteSelectedConfirmation', { count: selectedIds.length })}
+                  </DialogDescription>
+                </DialogHeader>
                 {deleteError && (
                   <p role="alert" className="text-destructive text-sm">
                     {deleteError}
@@ -191,8 +189,8 @@ export default function Page() {
                     {t('shared.delete')}
                   </Button>
                 </div>
-              </PopoverContent>
-            </Popover>
+              </DialogContent>
+            </Dialog>
           }
         />
         {state.status === 'error' && !snapshot ? (

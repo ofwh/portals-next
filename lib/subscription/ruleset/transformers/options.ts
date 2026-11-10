@@ -5,6 +5,7 @@ export const rulesetTransformerLabels = {
   surge: 'Surge',
   quanx: 'Quantumult X',
   clash: 'Clash',
+  singbox: 'sing-box',
 } as const satisfies Record<RulesetTransformer, string>;
 
 export const rulesetTransformerOptions = Object.entries(rulesetTransformerLabels).map(([value, label]) => ({

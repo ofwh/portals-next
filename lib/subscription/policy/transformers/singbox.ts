@@ -1,11 +1,32 @@
-import { defineTransformer } from './shared';
-import { fallbackResolver } from '../resolvers/fallback';
-import { loadBalanceResolver } from '../resolvers/load-balance';
+import type { PolicyTransformerModule } from './types';
+import { POLICY_ERROR_CODES } from '../../shared/errors';
+import { readSingboxGroupDeclaration } from '../declarations/singbox';
+import { EntryError } from '../diagnostics';
 import { selectResolver } from '../resolvers/select';
-import { urlTestResolver } from '../resolvers/url-test';
+import { booleanOption } from '../resolvers/shared';
+import { singboxUrlTestResolver } from '../resolvers/singbox';
 
-export const singboxTransformer = defineTransformer({
+const resolvers = [selectResolver, singboxUrlTestResolver];
+
+export const singboxTransformer: PolicyTransformerModule = {
   type: 'singbox',
   label: 'sing-box',
-  resolvers: [selectResolver, urlTestResolver, fallbackResolver, loadBalanceResolver],
-});
+  resolvers,
+  transform(input, format) {
+    const declaration = readSingboxGroupDeclaration(input, format);
+    const resolver = resolvers.find((resolver) => resolver.kind === declaration.kind);
+
+    if (!resolver) {
+      throw new EntryError(POLICY_ERROR_CODES.POLICY_TRANSFORMER_MISMATCH, 'type');
+    }
+
+    const interrupt = booleanOption(declaration, 'interrupt_exist_connections');
+    const group = resolver.resolve(declaration);
+
+    if (interrupt !== undefined && group.kind !== 'select') {
+      throw new EntryError(POLICY_ERROR_CODES.INVALID_POLICY_OPTIONS, 'interrupt_exist_connections');
+    }
+
+    return { ...group, ...(interrupt !== undefined ? { interruptExistConnections: interrupt } : {}) };
+  },
+};

@@ -48,8 +48,8 @@ function tls(node: ProxyNode): TargetObject {
   nonempty(result, 'server_name', node.serverName);
   put(result, 'alpn', node.alpn);
   result.insecure = node.allowInsecure ?? false;
-  if (node.fingerprint || node.realityPublicKey || node.realityShortId) {
-    result.utls = { enabled: true, fingerprint: node.fingerprint || 'chrome' };
+  if (node.fingerprint) {
+    result.utls = { enabled: true, fingerprint: node.fingerprint };
   }
 
   if (node.realityPublicKey || node.realityShortId) {
@@ -258,8 +258,12 @@ export function singboxNode(node: ProxyNode): TargetObject | undefined {
       return;
   }
   if (node.portRanges?.length && (node.protocol === 'hysteria' || node.protocol === 'hysteria2')) {
-    delete output.server_port;
-    output.server_ports = node.portRanges.map((range) => range.replace('-', ':'));
+    if (node.protocol === 'hysteria2' && node.portRanges.length === 1 && /^\d+$/.test(node.portRanges[0])) {
+      output.server_port = Number(node.portRanges[0]);
+    } else {
+      delete output.server_port;
+      output.server_ports = node.portRanges.map((range) => range.replace('-', ':'));
+    }
   }
 
   if (node.tls && node.protocol !== 'hysteria') {

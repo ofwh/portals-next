@@ -210,6 +210,10 @@ export function createWorkflowStore(subscriptionId: string) {
             controller.signal,
           );
         } catch (reason) {
+          if (runController !== controller) {
+            return;
+          }
+
           set({
             runStatus: controller.signal.aborted ? 'cancelled' : 'failed',
             runError: controller.signal.aborted ? null : message(reason),
@@ -308,7 +312,16 @@ export function createWorkflowStore(subscriptionId: string) {
         runController?.abort();
         nodesController = null;
         detailController = null;
-        set({ nodesLoading: false, detailLoading: false });
+        runController = null;
+        set({
+          nodesLoading: false,
+          detailLoading: false,
+          running: false,
+          runId: null,
+          runStatus: 'idle',
+          runError: null,
+          nodeStates: {},
+        });
       },
       setFlow(flow) {
         if (!get().detailLoaded || get().detailLoading || get().detailError !== null || get().saving || get().running) {

@@ -26,3 +26,5 @@
 公共字段为 name、kind、selectors、providerRefs、可选 healthCheck、disableUdp。成员选择器覆盖普通名称正则、`[]` 显式引用、`!!GROUP=`、`!!GROUPID=`、`!!INSERT=`、`!!TYPE=`、`!!PORT=`、`!!SERVER=`，以及尾部名称正则。若保留 `script:`，解析器生成脚本选择器描述，调用层注入获准的执行能力。求值语义以 [applyMatcher/groupGenerate](/Users/larify/Documents/github/SubConverter-Extended/src/generator/config/subexport.cpp:1354) 为基线。
 
 [INI 绑定](/Users/larify/Documents/github/SubConverter-Extended/src/config/binding.h:202)与[TOML 绑定](/Users/larify/Documents/github/SubConverter-Extended/src/config/binding.h:38)定义条目字段。[旧 YAML 读取](/Users/larify/Documents/github/SubConverter-Extended/src/handler/settings.cpp:806)设置缺省探测 URL 和 300 秒周期，再走 INI 绑定。解析保留按语法区分的默认值，以及未设置和显式 false 的区别，不在此阶段执行成员筛选、资源获取或客户端语法生成。
+
+sing-box 的类型支持、测速参数缺省及对象声明读取方式遵循[兼容调整方案](../ruleset/sing-box%20规则与策略兼容调整方案.md#4-策略模块)，不套用上述其他目标的兼容默认值。

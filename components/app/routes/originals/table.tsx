@@ -1,5 +1,5 @@
 'use client';
-import { Ban, Copy, LoaderCircle, Play, Trash2 } from 'lucide-react';
+import { Ban, Copy, LoaderCircle, Play } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import type { ComponentType } from 'react';
 import { useState } from 'react';
@@ -21,6 +21,7 @@ import { usePreferences } from '@/hooks/use-preferences';
 import type { RouteStatusActions } from '@/hooks/use-route-list';
 import { useRouteUrl } from '@/hooks/use-route-url';
 import type { OriginalListItem } from '@/lib/types/routes';
+import { RouteDelete } from '../route-delete';
 import type { RouteDrawerProps } from '../route-drawer';
 import { RouteStatus } from '../route-status';
 import { RouteTable } from '../route-table';
@@ -32,6 +33,7 @@ export function OriginalTable({
   initialLoading,
   filtered,
   onUpdated,
+  onRemove,
   statusActions,
   selectedIds,
   onSelect,
@@ -44,6 +46,7 @@ export function OriginalTable({
   initialLoading: boolean;
   filtered: boolean;
   onUpdated: () => void;
+  onRemove: (id: string) => Promise<boolean>;
   statusActions: RouteStatusActions;
   selectedIds: readonly string[];
   onSelect: (id: string, checked: boolean) => void;
@@ -189,22 +192,12 @@ export function OriginalTable({
               <div className="flex items-center justify-center gap-1">
                 <Drawer id={original.id} onSaved={onUpdated} disabled={actionsDisabled} />
                 <OriginalStatusAction original={original} statusActions={statusActions} disabled={actionsDisabled} />
-                <Tooltip>
-                  <TooltipTrigger
-                    render={
-                      <Button
-                        variant="ghost"
-                        size="icon-sm"
-                        className="text-destructive"
-                        disabled={actionsDisabled}
-                        aria-label={t('shared.delete')}
-                      />
-                    }
-                  >
-                    <Trash2 />
-                  </TooltipTrigger>
-                  <TooltipContent side="top">{t('shared.delete')}</TooltipContent>
-                </Tooltip>
+                <RouteDelete
+                  label={t('shared.delete')}
+                  description={t('admin.routes.shared.deleteConfirmation', { name: original.name })}
+                  disabled={actionsDisabled}
+                  onRemove={() => onRemove(original.id)}
+                />
               </div>
             </TableCell>
           </TableRow>

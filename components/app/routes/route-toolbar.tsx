@@ -1,11 +1,10 @@
 'use client';
 
-import { LoaderCircle } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import type { ReactNode } from 'react';
 import { ListToolbar } from '@/components/business/list-toolbar';
-import { Button } from '@/components/ui/button';
 import type { RouteMode } from '@/lib/constants/routes';
+import { RouteDelete } from './route-delete';
 
 interface RouteToolbarProps {
   mode: RouteMode;
@@ -18,7 +17,7 @@ interface RouteToolbarProps {
   onRefresh: () => void;
   selectedCount: number;
   removing: boolean;
-  onDeleteSelected?: () => void;
+  onDeleteSelected?: () => Promise<boolean>;
 }
 
 export function RouteToolbar({
@@ -48,12 +47,16 @@ export function RouteToolbar({
       refreshDisabled={loading || removing}
       actions={
         selectedCount > 0 &&
-        (deleteAction ?? (
-          <Button variant="destructive" disabled={loading || removing} onClick={onDeleteSelected}>
-            {removing && <LoaderCircle className="animate-spin" />}
-            {t('shared.deleteSelected', { count: selectedCount })}
-          </Button>
-        ))
+        (deleteAction ??
+          (onDeleteSelected && (
+            <RouteDelete
+              variant="destructive"
+              label={t('shared.deleteSelected', { count: selectedCount })}
+              description={t('admin.routes.shared.deleteSelectedConfirmation', { count: selectedCount })}
+              disabled={loading || removing}
+              onRemove={onDeleteSelected}
+            />
+          )))
       }
     />
   );

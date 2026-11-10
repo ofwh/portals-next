@@ -1,9 +1,9 @@
-import { EntryError } from './diagnostics';
-import { forbidImport, groupKind, stringList, text } from './resolvers/shared';
-import type { GroupDeclaration } from './resolvers/types';
-import { POLICY_ERROR_CODES } from '../shared/errors';
-import { isRecord } from '../shared/text';
-import type { ConfigFormat } from '../types/shared';
+import { POLICY_ERROR_CODES } from '../../shared/errors';
+import { isRecord } from '../../shared/text';
+import type { ConfigFormat } from '../../types/shared';
+import { EntryError } from '../diagnostics';
+import { forbidImport, groupKind, stringList, text } from '../resolvers/shared';
+import type { GroupDeclaration } from '../resolvers/types';
 
 function delimitedDeclaration(input: unknown): GroupDeclaration {
   const fields = text(input, 'entry').split('`');

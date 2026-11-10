@@ -9,6 +9,14 @@ import { TagList } from '@/components/business/tag-list';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog';
+import {
   Popover,
   PopoverContent,
   PopoverDescription,
@@ -374,7 +382,7 @@ export function SubscriptionDelete({
   }
 
   return (
-    <Popover
+    <Dialog
       open={open}
       onOpenChange={(value) => {
         if (!submitting) {
@@ -384,10 +392,10 @@ export function SubscriptionDelete({
       }}
     >
       {label ? (
-        <PopoverTrigger render={<Button variant="destructive" disabled={disabled} />}>{label}</PopoverTrigger>
+        <DialogTrigger render={<Button variant="destructive" disabled={disabled} />}>{label}</DialogTrigger>
       ) : (
         <Tooltip>
-          <PopoverTrigger
+          <DialogTrigger
             render={
               <TooltipTrigger
                 render={
@@ -403,19 +411,19 @@ export function SubscriptionDelete({
             }
           >
             <Trash2 />
-          </PopoverTrigger>
+          </DialogTrigger>
           <TooltipContent side="top">{t('shared.delete')}</TooltipContent>
         </Tooltip>
       )}
-      <PopoverContent side="top" align="center">
-        <PopoverHeader>
-          <PopoverTitle>{t('admin.application.subscriptions.deleteTitle')}</PopoverTitle>
-          <PopoverDescription>
+      <DialogContent showCloseButton={false}>
+        <DialogHeader>
+          <DialogTitle>{t('admin.application.subscriptions.deleteTitle')}</DialogTitle>
+          <DialogDescription>
             {name
               ? t('admin.application.subscriptions.deleteConfirmation', { name })
               : t('admin.application.subscriptions.deleteSelectedConfirmation')}
-          </PopoverDescription>
-        </PopoverHeader>
+          </DialogDescription>
+        </DialogHeader>
         {error && (
           <p role="alert" className="text-destructive text-sm">
             {error}
@@ -436,7 +444,7 @@ export function SubscriptionDelete({
             {t('shared.delete')}
           </Button>
         </div>
-      </PopoverContent>
-    </Popover>
+      </DialogContent>
+    </Dialog>
   );
 }

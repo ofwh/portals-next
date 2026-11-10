@@ -1,8 +1,10 @@
 import { stringify } from 'yaml';
 import { clashNode, iniNode, singboxNode } from './nodes';
 import { clashGroups, iniGroups, singboxGroups } from './policy';
-import { clashRules, iniRules, singboxRules } from './rules';
+import { clashRules, iniRules } from './rules';
 import { encodeNodes, serializeIni, templateIni, templateObject, writeSection } from './shared';
+import { normalizeDirect, validateOutbounds } from './singbox/outbounds';
+import { singboxRoute } from './singbox/route';
 import type { CompileContext } from '../types';
 
 export function compileClash(context: CompileContext): string {
@@ -53,6 +55,12 @@ export function compileClash(context: CompileContext): string {
 export function compileSingbox(context: CompileContext): string {
   const document = templateObject(context, 'json');
   const nodes = encodeNodes(context, singboxNode);
+
+  normalizeDirect(
+    context,
+    document,
+    nodes.map(({ node }) => node),
+  );
   const outbounds = [
     { type: 'direct', tag: 'DIRECT' },
     ...nodes.map(({ value }) => value),
@@ -60,12 +68,13 @@ export function compileSingbox(context: CompileContext): string {
       context,
       nodes.map(({ node }) => node),
     ),
-    { type: 'selector', tag: 'GLOBAL', outbounds: ['DIRECT', ...nodes.map(({ node }) => node.name)] },
   ];
 
   document.outbounds = outbounds;
+  const tags = validateOutbounds(outbounds);
+
   if (context.options.enableRuleGenerator) {
-    singboxRules(context, document);
+    singboxRoute(context, document, tags);
   }
 
   return JSON.stringify(document);

@@ -40,7 +40,7 @@ function isHealthCheck(value: unknown): value is GroupHealthCheck {
   return (
     isRecord(value) &&
     onlyKeys(value, ['url', 'interval', 'timeout', 'tolerance']) &&
-    nonempty(value.url) &&
+    (value.url === undefined || nonempty(value.url)) &&
     ['interval', 'timeout', 'tolerance'].every(
       (key) => value[key] === undefined || (typeof value[key] === 'number' && Number.isSafeInteger(value[key])),
     )
@@ -57,6 +57,7 @@ function isProxyGroup(value: unknown): value is ProxyGroup {
       'providerRefs',
       'healthCheck',
       'disableUdp',
+      'interruptExistConnections',
       'lazy',
       'evaluateBeforeUse',
       'persistent',
@@ -69,6 +70,8 @@ function isProxyGroup(value: unknown): value is ProxyGroup {
     Array.isArray(value.providerRefs) &&
     value.providerRefs.every(nonempty) &&
     (value.healthCheck === undefined || isHealthCheck(value.healthCheck)) &&
+    (value.interruptExistConnections === undefined ||
+      (value.kind === 'select' && typeof value.interruptExistConnections === 'boolean')) &&
     ['disableUdp', 'lazy', 'evaluateBeforeUse', 'persistent'].every(
       (key) => value[key] === undefined || typeof value[key] === 'boolean',
     ) &&

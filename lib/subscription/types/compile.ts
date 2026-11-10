@@ -24,6 +24,10 @@ export type CompileErrorCode =
   | 'INVALID_SELECTOR'
   | 'MISSING_RESOURCE'
   | 'INVALID_RESOURCE'
+  | 'INVALID_REFERENCE'
+  | 'DUPLICATE_TAG'
+  | 'CONFLICTING_RULE_SET'
+  | 'CIRCULAR_GROUP_REFERENCE'
   | 'SERIALIZATION_FAILED';
 export type CompileDiagnostic = {
   module: 'compile';

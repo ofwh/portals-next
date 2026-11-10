@@ -4,9 +4,9 @@ import { clashIpcidrResolver } from './clash-ipcidr';
 import { quanxResolver } from './quanx';
 import { surgeResolver } from './surge';
 import type { RulesetResolverModule } from './types';
-import type { RuleCategory } from '../../types/ruleset';
+import type { RuleContentCategory } from '../../types/ruleset';
 
-export const rulesetResolvers: Record<RuleCategory, RulesetResolverModule> = {
+export const rulesetResolvers: Record<RuleContentCategory, RulesetResolverModule> = {
   surge: surgeResolver,
   quanx: quanxResolver,
   'clash-domain': clashDomainResolver,

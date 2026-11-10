@@ -13,7 +13,10 @@ function resolveSource(source: RulesetDeclaration['source'], resolver: RulesetRe
 }
 
 export function resolveDeclaration(declaration: RulesetDeclaration, resolver: RulesetResolverModule): RuleSet {
-  if (declaration.category !== undefined && declaration.category !== resolver.category) {
+  if (
+    declaration.category === 'singbox' ||
+    (declaration.category !== undefined && declaration.category !== resolver.category)
+  ) {
     throw new EntryError(RULESET_ERROR_CODES.RULESET_RESOLVER_MISMATCH, 'category');
   }
 

@@ -105,7 +105,11 @@
           "pathnameRequired": "请输入访问路径",
           "urlInvalid": "请输入有效的绝对地址",
           "expiredAtInvalid": "请选择有效的过期日期和时间"
-        }
+        },
+        "deleteConfirmation": "确认删除“{name}”？此操作无法撤销",
+        "deleteSelectedConfirmation": "确认删除所选的 {count} 条路由？此操作无法撤销",
+        "deleteError": "删除路由失败，请重试",
+        "deleteSuccess": "路由已删除"
       },
       "proxies": {
         "title": "代理路由",
@@ -204,11 +208,7 @@
           "urlRequired": "请输入目标地址",
           "statusCodeInvalid": "请选择有效的重定向状态码"
         },
-        "openDestination": "在新页面打开目标地址：{url}",
-        "deleteConfirmation": "确认删除“{name}”？此操作无法撤销",
-        "deleteSelectedConfirmation": "确认删除所选的 {count} 条路由？此操作无法撤销",
-        "deleteError": "删除路由失败，请重试",
-        "deleteSuccess": "路由已删除"
+        "openDestination": "在新页面打开目标地址：{url}"
       },
       "caches": {
         "title": "缓存路由",
@@ -272,10 +272,6 @@
           "languageHelp": "内容语言标识，例如 plaintext、json 或 html",
           "contentHelp": "直接返回的响应正文。允许留空，保留空格与换行"
         },
-        "deleteConfirmation": "确认删除“{name}”？此操作无法撤销",
-        "deleteSelectedConfirmation": "确认删除所选的 {count} 条路由？此操作无法撤销",
-        "deleteError": "删除路由失败，请重试",
-        "deleteSuccess": "路由已删除",
         "validation": {
           "contentTypeRequired": "请输入内容类型",
           "languageRequired": "请输入语言标识"

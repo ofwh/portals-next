@@ -72,7 +72,7 @@ function parse(
 
       issue.text = typeof entry.value === 'string' ? entry.value : JSON.stringify(entry.value);
 
-      if (issue.code === POLICY_ERROR_CODES.POLICY_TRANSFORMER_MISMATCH) {
+      if (issue.code === POLICY_ERROR_CODES.POLICY_TRANSFORMER_MISMATCH && transformer !== 'singbox') {
         issue.severity = 'warning';
       }
 
