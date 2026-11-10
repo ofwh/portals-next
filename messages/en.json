@@ -312,6 +312,10 @@
           "original": {
             "pathnameHelp": "Original route prefix",
             "statusHelp": "Turn off to pause original content shortcut access"
+          },
+          "subscription": {
+            "pathnameHelp": "Subscription route prefix",
+            "statusHelp": "Turn off to pause subscription access"
           }
         },
         "preferences": {

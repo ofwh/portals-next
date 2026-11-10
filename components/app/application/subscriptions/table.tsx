@@ -64,7 +64,7 @@ export function SubscriptionTable({
   const t = useTranslations();
 
   const formatDateTime = usePreferences((state) => state.formatDateTime);
-  const getRouteUrl = useRouteUrl();
+  const getRouteUrl = useRouteUrl('subscription');
 
   return (
     <SubscriptionTableContainer loading={loading} initialLoading={initialLoading}>

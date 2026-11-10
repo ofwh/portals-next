@@ -312,6 +312,10 @@
           "original": {
             "pathnameHelp": "内容路由前缀",
             "statusHelp": "关闭后暂停原始内容快捷访问"
+          },
+          "subscription": {
+            "pathnameHelp": "订阅路由前缀",
+            "statusHelp": "关闭后暂停订阅访问"
           }
         },
         "preferences": {

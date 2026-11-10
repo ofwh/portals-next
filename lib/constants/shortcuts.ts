@@ -6,6 +6,7 @@ export const SHORTCUT_ROUTES = {
   redirect: ROUTE_TYPE.REDIRECT,
   cache: ROUTE_TYPE.CACHE,
   original: ROUTE_TYPE.ORIGINAL,
+  subscription: ROUTE_TYPE.SUBSCRIPTION,
 } as const satisfies Record<string, RouteType>;
 
 export const DEFAULT_SHORTCUTS = {
@@ -13,4 +14,5 @@ export const DEFAULT_SHORTCUTS = {
   redirect: { pathname: '/r', status: true },
   cache: { pathname: '/c', status: true },
   original: { pathname: '/o', status: true },
+  subscription: { pathname: '/s', status: true },
 } as const satisfies Record<keyof typeof SHORTCUT_ROUTES, { pathname: string; status: boolean }>;
