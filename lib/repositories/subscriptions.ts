@@ -52,11 +52,15 @@ export function findByPath(pathname: string): SubscriptionRow | undefined {
   return db.select().from(subscriptions).where(eq(subscriptions.pathname, pathname)).get();
 }
 
-export function create(values: SubscriptionValues): SubscriptionRow {
+export function create(values: SubscriptionValues, id = crypto.randomUUID()): SubscriptionRow {
   const { tagIds, ...data } = values;
 
   return db.transaction((tx) => {
-    const row = tx.insert(subscriptions).values(data).returning().get();
+    const row = tx
+      .insert(subscriptions)
+      .values({ ...data, id })
+      .returning()
+      .get();
 
     if (tagIds !== undefined) {
       replaceTags(tx, SUBSCRIPTION_TAG_GROUP, row.id, tagIds);

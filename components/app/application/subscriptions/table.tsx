@@ -5,6 +5,8 @@ import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 import { useRef, useState } from 'react';
 import type { ComponentType, ReactElement, ReactNode } from 'react';
+import { ListActions, ListActionTrigger } from '@/components/business/list-actions';
+import { PathnameLink } from '@/components/business/pathname-link';
 import { TagList } from '@/components/business/tag-list';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -12,25 +14,20 @@ import {
   Dialog,
   DialogContent,
   DialogDescription,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
-import {
-  Popover,
-  PopoverContent,
-  PopoverDescription,
-  PopoverHeader,
-  PopoverTitle,
-  PopoverTrigger,
-} from '@/components/ui/popover';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { usePreferences } from '@/hooks/use-preferences';
+import { useRouteUrl } from '@/hooks/use-route-url';
 import type { SubscriptionListItem, SubscriptionStatusActions } from '@/lib/types/subscriptions';
 
 export interface SubscriptionDrawerProps {
   id?: string;
+  copyFromId?: string;
   onSaved: () => void;
   disabled?: boolean;
   trigger?: ReactElement;
@@ -67,12 +64,13 @@ export function SubscriptionTable({
   const t = useTranslations();
 
   const formatDateTime = usePreferences((state) => state.formatDateTime);
+  const getRouteUrl = useRouteUrl();
 
   return (
     <SubscriptionTableContainer loading={loading} initialLoading={initialLoading}>
       <TableHeader className="bg-muted/50">
         <TableRow>
-          <TableHead className="w-12 px-4">
+          <TableHead className="w-12 max-w-12 min-w-12 px-4">
             <Checkbox
               aria-label={t('shared.selectAll')}
               checked={items.length > 0 && items.every((subscription) => selectedIds.includes(subscription.id))}
@@ -82,11 +80,11 @@ export function SubscriptionTable({
             />
           </TableHead>
           <TableHead className="w-44">{t('shared.name')}</TableHead>
-          <TableHead className="w-48">{t('admin.application.subscriptions.columns.pathname')}</TableHead>
-          <TableHead className="w-48">{t('shared.tags')}</TableHead>
+          <TableHead className="min-w-48">{t('admin.application.subscriptions.columns.pathname')}</TableHead>
+          <TableHead>{t('shared.tags')}</TableHead>
           <TableHead className="w-24 text-center">{t('shared.status')}</TableHead>
           <TableHead className="w-44">{t('shared.updatedAt')}</TableHead>
-          <TableHead className="w-44 text-center">{t('shared.actions')}</TableHead>
+          <TableHead className="w-24 max-w-24 min-w-24 text-center">{t('shared.actions')}</TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
@@ -103,7 +101,7 @@ export function SubscriptionTable({
         ) : null}
         {items.map((subscription) => (
           <TableRow key={subscription.id}>
-            <TableCell className="px-4">
+            <TableCell className="w-12 max-w-12 min-w-12 px-4">
               <Checkbox
                 aria-label={t('shared.selectRow', { name: subscription.name })}
                 checked={selectedIds.includes(subscription.id)}
@@ -135,7 +133,7 @@ export function SubscriptionTable({
               </Tooltip>
             </TableCell>
             <TableCell>
-              <span>{subscription.pathname}</span>
+              <PathnameLink pathname={subscription.pathname} href={getRouteUrl(subscription.pathname)} />
             </TableCell>
             <TableCell>
               <TagList tags={subscription.tags} />
@@ -149,19 +147,17 @@ export function SubscriptionTable({
             <TableCell className="text-muted-foreground text-sm tabular-nums">
               {formatDateTime(subscription.updatedAt)}
             </TableCell>
-            <TableCell>
-              <div className="flex items-center justify-center gap-1">
-                <Button
-                  variant="ghost"
-                  size="icon-sm"
+            <TableCell className="w-24 max-w-24 min-w-24">
+              <ListActions disabled={actionsDisabled}>
+                <Drawer id={subscription.id} onSaved={onUpdated} disabled={actionsDisabled} />
+                <ListActionTrigger
                   disabled={actionsDisabled}
-                  nativeButton={false}
-                  render={<Link href={`/application/subscriptions/workflow/${encodeURIComponent(subscription.id)}`} />}
-                  aria-label={t('admin.application.subscriptions.configure')}
+                  href={`/application/subscriptions/workflow/${encodeURIComponent(subscription.id)}`}
+                  label={t('admin.application.subscriptions.configure')}
                 >
                   <Workflow />
-                </Button>
-                <Drawer id={subscription.id} onSaved={onUpdated} disabled={actionsDisabled} />
+                </ListActionTrigger>
+                <Drawer copyFromId={subscription.id} onSaved={onUpdated} disabled={actionsDisabled} />
                 <SubscriptionStatusAction
                   subscription={subscription}
                   statusActions={statusActions}
@@ -172,7 +168,7 @@ export function SubscriptionTable({
                   name={subscription.name}
                   onConfirm={() => onRemove(subscription.id)}
                 />
-              </div>
+              </ListActions>
             </TableCell>
           </TableRow>
         ))}
@@ -209,7 +205,9 @@ function SubscriptionStatusAction({
   return (
     <div className="relative">
       {subscription.status ? (
-        <Popover
+        <Dialog
+          modal
+          disablePointerDismissal
           open={open}
           onOpenChange={(nextOpen) => {
             if (!submitting && (!nextOpen || !disabled)) {
@@ -219,57 +217,44 @@ function SubscriptionStatusAction({
           }}
         >
           <Tooltip>
-            <PopoverTrigger
-              render={
-                <TooltipTrigger
-                  render={
-                    <Button variant="ghost" size="icon-sm" disabled={disabled} aria-label={t('shared.disable')} />
-                  }
-                />
-              }
+            <DialogTrigger
+              render={<TooltipTrigger render={<ListActionTrigger disabled={disabled} label={t('shared.disable')} />} />}
             >
               <Ban />
-            </PopoverTrigger>
+            </DialogTrigger>
             <TooltipContent side="top">{t('shared.disable')}</TooltipContent>
           </Tooltip>
-          <PopoverContent side="top" align="center">
-            <PopoverHeader>
-              <PopoverTitle>{t('admin.application.subscriptions.disableTitle')}</PopoverTitle>
-              <PopoverDescription className="break-words">
+          <DialogContent showCloseButton={false}>
+            <DialogHeader>
+              <DialogTitle>{t('admin.application.subscriptions.disableTitle')}</DialogTitle>
+              <DialogDescription className="break-words">
                 {t('admin.application.subscriptions.disableConfirmation', { name: subscription.name })}
-              </PopoverDescription>
-            </PopoverHeader>
+              </DialogDescription>
+            </DialogHeader>
             {error && (
               <p role="alert" className="text-destructive text-sm">
                 {error}
               </p>
             )}
-            <div className="flex justify-end gap-2">
-              <Button variant="outline" size="sm" disabled={submitting} onClick={() => setOpen(false)}>
+            <DialogFooter>
+              <Button variant="outline" disabled={submitting} onClick={() => setOpen(false)}>
                 {t('shared.cancel')}
               </Button>
-              <Button
-                variant="destructive"
-                size="sm"
-                disabled={submitting || disabled}
-                onClick={() => void changeStatus()}
-              >
+              <Button disabled={submitting || disabled} onClick={() => void changeStatus()}>
                 {submitting && <LoaderCircle className="animate-spin" />}
                 {t('shared.disable')}
               </Button>
-            </div>
-          </PopoverContent>
-        </Popover>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       ) : (
         <>
           <Tooltip>
             <TooltipTrigger
               render={
-                <Button
-                  variant="ghost"
-                  size="icon-sm"
+                <ListActionTrigger
                   disabled={submitting || disabled}
-                  aria-label={t('shared.enable')}
+                  label={t('shared.enable')}
                   onClick={() => void changeStatus()}
                 />
               }
@@ -383,6 +368,8 @@ export function SubscriptionDelete({
 
   return (
     <Dialog
+      modal
+      disablePointerDismissal
       open={open}
       onOpenChange={(value) => {
         if (!submitting) {
@@ -398,15 +385,7 @@ export function SubscriptionDelete({
           <DialogTrigger
             render={
               <TooltipTrigger
-                render={
-                  <Button
-                    variant="ghost"
-                    size="icon-sm"
-                    className="text-destructive"
-                    disabled={disabled}
-                    aria-label={t('shared.delete')}
-                  />
-                }
+                render={<ListActionTrigger destructive disabled={disabled} label={t('shared.delete')} />}
               />
             }
           >
@@ -429,21 +408,15 @@ export function SubscriptionDelete({
             {error}
           </p>
         )}
-        <div className="flex justify-end gap-2">
-          <Button type="button" variant="outline" size="sm" disabled={submitting} onClick={() => setOpen(false)}>
+        <DialogFooter>
+          <Button type="button" variant="outline" disabled={submitting} onClick={() => setOpen(false)}>
             {t('shared.cancel')}
           </Button>
-          <Button
-            type="button"
-            variant="destructive"
-            size="sm"
-            disabled={disabled || submitting}
-            onClick={() => void confirm()}
-          >
+          <Button type="button" disabled={disabled || submitting} onClick={() => void confirm()}>
             {submitting && <LoaderCircle className="animate-spin" />}
             {t('shared.delete')}
           </Button>
-        </div>
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   );

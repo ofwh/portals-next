@@ -17,6 +17,7 @@ import {
   Dialog,
   DialogContent,
   DialogDescription,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
@@ -25,7 +26,7 @@ import { useRouteForm } from '@/hooks/use-route-form';
 import { useRouteList } from '@/hooks/use-route-list';
 import { ROUTE_TYPE } from '@/lib/constants';
 
-function EditDrawer({ id, onSaved, ...props }: RouteDrawerProps) {
+function EditDrawer({ id, copyFromId, onSaved, ...props }: RouteDrawerProps) {
   const [open, setOpen] = useState(false);
   const { form, onChange, ...controller } = useRouteForm(
     ROUTE_TYPE.REDIRECT,
@@ -34,10 +35,19 @@ function EditDrawer({ id, onSaved, ...props }: RouteDrawerProps) {
       onSaved();
     },
     id,
+    copyFromId,
   );
 
   return (
-    <RouteDrawer {...props} {...controller} id={id} mode="redirects" open={open} setOpen={setOpen}>
+    <RouteDrawer
+      {...props}
+      {...controller}
+      id={id}
+      copyFromId={copyFromId}
+      mode="redirects"
+      open={open}
+      setOpen={setOpen}
+    >
       <RedirectForm form={form} onChange={onChange} />
     </RouteDrawer>
   );
@@ -145,6 +155,8 @@ export default function Page() {
           removing={removing}
           deleteAction={
             <Dialog
+              modal
+              disablePointerDismissal
               open={deleteOpen}
               onOpenChange={(open) => {
                 if (!deleting && (!open || (!loading && !removing))) {
@@ -168,27 +180,19 @@ export default function Page() {
                     {deleteError}
                   </p>
                 )}
-                <div className="flex justify-end gap-2">
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    disabled={deleting}
-                    onClick={() => setDeleteOpen(false)}
-                  >
+                <DialogFooter>
+                  <Button type="button" variant="outline" disabled={deleting} onClick={() => setDeleteOpen(false)}>
                     {t('shared.cancel')}
                   </Button>
                   <Button
                     type="button"
-                    variant="destructive"
-                    size="sm"
                     disabled={deleting || loading || removing}
                     onClick={() => void confirmDeleteSelected()}
                   >
                     {deleting && <LoaderCircle className="animate-spin" />}
                     {t('shared.delete')}
                   </Button>
-                </div>
+                </DialogFooter>
               </DialogContent>
             </Dialog>
           }

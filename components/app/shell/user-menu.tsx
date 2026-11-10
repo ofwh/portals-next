@@ -63,7 +63,7 @@ export function UserMenu() {
         </span>
         {signingOut && <LoaderCircle className="animate-spin" />}
       </DropdownMenuTrigger>
-      <DropdownMenuContent side="bottom" align="end" className="min-w-40">
+      <DropdownMenuContent side="bottom" align="end" className="w-max min-w-0">
         <DropdownMenuItem render={<Link href="/settings/account" />}>
           <UserRound />
           {t('admin.sidebar.account')}

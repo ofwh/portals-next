@@ -63,7 +63,20 @@ export function get(input: unknown): TagRow {
   return row;
 }
 
-export function update(input: unknown): TagRow {
+export function update(input: unknown): TagRow | TagRow[] {
+  if (Object.hasOwn(v.record(input), 'groups')) {
+    const query = params(input, ['groups', ...fields.filter((field) => field !== 'group')]);
+
+    if (!Array.isArray(query.groups) || !query.groups.length) {
+      throw appError('common.INVALID_PARAMS');
+    }
+
+    const selectedGroups = [...new Set(query.groups.map((group: unknown) => v.choice(group, groups)))];
+    const entries = selectedGroups.map((group) => values({ ...query, group }));
+
+    return repository.createMany(entries);
+  }
+
   const query = params(input, ['id', ...fields]);
   const id = query.id === undefined ? undefined : v.string(query.id);
   const existing = id === undefined ? undefined : get({ id });

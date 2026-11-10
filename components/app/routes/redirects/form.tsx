@@ -277,7 +277,7 @@ export function RedirectForm({ form, onChange }: { form: RedirectFormState; onCh
               </div>
               <PopoverContent
                 side="top"
-                align="center"
+                align="end"
                 className="w-auto max-w-[calc(100vw---spacing(8))] gap-0 p-0"
                 aria-label={t('admin.routes.shared.form.expiredAt')}
               >

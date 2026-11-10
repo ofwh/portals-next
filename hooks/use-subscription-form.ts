@@ -9,10 +9,11 @@ function initialForm(): SubscriptionFormState {
   return { name: '', description: '', status: true, pathname: '', token: '', expiredAt: '', tagIds: [] };
 }
 
-async function loadForm(id: string, signal: AbortSignal): Promise<SubscriptionFormState> {
+async function loadForm(id: string, signal: AbortSignal): Promise<SubscriptionFormState & { flow: string | null }> {
   const detail = await getSubscription(id, signal);
 
   return {
+    flow: detail.flow,
     name: detail.name,
     description: detail.description ?? '',
     status: detail.status,
@@ -43,9 +44,10 @@ function validateBaseForm(form: SubscriptionFormState) {
   }
 }
 
-async function saveForm(form: SubscriptionFormState, id?: string) {
+async function saveForm(form: SubscriptionFormState, id?: string, flow?: string | null) {
   await updateSubscription({
     ...(id ? { id } : {}),
+    ...(flow !== undefined ? { flow } : {}),
     tagIds: form.tagIds,
     name: form.name.trim(),
     description: form.description.trim() || null,
@@ -56,7 +58,7 @@ async function saveForm(form: SubscriptionFormState, id?: string) {
   });
 }
 
-export function useSubscriptionForm(onSaved: () => void, id?: string) {
+export function useSubscriptionForm(onSaved: () => void, id?: string, copyFromId?: string) {
   const t = useTranslations();
   const [form, setForm] = useState<SubscriptionFormState>(initialForm);
   const [submitting, setSubmitting] = useState(false);
@@ -64,8 +66,9 @@ export function useSubscriptionForm(onSaved: () => void, id?: string) {
   const [loadState, setLoadState] = useState<'loading' | 'ready' | 'error'>('ready');
   const controller = useRef<AbortController | null>(null);
   const pending = useRef(false);
+  const copiedFlow = useRef<string | null>(null);
 
-  useEffect(() => () => controller.current?.abort(), [id]);
+  useEffect(() => () => controller.current?.abort(), [id, copyFromId]);
 
   function onChange<Key extends keyof SubscriptionFormState>(key: Key, value: SubscriptionFormState[Key]) {
     setForm((current) => ({ ...current, [key]: value }));
@@ -78,9 +81,12 @@ export function useSubscriptionForm(onSaved: () => void, id?: string) {
   async function reset() {
     cancelLoad();
     setForm(initialForm());
+    copiedFlow.current = null;
     setError('');
 
-    if (!id) {
+    const sourceId = copyFromId ?? id;
+
+    if (!sourceId) {
       setLoadState('ready');
 
       return;
@@ -92,10 +98,13 @@ export function useSubscriptionForm(onSaved: () => void, id?: string) {
     setLoadState('loading');
 
     try {
-      const loadedForm = await loadForm(id, request.signal);
+      const loadedForm = await loadForm(sourceId, request.signal);
 
       if (!request.signal.aborted) {
-        setForm(loadedForm);
+        const { flow, ...fields } = loadedForm;
+
+        copiedFlow.current = flow;
+        setForm(fields);
         setLoadState('ready');
       }
     } catch (reason) {
@@ -111,7 +120,7 @@ export function useSubscriptionForm(onSaved: () => void, id?: string) {
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
-    if (pending.current || loadState !== 'ready') {
+    if (pending.current || error || loadState !== 'ready') {
       return;
     }
 
@@ -128,7 +137,7 @@ export function useSubscriptionForm(onSaved: () => void, id?: string) {
     setSubmitting(true);
 
     try {
-      await saveForm(form, id);
+      await saveForm(form, id, copyFromId ? copiedFlow.current : undefined);
     } catch (reason) {
       setError(
         reason instanceof Error && reason.message
@@ -145,5 +154,5 @@ export function useSubscriptionForm(onSaved: () => void, id?: string) {
     onSaved();
   }
 
-  return { form, onChange, submitting, error, loadState, reset, cancelLoad, submit };
+  return { form, onChange, submitting, error, clearError: () => setError(''), loadState, reset, cancelLoad, submit };
 }

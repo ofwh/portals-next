@@ -102,10 +102,11 @@ function defaults(textColor: string, bgColor: string): TagInput {
   return { group: TAG_GROUPS[0].value, label: '', color: textColor, bgColor, rounded: 1 };
 }
 
-export function useTagForm(onSaved: () => void, id?: string) {
+export function useTagForm(onSaved: () => void, id?: string, copyFromId?: string) {
   const t = useTranslations('admin.settings.system.tags');
   const { textColor, bgColor } = useTagColor();
   const [form, setForm] = useState(() => defaults(textColor, bgColor));
+  const [selectedGroups, setSelectedGroups] = useState<string[]>([TAG_GROUPS[0].value]);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
   const [loadState, setLoadState] = useState<'loading' | 'ready' | 'error'>('ready');
@@ -122,9 +123,12 @@ export function useTagForm(onSaved: () => void, id?: string) {
   async function reset() {
     cancelLoad();
     setForm(defaults(textColor, bgColor));
+    setSelectedGroups([TAG_GROUPS[0].value]);
     setError('');
 
-    if (!id) {
+    const sourceId = copyFromId ?? id;
+
+    if (!sourceId) {
       setLoadState('ready');
 
       return;
@@ -136,9 +140,10 @@ export function useTagForm(onSaved: () => void, id?: string) {
     setLoadState('loading');
 
     try {
-      const detail = await getTag(id, request.signal);
+      const detail = await getTag(sourceId, request.signal);
 
       if (!request.signal.aborted) {
+        setSelectedGroups([detail.group]);
         setForm({
           group: detail.group,
           label: detail.label,
@@ -158,7 +163,7 @@ export function useTagForm(onSaved: () => void, id?: string) {
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (pending.current || loadState !== 'ready') {
+    if (pending.current || error || loadState !== 'ready') {
       return;
     }
 
@@ -169,12 +174,17 @@ export function useTagForm(onSaved: () => void, id?: string) {
       return;
     }
 
+    if (!id && !selectedGroups.length) {
+      setError(t('validation.groupRequired'));
+
+      return;
+    }
+
     pending.current = true;
     setSubmitting(true);
     try {
       await updateTag({
-        ...(id ? { id } : {}),
-        group: form.group,
+        ...(id ? { id, group: form.group } : { groups: selectedGroups }),
         label: form.label.trim(),
         color: form.color,
         bgColor: form.bgColor,
@@ -191,5 +201,17 @@ export function useTagForm(onSaved: () => void, id?: string) {
     onSaved();
   }
 
-  return { form, onChange, submitting, error, loadState, reset, cancelLoad, submit };
+  return {
+    form,
+    onChange,
+    selectedGroups,
+    setSelectedGroups,
+    submitting,
+    error,
+    clearError: () => setError(''),
+    loadState,
+    reset,
+    cancelLoad,
+    submit,
+  };
 }

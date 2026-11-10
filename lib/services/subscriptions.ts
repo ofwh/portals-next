@@ -2,9 +2,10 @@ import 'server-only';
 import { appError } from '@/lib/api';
 import { SUBSCRIPTION_TAG_GROUP } from '@/lib/constants/tags';
 import repository from '@/lib/repositories/subscriptions';
+import type { SubscriptionValues } from '@/lib/repositories/subscriptions';
 import { validateArrangement } from '@/lib/workflow/model/arrangement';
 import { toWorkflow } from '@/lib/workflow/model/canvas';
-import { restoreSnapshot } from '@/lib/workflow/model/snapshot';
+import { restoreSnapshot, serializeSnapshot } from '@/lib/workflow/model/snapshot';
 import { nodeRegistry } from '@/lib/workflow/node';
 import { createService } from './shared/crud';
 import { validateTagIds } from './shared/tags';
@@ -38,6 +39,12 @@ function validate(params: Record<string, unknown>) {
 const crud = createService(
   {
     ...repository,
+    create(values: SubscriptionValues) {
+      const id = crypto.randomUUID();
+      const flow = values.flow ? serializeSnapshot({ ...restoreSnapshot(values.flow), workflowId: id }) : null;
+
+      return repository.create({ ...values, flow }, id);
+    },
     update(id, values) {
       return repository.update(id, Object.hasOwn(values, 'flow') ? { ...values, flowDraft: null } : values);
     },

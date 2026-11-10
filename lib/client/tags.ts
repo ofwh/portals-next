@@ -67,7 +67,7 @@ export function getTag(id: string, signal: AbortSignal): Promise<TagDetail> {
   return requestTag('detail', { id }, signal);
 }
 
-export function updateTag(input: TagUpdateInput): Promise<TagDetail> {
+export function updateTag(input: TagUpdateInput): Promise<TagDetail | TagDetail[]> {
   return requestTag('update', input);
 }
 

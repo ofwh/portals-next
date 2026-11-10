@@ -40,7 +40,11 @@
     "updatedAt": "Updated at",
     "saving": "Saving…",
     "showPassword": "Show password",
-    "hidePassword": "Hide password"
+    "hidePassword": "Hide password",
+    "duplicate": "Duplicate",
+    "moreActions": "More actions",
+    "formErrorTitle": "Unable to submit",
+    "copyPath": "Copy full URL"
   },
   "admin": {
     "navigation": "Admin navigation",
@@ -72,8 +76,6 @@
         "columns": {
           "pathname": "Pathname"
         },
-        "copyPath": "Copy full URL",
-        "copySuccess": "Route URL copied",
         "deleteSelectedError": "Deleted {deleted} routes; {failed} failed. Please try again",
         "deleteSelectedSuccess": "Deleted {count} routes",
         "disableConfirmation": "Disable “{name}”? The route will no longer be accessible",
@@ -385,10 +387,12 @@
           "form": {
             "color": "Text color",
             "bgColor": "Background color",
-            "rounded": "Border rounded"
+            "rounded": "Border rounded",
+            "groupPlaceholder": "Select groups"
           },
           "validation": {
-            "labelRequired": "Enter a tag name"
+            "labelRequired": "Enter a tag name",
+            "groupRequired": "Select at least one group"
           }
         }
       },

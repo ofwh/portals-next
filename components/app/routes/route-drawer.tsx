@@ -1,8 +1,10 @@
 'use client';
 
-import { LoaderCircle, Pencil, Plus, X } from 'lucide-react';
+import { Copy, LoaderCircle, Pencil, Plus, X } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import type { FormEvent, ReactElement, ReactNode } from 'react';
+import { FormErrorDialog } from '@/components/business/form-error-dialog';
+import { ListActionTrigger } from '@/components/business/list-actions';
 import { Button } from '@/components/ui/button';
 import {
   Drawer,
@@ -19,6 +21,7 @@ import styles from '@/styles/ui.module.css';
 
 export interface RouteDrawerProps {
   id?: string;
+  copyFromId?: string;
   onSaved: () => void;
   disabled?: boolean;
   trigger?: ReactElement;
@@ -27,6 +30,7 @@ export interface RouteDrawerProps {
 
 export function RouteDrawer({
   id,
+  copyFromId,
   mode,
   disabled = false,
   trigger,
@@ -35,6 +39,7 @@ export function RouteDrawer({
   setOpen,
   submitting,
   error,
+  clearError,
   loadState,
   reset,
   cancelLoad,
@@ -46,6 +51,7 @@ export function RouteDrawer({
   setOpen: (open: boolean) => void;
   submitting: boolean;
   error: string;
+  clearError: () => void;
   loadState: 'loading' | 'ready' | 'error';
   reset: () => Promise<void>;
   cancelLoad: () => void;
@@ -77,14 +83,19 @@ export function RouteDrawer({
         setOpen(nextOpen);
       }}
     >
-      {id && !trigger ? (
+      {copyFromId ? (
         <Tooltip>
           <DrawerTrigger
-            render={
-              <TooltipTrigger
-                render={<Button variant="ghost" size="icon-sm" disabled={disabled} aria-label={t('shared.edit')} />}
-              />
-            }
+            render={<TooltipTrigger render={<ListActionTrigger disabled={disabled} label={t('shared.duplicate')} />} />}
+          >
+            <Copy />
+          </DrawerTrigger>
+          <TooltipContent side="top">{t('shared.duplicate')}</TooltipContent>
+        </Tooltip>
+      ) : id && !trigger ? (
+        <Tooltip>
+          <DrawerTrigger
+            render={<TooltipTrigger render={<ListActionTrigger disabled={disabled} label={t('shared.edit')} />} />}
           >
             <Pencil />
           </DrawerTrigger>
@@ -107,7 +118,10 @@ export function RouteDrawer({
           {triggerLabel ?? (id ? t('shared.edit') : t(`admin.routes.${mode}.create`))}
         </DrawerTrigger>
       )}
-      <DrawerContent className="data-[swipe-axis=x]:w-full data-[swipe-axis=x]:max-w-225 data-[swipe-axis=x]:sm:w-1/2">
+      <DrawerContent
+        inert={Boolean(error)}
+        className="data-[swipe-axis=x]:w-full data-[swipe-axis=x]:max-w-225 data-[swipe-axis=x]:sm:w-1/2"
+      >
         <DrawerHeader className="relative border-b p-6 pr-16">
           <DrawerTitle className="text-xl">
             {t(id ? `admin.routes.${mode}.editTitle` : `admin.routes.${mode}.newTitle`)}
@@ -145,21 +159,21 @@ export function RouteDrawer({
             )}
           </fieldset>
           <DrawerFooter className="border-t p-4 sm:flex-row sm:items-center sm:justify-end">
-            {error && (
-              <p role="alert" className="text-destructive mr-auto text-sm">
-                {error}
-              </p>
-            )}
             <Button variant="outline" type="button" disabled={submitting} onClick={close}>
               {t('shared.cancel')}
             </Button>
-            <Button type="submit" disabled={submitting || disabled || loadState !== 'ready'}>
-              {submitting && <LoaderCircle className="animate-spin" />}
+            <Button
+              type="submit"
+              aria-busy={submitting}
+              disabled={submitting || disabled || Boolean(error) || loadState !== 'ready'}
+            >
+              {submitting && <LoaderCircle aria-hidden="true" className="size-4 animate-spin" />}
               {id ? t('shared.save') : t(`admin.routes.${mode}.create`)}
             </Button>
           </DrawerFooter>
         </form>
       </DrawerContent>
+      <FormErrorDialog error={error} onClose={clearError} />
     </Drawer>
   );
 }

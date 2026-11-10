@@ -11,7 +11,15 @@ import { Switch } from '@/components/ui/switch';
 import { TAG_GROUPS } from '@/lib/constants/tags';
 import type { TagFormChange, TagInput } from '@/lib/types/tag';
 
-export function TagForm({ form, onChange }: { form: TagInput; onChange: TagFormChange }) {
+export function TagForm({
+  form,
+  onChange,
+  groupSelection,
+}: {
+  form: TagInput;
+  onChange: TagFormChange;
+  groupSelection?: { value: string[]; onChange: (groups: string[]) => void };
+}) {
   const t = useTranslations();
 
   const id = useId();
@@ -32,7 +40,23 @@ export function TagForm({ form, onChange }: { form: TagInput; onChange: TagFormC
     {
       key: 'group',
       label: t('admin.settings.system.tags.shared.group'),
-      content: (
+      content: groupSelection ? (
+        <Select multiple value={groupSelection.value} items={groups} onValueChange={groupSelection.onChange}>
+          <SelectTrigger id={`${id}-group`} className="w-full">
+            <SelectValue
+              className="min-w-0 truncate"
+              placeholder={t('admin.settings.system.tags.form.groupPlaceholder')}
+            />
+          </SelectTrigger>
+          <SelectContent side="bottom" alignItemWithTrigger={false}>
+            {groups.map((group) => (
+              <SelectItem key={group.value} value={group.value}>
+                {group.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      ) : (
         <Select
           value={form.group}
           items={groups}

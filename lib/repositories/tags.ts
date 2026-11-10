@@ -52,6 +52,16 @@ export function create(values: TagValues): TagRow {
   return db.insert(tags).values(values).returning(columns).get();
 }
 
+export function createMany(values: readonly TagValues[]): TagRow[] {
+  return db.transaction((tx) =>
+    tx
+      .insert(tags)
+      .values([...values])
+      .returning(columns)
+      .all(),
+  );
+}
+
 export function update(id: string, values: Partial<TagValues>): TagRow | undefined {
   return db
     .update(tags)
@@ -65,6 +75,6 @@ export function remove(id: string): TagRow | undefined {
   return db.delete(tags).where(eq(tags.id, id)).returning(columns).get();
 }
 
-const repository = { pagination, findById, findByIds, create, update, remove };
+const repository = { pagination, findById, findByIds, create, createMany, update, remove };
 
 export default repository;

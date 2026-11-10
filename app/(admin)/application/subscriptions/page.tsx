@@ -1,6 +1,6 @@
 'use client';
 
-import { LoaderCircle, Pencil, Plus, X } from 'lucide-react';
+import { Copy, LoaderCircle, Pencil, Plus, X } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useEffect, useState } from 'react';
 import type { FormEvent, ReactNode } from 'react';
@@ -8,6 +8,8 @@ import { toast } from 'sonner';
 import { SubscriptionForm } from '@/components/app/application/subscription-form';
 import { SubscriptionDelete, SubscriptionTable } from '@/components/app/application/subscriptions/table';
 import type { SubscriptionDrawerProps } from '@/components/app/application/subscriptions/table';
+import { FormErrorDialog } from '@/components/business/form-error-dialog';
+import { ListActionTrigger } from '@/components/business/list-actions';
 import { ListPagination } from '@/components/business/list-pagination';
 import { ListToolbar } from '@/components/business/list-toolbar';
 import { PageHeader } from '@/components/business/page-header';
@@ -27,15 +29,19 @@ import { useSubscriptionForm } from '@/hooks/use-subscription-form';
 import { useSubscriptionList } from '@/hooks/use-subscription-list';
 import styles from '@/styles/ui.module.css';
 
-function EditDrawer({ id, onSaved, ...props }: SubscriptionDrawerProps) {
+function EditDrawer({ id, copyFromId, onSaved, ...props }: SubscriptionDrawerProps) {
   const [open, setOpen] = useState(false);
-  const { form, onChange, ...controller } = useSubscriptionForm(() => {
-    setOpen(false);
-    onSaved();
-  }, id);
+  const { form, onChange, ...controller } = useSubscriptionForm(
+    () => {
+      setOpen(false);
+      onSaved();
+    },
+    id,
+    copyFromId,
+  );
 
   return (
-    <SubscriptionDrawer {...props} {...controller} id={id} open={open} setOpen={setOpen}>
+    <SubscriptionDrawer {...props} {...controller} id={id} copyFromId={copyFromId} open={open} setOpen={setOpen}>
       <SubscriptionForm form={form} onChange={onChange} />
     </SubscriptionDrawer>
   );
@@ -171,6 +177,7 @@ export default function Page() {
 
 function SubscriptionDrawer({
   id,
+  copyFromId,
   disabled = false,
   trigger,
   triggerLabel,
@@ -178,6 +185,7 @@ function SubscriptionDrawer({
   setOpen,
   submitting,
   error,
+  clearError,
   loadState,
   reset,
   cancelLoad,
@@ -188,6 +196,7 @@ function SubscriptionDrawer({
   setOpen: (open: boolean) => void;
   submitting: boolean;
   error: string;
+  clearError: () => void;
   loadState: 'loading' | 'ready' | 'error';
   reset: () => Promise<void>;
   cancelLoad: () => void;
@@ -220,14 +229,19 @@ function SubscriptionDrawer({
         setOpen(nextOpen);
       }}
     >
-      {id && !trigger ? (
+      {copyFromId ? (
         <Tooltip>
           <DrawerTrigger
-            render={
-              <TooltipTrigger
-                render={<Button variant="ghost" size="icon-sm" disabled={disabled} aria-label={t('shared.edit')} />}
-              />
-            }
+            render={<TooltipTrigger render={<ListActionTrigger disabled={disabled} label={t('shared.duplicate')} />} />}
+          >
+            <Copy />
+          </DrawerTrigger>
+          <TooltipContent side="top">{t('shared.duplicate')}</TooltipContent>
+        </Tooltip>
+      ) : id && !trigger ? (
+        <Tooltip>
+          <DrawerTrigger
+            render={<TooltipTrigger render={<ListActionTrigger disabled={disabled} label={t('shared.edit')} />} />}
           >
             <Pencil />
           </DrawerTrigger>
@@ -250,7 +264,10 @@ function SubscriptionDrawer({
           {triggerLabel ?? (id ? t('shared.edit') : t(`${namespace}.create`))}
         </DrawerTrigger>
       )}
-      <DrawerContent className="data-[swipe-axis=x]:w-full data-[swipe-axis=x]:max-w-225 data-[swipe-axis=x]:sm:w-1/2">
+      <DrawerContent
+        inert={Boolean(error)}
+        className="data-[swipe-axis=x]:w-full data-[swipe-axis=x]:max-w-225 data-[swipe-axis=x]:sm:w-1/2"
+      >
         <DrawerHeader className="relative border-b p-6 pr-16">
           <DrawerTitle className="text-xl">{t(id ? `${namespace}.editTitle` : `${namespace}.newTitle`)}</DrawerTitle>
           <DrawerDescription>
@@ -286,21 +303,21 @@ function SubscriptionDrawer({
             )}
           </fieldset>
           <DrawerFooter className="border-t p-4 sm:flex-row sm:items-center sm:justify-end">
-            {error && (
-              <p role="alert" className="text-destructive mr-auto text-sm">
-                {error}
-              </p>
-            )}
             <Button variant="outline" type="button" disabled={submitting} onClick={close}>
               {t('shared.cancel')}
             </Button>
-            <Button type="submit" disabled={submitting || disabled || loadState !== 'ready'}>
-              {submitting && <LoaderCircle className="animate-spin" />}
+            <Button
+              type="submit"
+              aria-busy={submitting}
+              disabled={submitting || disabled || Boolean(error) || loadState !== 'ready'}
+            >
+              {submitting && <LoaderCircle aria-hidden="true" className="size-4 animate-spin" />}
               {id ? t('shared.save') : t(`${namespace}.create`)}
             </Button>
           </DrawerFooter>
         </form>
       </DrawerContent>
+      <FormErrorDialog error={error} onClose={clearError} />
     </Drawer>
   );
 }

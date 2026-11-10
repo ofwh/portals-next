@@ -16,10 +16,10 @@ function getServerOrigin() {
   return '';
 }
 
-export function useRouteUrl(type: ShortcutType) {
+export function useRouteUrl(type?: ShortcutType) {
   const { prefixes } = useShortcuts();
   const origin = useSyncExternalStore(subscribeOrigin, getOrigin, getServerOrigin);
-  const prefix = prefixes[type].pathname;
+  const prefix = type ? prefixes[type].pathname : '';
 
   return useCallback(
     (pathname: string) => `${origin}${prefix.replace(/\/+$/, '')}/${pathname.replace(/^\/+/, '')}`,

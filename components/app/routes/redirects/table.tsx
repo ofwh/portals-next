@@ -1,21 +1,23 @@
 'use client';
-import { Ban, Copy, ExternalLink, LoaderCircle, Play } from 'lucide-react';
+import { Ban, ExternalLink, LoaderCircle, Play } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import type { ComponentType } from 'react';
 import { useState } from 'react';
-import { toast } from 'sonner';
+import { ListActions, ListActionTrigger } from '@/components/business/list-actions';
+import { PathnameLink } from '@/components/business/pathname-link';
 import { TagList } from '@/components/business/tag-list';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import {
-  Popover,
-  PopoverContent,
-  PopoverDescription,
-  PopoverHeader,
-  PopoverTitle,
-  PopoverTrigger,
-} from '@/components/ui/popover';
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog';
 import { TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { usePreferences } from '@/hooks/use-preferences';
@@ -59,20 +61,11 @@ export function RedirectTable({
   const formatDateTime = usePreferences((state) => state.formatDateTime);
   const getRouteUrl = useRouteUrl('redirect');
 
-  async function copyPath(pathname: string) {
-    try {
-      await navigator.clipboard.writeText(getRouteUrl(pathname));
-      toast.success(t('admin.routes.shared.copySuccess'));
-    } catch {
-      toast.error(t('shared.copyError'));
-    }
-  }
-
   return (
     <RouteTable mode="redirects" loading={loading} initialLoading={initialLoading}>
       <TableHeader className="bg-muted/50">
         <TableRow>
-          <TableHead className="w-12 px-4">
+          <TableHead className="w-12 max-w-12 min-w-12 px-4">
             <Checkbox
               aria-label={t('shared.selectAll')}
               checked={items.length > 0 && items.every((redirect) => selectedIds.includes(redirect.id))}
@@ -82,13 +75,13 @@ export function RedirectTable({
             />
           </TableHead>
           <TableHead className="w-44">{t('shared.name')}</TableHead>
-          <TableHead className="w-48">{t('admin.routes.shared.columns.pathname')}</TableHead>
+          <TableHead className="min-w-48">{t('admin.routes.shared.columns.pathname')}</TableHead>
           <TableHead>{t('admin.routes.redirects.shared.destination')}</TableHead>
           <TableHead className="w-20 text-center">{t('admin.routes.redirects.shared.statusCode')}</TableHead>
           <TableHead className="w-48">{t('shared.tags')}</TableHead>
           <TableHead className="w-24 text-center">{t('shared.status')}</TableHead>
           <TableHead className="w-44">{t('shared.updatedAt')}</TableHead>
-          <TableHead className="w-44 text-center">{t('shared.actions')}</TableHead>
+          <TableHead className="w-24 max-w-24 min-w-24 text-center">{t('shared.actions')}</TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
@@ -103,7 +96,7 @@ export function RedirectTable({
         ) : null}
         {items.map((redirect) => (
           <TableRow key={redirect.id}>
-            <TableCell className="px-4">
+            <TableCell className="w-12 max-w-12 min-w-12 px-4">
               <Checkbox
                 aria-label={t('shared.selectRow', { name: redirect.name })}
                 checked={selectedIds.includes(redirect.id)}
@@ -137,41 +130,7 @@ export function RedirectTable({
               </Tooltip>
             </TableCell>
             <TableCell>
-              <div className="group inline-flex w-fit items-center gap-1.5">
-                <Tooltip>
-                  <TooltipTrigger
-                    render={
-                      <a
-                        href={getRouteUrl(redirect.pathname)}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-primary focus-visible:ring-ring inline-flex h-8 items-center rounded-sm text-sm font-medium no-underline outline-none hover:no-underline focus-visible:ring-2"
-                      />
-                    }
-                  >
-                    {redirect.pathname}
-                  </TooltipTrigger>
-                  <TooltipContent side="top" className="break-all">
-                    {getRouteUrl(redirect.pathname)}
-                  </TooltipContent>
-                </Tooltip>
-                <Tooltip>
-                  <TooltipTrigger
-                    render={
-                      <Button
-                        variant="ghost"
-                        size="icon-xs"
-                        className="shrink-0 opacity-0 group-hover:opacity-100 focus-visible:opacity-100"
-                        aria-label={t('admin.routes.shared.copyPath')}
-                        onClick={() => void copyPath(redirect.pathname)}
-                      />
-                    }
-                  >
-                    <Copy />
-                  </TooltipTrigger>
-                  <TooltipContent side="top">{t('admin.routes.shared.copyPath')}</TooltipContent>
-                </Tooltip>
-              </div>
+              <PathnameLink pathname={redirect.pathname} href={getRouteUrl(redirect.pathname)} />
             </TableCell>
             <TableCell>
               <a
@@ -204,9 +163,10 @@ export function RedirectTable({
             <TableCell className="text-muted-foreground text-sm tabular-nums">
               {formatDateTime(redirect.updatedAt)}
             </TableCell>
-            <TableCell>
-              <div className="flex items-center justify-center gap-1">
+            <TableCell className="w-24 max-w-24 min-w-24">
+              <ListActions disabled={actionsDisabled}>
                 <Drawer id={redirect.id} onSaved={onUpdated} disabled={actionsDisabled} />
+                <Drawer copyFromId={redirect.id} onSaved={onUpdated} disabled={actionsDisabled} />
                 <RedirectStatusAction redirect={redirect} statusActions={statusActions} disabled={actionsDisabled} />
                 <RemoveAction
                   label={t('shared.delete')}
@@ -214,7 +174,7 @@ export function RedirectTable({
                   onRemove={() => onRemove(redirect.id)}
                   disabled={actionsDisabled}
                 />
-              </div>
+              </ListActions>
             </TableCell>
           </TableRow>
         ))}
@@ -251,7 +211,7 @@ function RedirectStatusAction({
   return (
     <div className="relative">
       {redirect.status ? (
-        <Popover
+        <Dialog
           open={open}
           onOpenChange={(nextOpen) => {
             if (!submitting && (!nextOpen || !disabled)) {
@@ -261,57 +221,44 @@ function RedirectStatusAction({
           }}
         >
           <Tooltip>
-            <PopoverTrigger
-              render={
-                <TooltipTrigger
-                  render={
-                    <Button variant="ghost" size="icon-sm" disabled={disabled} aria-label={t('shared.disable')} />
-                  }
-                />
-              }
+            <DialogTrigger
+              render={<TooltipTrigger render={<ListActionTrigger disabled={disabled} label={t('shared.disable')} />} />}
             >
               <Ban />
-            </PopoverTrigger>
+            </DialogTrigger>
             <TooltipContent side="top">{t('shared.disable')}</TooltipContent>
           </Tooltip>
-          <PopoverContent side="top" align="center">
-            <PopoverHeader>
-              <PopoverTitle>{t('admin.routes.shared.disableTitle')}</PopoverTitle>
-              <PopoverDescription className="break-words">
+          <DialogContent showCloseButton={false}>
+            <DialogHeader>
+              <DialogTitle>{t('admin.routes.shared.disableTitle')}</DialogTitle>
+              <DialogDescription className="break-words">
                 {t('admin.routes.shared.disableConfirmation', { name: redirect.name })}
-              </PopoverDescription>
-            </PopoverHeader>
+              </DialogDescription>
+            </DialogHeader>
             {error && (
               <p role="alert" className="text-destructive text-sm">
                 {error}
               </p>
             )}
-            <div className="flex justify-end gap-2">
-              <Button variant="outline" size="sm" disabled={submitting} onClick={() => setOpen(false)}>
+            <DialogFooter>
+              <Button variant="outline" disabled={submitting} onClick={() => setOpen(false)}>
                 {t('shared.cancel')}
               </Button>
-              <Button
-                variant="destructive"
-                size="sm"
-                disabled={submitting || disabled}
-                onClick={() => void changeStatus()}
-              >
+              <Button disabled={submitting || disabled} onClick={() => void changeStatus()}>
                 {submitting && <LoaderCircle className="animate-spin" />}
                 {t('shared.disable')}
               </Button>
-            </div>
-          </PopoverContent>
-        </Popover>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       ) : (
         <>
           <Tooltip>
             <TooltipTrigger
               render={
-                <Button
-                  variant="ghost"
-                  size="icon-sm"
+                <ListActionTrigger
                   disabled={submitting || disabled}
-                  aria-label={t('shared.enable')}
+                  label={t('shared.enable')}
                   onClick={() => void changeStatus()}
                 />
               }

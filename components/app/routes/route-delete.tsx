@@ -3,11 +3,13 @@
 import { LoaderCircle, Trash2 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useRef, useState } from 'react';
+import { ListActionTrigger } from '@/components/business/list-actions';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
   DialogContent,
   DialogDescription,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
@@ -59,6 +61,8 @@ export function RouteDelete({
 
   return (
     <Dialog
+      modal
+      disablePointerDismissal
       open={open}
       onOpenChange={(nextOpen) => {
         if (!submitting && (!nextOpen || !disabled)) {
@@ -72,14 +76,11 @@ export function RouteDelete({
           render={
             <TooltipTrigger
               render={
-                <Button
-                  type="button"
-                  variant={variant === 'link' ? 'ghost' : variant}
-                  size={variant === 'link' ? 'icon-sm' : 'default'}
-                  className={variant === 'link' ? 'text-destructive' : undefined}
-                  disabled={disabled || submitting}
-                  aria-label={label}
-                />
+                variant === 'link' ? (
+                  <ListActionTrigger label={label} destructive disabled={disabled || submitting} />
+                ) : (
+                  <Button type="button" variant="destructive" disabled={disabled || submitting} aria-label={label} />
+                )
               }
             />
           }
@@ -98,21 +99,15 @@ export function RouteDelete({
             {error}
           </p>
         )}
-        <div className="flex justify-end gap-2">
-          <Button type="button" variant="outline" size="sm" disabled={submitting} onClick={() => setOpen(false)}>
+        <DialogFooter>
+          <Button type="button" variant="outline" disabled={submitting} onClick={() => setOpen(false)}>
             {t('shared.cancel')}
           </Button>
-          <Button
-            type="button"
-            variant="destructive"
-            size="sm"
-            disabled={submitting || disabled}
-            onClick={() => void remove()}
-          >
+          <Button type="button" disabled={submitting || disabled} onClick={() => void remove()}>
             {submitting && <LoaderCircle className="animate-spin" />}
             {t('shared.delete')}
           </Button>
-        </div>
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   );

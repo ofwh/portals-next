@@ -16,7 +16,7 @@ import { useRouteForm } from '@/hooks/use-route-form';
 import { useRouteList } from '@/hooks/use-route-list';
 import { ROUTE_TYPE } from '@/lib/constants';
 
-function EditDrawer({ id, onSaved, ...props }: RouteDrawerProps) {
+function EditDrawer({ id, copyFromId, onSaved, ...props }: RouteDrawerProps) {
   const [open, setOpen] = useState(false);
   const { form, onChange, ...controller } = useRouteForm(
     ROUTE_TYPE.ORIGINAL,
@@ -25,10 +25,19 @@ function EditDrawer({ id, onSaved, ...props }: RouteDrawerProps) {
       onSaved();
     },
     id,
+    copyFromId,
   );
 
   return (
-    <RouteDrawer {...props} {...controller} id={id} mode="originals" open={open} setOpen={setOpen}>
+    <RouteDrawer
+      {...props}
+      {...controller}
+      id={id}
+      copyFromId={copyFromId}
+      mode="originals"
+      open={open}
+      setOpen={setOpen}
+    >
       <OriginalForm form={form} onChange={onChange} disabled={controller.submitting || props.disabled} />
     </RouteDrawer>
   );

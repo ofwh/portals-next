@@ -1,11 +1,24 @@
 'use client';
 
-import { ChevronLeft, ChevronRight, LoaderCircle, Pencil, Plus, RefreshCw, Search, Trash2, X } from 'lucide-react';
+import {
+  ChevronLeft,
+  ChevronRight,
+  Copy,
+  LoaderCircle,
+  Pencil,
+  Plus,
+  RefreshCw,
+  Search,
+  Trash2,
+  X,
+} from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import type { ReactElement } from 'react';
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 import { TagForm } from '@/components/app/settings/system/tag-form';
+import { FormErrorDialog } from '@/components/business/form-error-dialog';
+import { ListActions, ListActionTrigger } from '@/components/business/list-actions';
 import { TagBadge } from '@/components/business/tag-badge';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -13,6 +26,7 @@ import {
   Dialog,
   DialogContent,
   DialogDescription,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
@@ -169,12 +183,14 @@ function ListHeader({ onCreated, disabled }: { onCreated: () => void; disabled: 
 
 function TagDrawer({
   tagId,
+  copyFromId,
   onSaved,
   disabled = false,
   trigger,
   triggerLabel,
 }: {
   tagId?: string;
+  copyFromId?: string;
   onSaved: () => void;
   disabled?: boolean;
   trigger?: ReactElement;
@@ -183,10 +199,26 @@ function TagDrawer({
   const t = useTranslations();
 
   const [open, setOpen] = useState(false);
-  const { form, onChange, submitting, error, loadState, reset, cancelLoad, submit } = useTagForm(() => {
-    setOpen(false);
-    onSaved();
-  }, tagId);
+  const {
+    form,
+    onChange,
+    selectedGroups,
+    setSelectedGroups,
+    submitting,
+    error,
+    clearError,
+    loadState,
+    reset,
+    cancelLoad,
+    submit,
+  } = useTagForm(
+    () => {
+      setOpen(false);
+      onSaved();
+    },
+    tagId,
+    copyFromId,
+  );
 
   function close() {
     cancelLoad();
@@ -211,14 +243,19 @@ function TagDrawer({
         setOpen(nextOpen);
       }}
     >
-      {tagId && !trigger ? (
+      {copyFromId ? (
         <Tooltip>
           <DrawerTrigger
-            render={
-              <TooltipTrigger
-                render={<Button variant="ghost" size="icon-sm" disabled={disabled} aria-label={t('shared.edit')} />}
-              />
-            }
+            render={<TooltipTrigger render={<ListActionTrigger disabled={disabled} label={t('shared.duplicate')} />} />}
+          >
+            <Copy />
+          </DrawerTrigger>
+          <TooltipContent side="top">{t('shared.duplicate')}</TooltipContent>
+        </Tooltip>
+      ) : tagId && !trigger ? (
+        <Tooltip>
+          <DrawerTrigger
+            render={<TooltipTrigger render={<ListActionTrigger disabled={disabled} label={t('shared.edit')} />} />}
           >
             <Pencil />
           </DrawerTrigger>
@@ -234,7 +271,10 @@ function TagDrawer({
           {triggerLabel ?? (tagId ? t('shared.edit') : t('admin.settings.system.tags.create'))}
         </DrawerTrigger>
       )}
-      <DrawerContent className="data-[swipe-axis=x]:w-full data-[swipe-axis=x]:max-w-160 data-[swipe-axis=x]:sm:w-1/2">
+      <DrawerContent
+        inert={Boolean(error)}
+        className="data-[swipe-axis=x]:w-full data-[swipe-axis=x]:max-w-160 data-[swipe-axis=x]:sm:w-1/2"
+      >
         <DrawerHeader className="relative border-b p-6 pr-16">
           <DrawerTitle className="text-xl">
             {t(tagId ? 'admin.settings.system.tags.editTitle' : 'admin.settings.system.tags.newTitle')}
@@ -268,25 +308,29 @@ function TagDrawer({
                 {t('shared.refresh')}
               </Button>
             ) : (
-              <TagForm form={form} onChange={onChange} />
+              <TagForm
+                form={form}
+                onChange={onChange}
+                groupSelection={tagId ? undefined : { value: selectedGroups, onChange: setSelectedGroups }}
+              />
             )}
           </fieldset>
           <DrawerFooter className="border-t p-4 sm:flex-row sm:items-center sm:justify-end">
-            {error && (
-              <p role="alert" className="text-destructive mr-auto text-sm">
-                {error}
-              </p>
-            )}
             <Button variant="outline" type="button" disabled={submitting} onClick={close}>
               {t('shared.cancel')}
             </Button>
-            <Button type="submit" disabled={submitting || disabled || loadState !== 'ready'}>
-              {submitting && <LoaderCircle className="animate-spin" />}
+            <Button
+              type="submit"
+              aria-busy={submitting}
+              disabled={submitting || disabled || Boolean(error) || loadState !== 'ready'}
+            >
+              {submitting && <LoaderCircle aria-hidden="true" className="size-4 animate-spin" />}
               {tagId ? t('shared.save') : t('admin.settings.system.tags.create')}
             </Button>
           </DrawerFooter>
         </form>
       </DrawerContent>
+      <FormErrorDialog error={error} onClose={clearError} />
     </Drawer>
   );
 }
@@ -454,7 +498,7 @@ function ListTable({
       <Table className="min-w-180 table-auto" aria-busy={loading}>
         <TableHeader className="bg-muted/50">
           <TableRow>
-            <TableHead className="min-w-12 px-4">
+            <TableHead className="w-12 max-w-12 min-w-12 px-4">
               <Checkbox
                 aria-label={t('shared.selectAll')}
                 checked={tags.length > 0 && tags.every((tag) => selectedIds.includes(tag.id))}
@@ -467,7 +511,7 @@ function ListTable({
             <TableHead className="min-w-40">{t('admin.settings.system.tags.shared.group')}</TableHead>
             <TableHead className="min-w-48">{t('admin.settings.system.tags.shared.preview')}</TableHead>
             <TableHead className="min-w-48">{t('shared.updatedAt')}</TableHead>
-            <TableHead className="min-w-32 text-center">{t('shared.actions')}</TableHead>
+            <TableHead className="w-24 max-w-24 min-w-24 text-center">{t('shared.actions')}</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -475,7 +519,7 @@ function ListTable({
             [0, 1, 2, 3, 4].map((row) => (
               <TableRow key={row} aria-hidden="true">
                 {[0, 1, 2, 3, 4, 5].map((column) => (
-                  <TableCell key={column}>
+                  <TableCell key={column} className={column === 0 ? 'w-12 max-w-12 min-w-12 px-4' : undefined}>
                     <Skeleton className={column === 0 ? 'size-4' : 'h-4 w-24'} />
                   </TableCell>
                 ))}
@@ -495,7 +539,7 @@ function ListTable({
 
             return (
               <TableRow key={tag.id}>
-                <TableCell className="px-4">
+                <TableCell className="w-12 max-w-12 min-w-12 px-4">
                   <Checkbox
                     aria-label={t('shared.selectRow', { name: tag.label })}
                     checked={selectedIds.includes(tag.id)}
@@ -528,22 +572,17 @@ function ListTable({
                 <TableCell className="text-muted-foreground text-sm tabular-nums">
                   {formatDateTime(tag.updatedAt)}
                 </TableCell>
-                <TableCell className="text-center">
-                  <div className="flex items-center justify-center gap-1">
+                <TableCell className="w-24 max-w-24 min-w-24 text-center">
+                  <ListActions disabled={actionsDisabled}>
                     <TagDrawer tagId={tag.id} onSaved={onUpdated} disabled={actionsDisabled} />
+                    <TagDrawer copyFromId={tag.id} onSaved={onUpdated} disabled={actionsDisabled} />
                     <Tooltip>
                       <TagDeleteConfirmation
                         description={t('admin.settings.system.tags.deleteConfirmation', { name: tag.label })}
                         trigger={
                           <TooltipTrigger
                             render={
-                              <Button
-                                variant="ghost"
-                                size="icon-sm"
-                                className="text-destructive"
-                                disabled={actionsDisabled}
-                                aria-label={t('shared.delete')}
-                              />
+                              <ListActionTrigger destructive disabled={actionsDisabled} label={t('shared.delete')} />
                             }
                           >
                             <Trash2 />
@@ -555,7 +594,7 @@ function ListTable({
                       />
                       <TooltipContent side="top">{t('shared.delete')}</TooltipContent>
                     </Tooltip>
-                  </div>
+                  </ListActions>
                 </TableCell>
               </TableRow>
             );
@@ -608,6 +647,8 @@ function TagDeleteConfirmation({
 
   return (
     <Dialog
+      modal
+      disablePointerDismissal
       open={open}
       onOpenChange={(nextOpen) => {
         if (!pending && (!nextOpen || !disabled)) {
@@ -627,15 +668,15 @@ function TagDeleteConfirmation({
             {error}
           </p>
         )}
-        <div className="flex justify-end gap-2">
-          <Button variant="outline" size="sm" disabled={pending} onClick={() => setOpen(false)}>
+        <DialogFooter>
+          <Button variant="outline" disabled={pending} onClick={() => setOpen(false)}>
             {t('shared.cancel')}
           </Button>
-          <Button variant="destructive" size="sm" disabled={pending || disabled} onClick={() => void confirm()}>
+          <Button disabled={pending || disabled} onClick={() => void confirm()}>
             {pending && <LoaderCircle className="animate-spin" />}
             {t('shared.delete')}
           </Button>
-        </div>
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   );
@@ -692,7 +733,7 @@ function ListPagination({ total, page, size, onPageChange, onSizeChange, disable
         <SelectTrigger size="sm" aria-label={t('shared.rowsPerPage')}>
           <SelectValue />
         </SelectTrigger>
-        <SelectContent side="bottom" alignItemWithTrigger={false}>
+        <SelectContent side="bottom" alignItemWithTrigger={false} className="w-max min-w-0">
           {[10, 20, 50].map((size) => (
             <SelectItem key={size} value={String(size)}>
               {t('shared.pageSize', { count: size })}

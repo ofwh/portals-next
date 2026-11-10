@@ -16,6 +16,7 @@ export type TagDetail = TagInput & {
   updatedAt: string;
 };
 
-export type TagUpdateInput = TagInput & { id?: string };
+export type TagBatchInput = Omit<TagInput, 'group'> & { groups: string[]; id?: never };
+export type TagUpdateInput = (TagInput & { id?: string }) | TagBatchInput;
 
 export type TagFormChange = <Key extends keyof TagInput>(key: Key, value: TagInput[Key]) => void;

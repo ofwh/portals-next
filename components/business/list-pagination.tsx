@@ -74,7 +74,7 @@ export function ListPagination({
         <SelectTrigger size="sm" aria-label={t('shared.rowsPerPage')}>
           <SelectValue />
         </SelectTrigger>
-        <SelectContent side="bottom" alignItemWithTrigger={false}>
+        <SelectContent side="bottom" alignItemWithTrigger={false} className="w-max min-w-0">
           {[10, 20, 50].map((size) => (
             <SelectItem key={size} value={String(size)}>
               {t('shared.pageSize', { count: size })}

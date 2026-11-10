@@ -8,7 +8,12 @@ import { formStrategies } from './strategies';
 import type { RouteForms } from './strategies';
 import { validateBaseForm } from './validation';
 
-export function useRouteForm<Type extends RouteMode>(type: Type, onSaved: () => void, id?: string) {
+export function useRouteForm<Type extends RouteMode>(
+  type: Type,
+  onSaved: () => void,
+  id?: string,
+  copyFromId?: string,
+) {
   const t = useTranslations();
   const strategy = formStrategies[type];
   const messageKeys: {
@@ -25,7 +30,7 @@ export function useRouteForm<Type extends RouteMode>(type: Type, onSaved: () => 
   const controller = useRef<AbortController | null>(null);
   const pending = useRef(false);
 
-  useEffect(() => () => controller.current?.abort(), [id, type]);
+  useEffect(() => () => controller.current?.abort(), [id, type, copyFromId]);
 
   function onChange<Key extends keyof RouteForms[Type]>(key: Key, value: RouteForms[Type][Key]) {
     setForm((current) => ({ ...current, [key]: value }));
@@ -40,7 +45,9 @@ export function useRouteForm<Type extends RouteMode>(type: Type, onSaved: () => 
     setForm(strategy.initialForm());
     setError('');
 
-    if (!id) {
+    const sourceId = copyFromId ?? id;
+
+    if (!sourceId) {
       setLoadState('ready');
 
       return;
@@ -52,7 +59,7 @@ export function useRouteForm<Type extends RouteMode>(type: Type, onSaved: () => 
     setLoadState('loading');
 
     try {
-      const loadedForm = await strategy.load(id, request.signal);
+      const loadedForm = await strategy.load(sourceId, request.signal);
 
       if (!request.signal.aborted) {
         setForm(loadedForm);
@@ -69,7 +76,7 @@ export function useRouteForm<Type extends RouteMode>(type: Type, onSaved: () => 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
-    if (pending.current || loadState !== 'ready') {
+    if (pending.current || error || loadState !== 'ready') {
       return;
     }
 
@@ -99,5 +106,5 @@ export function useRouteForm<Type extends RouteMode>(type: Type, onSaved: () => 
     onSaved();
   }
 
-  return { form, onChange, submitting, error, loadState, reset, cancelLoad, submit };
+  return { form, onChange, submitting, error, clearError: () => setError(''), loadState, reset, cancelLoad, submit };
 }
