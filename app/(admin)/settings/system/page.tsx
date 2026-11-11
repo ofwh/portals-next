@@ -1,3 +1,7 @@
+import { redirect } from 'next/navigation';
+
+export const instant = false;
+
 export default function Page() {
-  return null;
+  redirect('/settings/system/preferences');
 }

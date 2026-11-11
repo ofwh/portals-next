@@ -284,11 +284,6 @@
       "system": {
         "title": "System settings",
         "description": "Manage preferences, route shortcuts and tags",
-        "tabs": {
-          "preferences": "Preferences",
-          "shortcuts": "Route management",
-          "tags": "Tag management"
-        },
         "pathname": "Shortcut path",
         "routeStatus": "{name} status",
         "saved": "Shortcuts saved",
@@ -296,6 +291,7 @@
         "loadError": "Failed to load shortcuts",
         "loading": "Loading shortcuts…",
         "shortcuts": {
+          "title": "Route management",
           "description": "Configure shortcut paths and enable or disable access for each route type",
           "proxy": {
             "pathnameHelp": "Proxy route prefix",

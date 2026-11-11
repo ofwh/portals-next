@@ -5,6 +5,7 @@ import { useTranslations } from 'next-intl';
 import { useEffect, useRef, useState } from 'react';
 import { toast } from 'sonner';
 import { LanguageControl, ThemeControl } from '@/components/app/settings/system/preferences-controls';
+import { PageHeader } from '@/components/business/page-header';
 import { Button } from '@/components/ui/button';
 import {
   Combobox,
@@ -56,16 +57,16 @@ export default function Page() {
   }
 
   return (
-    <section className="w-full max-w-3xl" aria-labelledby="system-preferences-title">
-      <div className="mb-6">
-        <h2 id="system-preferences-title" className="text-lg font-semibold">
-          {t('admin.settings.system.preferences.title')}
-        </h2>
-        <p className="text-muted-foreground mt-2 max-w-2xl text-sm leading-6">
-          {t('admin.settings.system.preferences.description')}
-        </p>
-      </div>
-      <form onSubmit={submit} noValidate>
+    <section
+      className="mx-auto flex w-full max-w-5xl flex-col items-center lg:p-2 [&>div]:w-full"
+      aria-labelledby="system-preferences-title"
+    >
+      <PageHeader
+        titleId="system-preferences-title"
+        title={t('admin.settings.system.preferences.title')}
+        description={t('admin.settings.system.preferences.description')}
+      />
+      <form className="w-full max-w-3xl lg:max-w-188" onSubmit={submit} noValidate>
         <FieldGroup>
           <Field orientation="responsive">
             <FieldContent>

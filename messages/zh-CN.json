@@ -284,11 +284,6 @@
       "system": {
         "title": "系统设置",
         "description": "管理偏好设置、路由快捷路径与标签配置",
-        "tabs": {
-          "preferences": "偏好设置",
-          "shortcuts": "路由管理",
-          "tags": "标签管理"
-        },
         "pathname": "快捷路径",
         "routeStatus": "{name}状态",
         "saved": "快捷路径已保存",
@@ -296,6 +291,7 @@
         "loadError": "加载快捷路径失败",
         "loading": "正在加载快捷路径…",
         "shortcuts": {
+          "title": "路由管理",
           "description": "配置各类路由的快捷路径与启用状态",
           "proxy": {
             "pathnameHelp": "代理路由前缀",

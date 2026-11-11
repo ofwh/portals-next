@@ -19,6 +19,7 @@ import { toast } from 'sonner';
 import { TagForm } from '@/components/app/settings/system/tag-form';
 import { FormErrorDialog } from '@/components/business/form-error-dialog';
 import { ListActions, ListActionTrigger } from '@/components/business/list-actions';
+import { PageHeader } from '@/components/business/page-header';
 import { TagBadge } from '@/components/business/tag-badge';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -108,7 +109,7 @@ export default function Page() {
   }
 
   return (
-    <section className="w-full" aria-labelledby="system-tags-title">
+    <section className="mx-auto w-full max-w-375 lg:p-2" aria-labelledby="system-tags-title">
       <ListHeader disabled={loading || removing} onCreated={() => changeParams({ page: 1 })} />
       <div className="flex flex-col gap-4">
         <ListToolbar
@@ -169,15 +170,9 @@ function ListHeader({ onCreated, disabled }: { onCreated: () => void; disabled: 
   const t = useTranslations('admin.settings.system.tags');
 
   return (
-    <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-      <div>
-        <h2 id="system-tags-title" className="text-lg font-semibold">
-          {t('title')}
-        </h2>
-        <p className="text-muted-foreground mt-2 max-w-2xl text-sm leading-6">{t('description')}</p>
-      </div>
+    <PageHeader titleId="system-tags-title" title={t('title')} description={t('description')}>
       <TagDrawer onSaved={onCreated} disabled={disabled} />
-    </div>
+    </PageHeader>
   );
 }
 

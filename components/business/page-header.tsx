@@ -14,7 +14,7 @@ export function PageHeader({
   children?: ReactNode;
 }) {
   return (
-    <div className="mb-6 flex shrink-0 flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+    <div className="mb-6 flex shrink-0 flex-col gap-4 border-b pb-6 sm:flex-row sm:items-start sm:justify-between">
       <div className="flex min-w-0 items-start gap-3">
         {leading && <div className="shrink-0">{leading}</div>}
         <div className="min-w-0">

@@ -21,7 +21,7 @@ function params(input: unknown, allowed: readonly string[]): Record<string, unkn
 function color(value: unknown): string {
   const result = v.string(value).trim();
 
-  if (!/^#[\da-f]{6}$/i.test(result)) {
+  if (!/^#[0-9a-f]{6}$/i.test(result)) {
     throw appError('common.INVALID_PARAMS');
   }
 

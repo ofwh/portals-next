@@ -47,7 +47,7 @@ export function AdminShell({ children, defaultOpen }: { children: ReactNode; def
     <TooltipProvider>
       <SidebarProvider defaultOpen={defaultOpen} className="h-dvh min-h-0 overflow-hidden">
         <AppSidebar />
-        <SidebarInset className="min-h-0 min-w-0 overflow-hidden">
+        <SidebarInset className="ml-0! min-h-0 min-w-0 overflow-hidden">
           <AdminHeader />
           <ScrollArea className="min-h-0 flex-1 [&>[data-slot=scroll-area-viewport]]:overscroll-contain">
             <ScrollAreaPrimitive.Content className="p-4 md:p-6">{children}</ScrollAreaPrimitive.Content>
