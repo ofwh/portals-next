@@ -1,6 +1,6 @@
-export type RuleContentCategory = 'surge' | 'quanx' | 'clash-domain' | 'clash-ipcidr' | 'clash-classic';
+export type RuleContentCategory = 'surge' | 'loon' | 'quanx' | 'clash-domain' | 'clash-ipcidr' | 'clash-classic';
 export type RuleCategory = RuleContentCategory | 'singbox';
-export type RulesetTransformer = 'surge' | 'quanx' | 'clash' | 'singbox';
+export type RulesetTransformer = 'surge' | 'loon' | 'quanx' | 'clash' | 'singbox';
 
 export type Rule = { type: string; parameters: string[]; flags: string[] };
 

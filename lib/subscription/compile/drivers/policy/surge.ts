@@ -9,6 +9,10 @@ export function surgeGroups(context: CompileContext, nodes: ProxyNode[], documen
   writeSection(document, 'Proxy Group', [], true);
 
   for (const [index, group] of context.groups.entries()) {
+    if (group.kind === 'remote-filter') {
+      continue;
+    }
+
     if (!['select', 'smart', 'url-test', 'fallback', 'load-balance', 'ssid'].includes(group.kind)) {
       warn(context, 'UNSUPPORTED_GROUP', 'groups', index);
       continue;

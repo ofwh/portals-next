@@ -20,6 +20,10 @@ export function quanxGroups(context: CompileContext, nodes: ProxyNode[], documen
   writeSection(document, 'policy', [], true);
 
   for (const [index, group] of context.groups.entries()) {
+    if (group.kind === 'remote-filter') {
+      continue;
+    }
+
     if (group.kind === 'relay') {
       warn(context, 'UNSUPPORTED_GROUP', 'groups', index);
       continue;

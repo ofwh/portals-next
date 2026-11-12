@@ -28,3 +28,5 @@
 [INI 绑定](/Users/larify/Documents/github/SubConverter-Extended/src/config/binding.h:202)与[TOML 绑定](/Users/larify/Documents/github/SubConverter-Extended/src/config/binding.h:38)定义条目字段。[旧 YAML 读取](/Users/larify/Documents/github/SubConverter-Extended/src/handler/settings.cpp:806)设置缺省探测 URL 和 300 秒周期，再走 INI 绑定。解析保留按语法区分的默认值，以及未设置和显式 false 的区别，不在此阶段执行成员筛选、资源获取或客户端语法生成。
 
 sing-box 的类型支持、测速参数缺省及对象声明读取方式遵循[兼容调整方案](../ruleset/sing-box%20规则与策略兼容调整方案.md#4-策略模块)，不套用上述其他目标的兼容默认值。
+
+`remote-filter` 仅由 Loon 解析方式支持。INI 声明为 ``<名称>`remote-filter`<mode>=<过滤规则配置>``，`mode` 仅允许 `NameKeyword` 或 `NameRegex`，过滤内容不能为空。YAML、TOML 使用同样的类别及单条 `rule`。解析结果保留 `remoteFilter.mode` 和 `remoteFilter.filterKey`，`selectors` 与 `providerRefs` 为空；不附加健康检查默认值，不执行名称匹配或正则求值。

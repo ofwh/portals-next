@@ -2,6 +2,7 @@ import type { RuleContentCategory, RulesetTransformer } from '../types/ruleset';
 
 export const ruleCategoryTransformers = {
   surge: 'surge',
+  loon: 'loon',
   quanx: 'quanx',
   'clash-domain': 'clash',
   'clash-ipcidr': 'clash',

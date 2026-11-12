@@ -1,10 +1,10 @@
 # 规则解析器与解析方式
 
-配置格式与订阅类型均必须显式指定。配置格式只决定读取方式：INI 使用分隔串，YAML/TOML 使用结构化字段。订阅类型选择 Surge、Quantumult X 或 Clash transformer；每个 transformer 显式组合该类型支持的全部类别 resolver，跨订阅类型的条目被过滤并返回带位置的警告，由调用层通过 logger 记录。
+配置格式与订阅类型均必须显式指定。配置格式只决定读取方式：INI 使用分隔串，YAML/TOML 使用结构化字段。订阅类型由 transformer 注册表定义；每个 transformer 显式组合该类型支持的全部类别 resolver，跨订阅类型的条目被过滤并返回带位置的警告，由调用层通过 logger 记录。
 
 `transformers` 中的订阅类型模块处理单条原始配置，按格式读取声明，再分派类别 resolver。节点的选项来自 transformer 元数据，执行时只传入配置格式、transformer 和文本。元数据保持前端安全，不依赖正文解析器或 Node.js 模块。Clash 的资源引用必须由来源前缀或 TOML type 明确指定 domain、ipcidr 或 classic 类别，缺少时返回错误，不依据正文、文件扩展名或资源地址推断。内联标记优先于资源类别，来源前缀或 TOML type 不参与内联规则的类别分派；所有内联规则直接交给所选 transformer 的 inlineResolver。Clash 使用完整规则解析器并归入 clash-classic。资源引用的显式类别仍须与所选订阅类型一致。
 
-`resolvers` 按 Surge、Quantumult X、Clash Domain、Clash IP CIDR 和 Clash Classical 类别组织，每个 resolver 的 `resolve` 将匹配的单条来源声明转换为一个 `RuleSet`。入口聚合为有序 `RuleSet[]`，保留条目明确的类别，允许同一 Clash transformer 输出包含不同类别的规则集。内联正文保留匹配参数和选项，目标组取外层声明；资源引用保留地址。Quantumult X 的资源正文处理类型别名并去除原策略，内联规则不经过该转换。资源正文解析接口使用同一模式注册表，并要求显式指定类别，不经过订阅类型 transformer，也不在声明解析阶段获取资源。
+`resolvers` 按正文类别组织，每个 resolver 的 `resolve` 将匹配的单条来源声明转换为一个 `RuleSet`。入口聚合为有序 `RuleSet[]`，保留条目明确的类别，允许同一 Clash transformer 输出包含不同类别的规则集。内联正文保留匹配参数和选项，目标组取外层声明；资源引用保留地址。Quantumult X 的资源正文处理类型别名并去除原策略，内联规则不经过该转换。资源正文解析接口使用同一模式注册表，并要求显式指定类别，不经过订阅类型 transformer，也不在声明解析阶段获取资源。
 
 Clash Domain 与 Clash IP CIDR 共用 payload 值解析：同一序列允许混合域名、IPv4 CIDR 和 IPv6 CIDR，逐项识别并保持顺序。域名按域名语法归一化，CIDR 校验地址与前缀长度；非法值返回条目诊断。此共享能力不改变所选声明类别，Clash Classical 仍按完整规则行解析。
 
@@ -15,6 +15,7 @@ Clash Domain 与 Clash IP CIDR 共用 payload 值解析：同一序列允许混�
 | 正文类别        | 识别方式                         | 现有转换与设计落点                                                                                                                     |
 | --------------- | -------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
 | Surge           | `surge:` 或 TOML `surge-ruleset` | 旧转换原样通过，后续输出解析匹配条件。新正文 resolver 分离规则类型、参数和 flags                                                       |
+| Loon            | `loon:` 或 TOML `loon`           | 保存独立的 loon 类别；正文和内联规则使用通用完整规则行语法，分离类型、参数和 flags                                                     |
 | Quantumult X    | `quanx:` 或 TOML `quantumultx`   | HOST 系列转 DOMAIN 系列，IP6-CIDR 转 IP-CIDR6。按规则语法去掉原策略，保留支持的 flags                                                  |
 | Clash Domain    | `clash-domain:`                  | 读取 payload，普通域名转 DOMAIN，点前缀及 `+.` 转 DOMAIN-SUFFIX，旧转换对带尾随 `.*` 的后缀形式转 DOMAIN-KEYWORD                       |
 | Clash IP CIDR   | `clash-ipcidr:`                  | 读取 payload，按 IPv4/IPv6 区分 IP-CIDR 与 IP-CIDR6                                                                                    |

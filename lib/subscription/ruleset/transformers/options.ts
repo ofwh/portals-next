@@ -3,6 +3,7 @@ import type { RulesetTransformer } from '../../types/ruleset';
 
 export const rulesetTransformerLabels = {
   surge: 'Surge',
+  loon: 'Loon',
   quanx: 'Quantumult X',
   clash: 'Clash',
   singbox: 'sing-box',

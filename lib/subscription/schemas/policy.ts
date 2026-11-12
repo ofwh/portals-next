@@ -62,6 +62,7 @@ function isProxyGroup(value: unknown): value is ProxyGroup {
       'selectors',
       'providerRefs',
       'policyPath',
+      'remoteFilter',
       'flags',
       'healthCheck',
       'disableUdp',
@@ -77,6 +78,14 @@ function isProxyGroup(value: unknown): value is ProxyGroup {
     value.selectors.every(isSelector) &&
     Array.isArray(value.providerRefs) &&
     value.providerRefs.every(nonempty) &&
+    (value.kind === 'remote-filter'
+      ? isRecord(value.remoteFilter) &&
+        onlyKeys(value.remoteFilter, ['mode', 'filterKey']) &&
+        (value.remoteFilter.mode === 'NameKeyword' || value.remoteFilter.mode === 'NameRegex') &&
+        nonempty(value.remoteFilter.filterKey) &&
+        value.selectors.length === 0 &&
+        value.providerRefs.length === 0
+      : value.remoteFilter === undefined) &&
     (value.policyPath === undefined ||
       (value.kind !== 'ssid' &&
         isSurgePolicyPath(value.policyPath) &&

@@ -1,4 +1,4 @@
-import { loonTextRule } from './loon';
+import { loonRules } from './loon';
 import { quanxTextRule } from './quanx';
 import { rulesFor } from './shared';
 import { surfboardTextRule } from './surfboard';
@@ -9,8 +9,7 @@ import { warn } from '../../diagnostics';
 import type { CompileContext } from '../../types';
 import { writeSection } from '../shared';
 
-const textRules: Partial<Record<CompileContext['target'], typeof loonTextRule>> = {
-  loon: loonTextRule,
+const textRules: Partial<Record<CompileContext['target'], typeof surgeTextRule>> = {
   quanx: quanxTextRule,
   surfboard: surfboardTextRule,
   surge: surgeTextRule,
@@ -18,6 +17,13 @@ const textRules: Partial<Record<CompileContext['target'], typeof loonTextRule>> 
 
 export function iniRules(context: CompileContext, document: IniDocument): void {
   const target = context.target;
+
+  if (target === 'loon') {
+    loonRules(context, document);
+
+    return;
+  }
+
   const section = target === 'quanx' ? 'filter_local' : 'Rule';
 
   if (context.options.overwriteOriginalRules) {
@@ -25,13 +31,9 @@ export function iniRules(context: CompileContext, document: IniDocument): void {
     if (target === 'quanx') {
       writeSection(document, 'filter_remote', [], true);
     }
-
-    if (target === 'loon') {
-      writeSection(document, 'Remote Rule', [], true);
-    }
   }
 
-  const textRule = textRules[target] ?? loonTextRule;
+  const textRule = textRules[target] ?? surgeTextRule;
   const output: string[] = [];
 
   for (const [index, ruleset] of context.rulesets.entries()) {
@@ -56,11 +58,6 @@ export function iniRules(context: CompileContext, document: IniDocument): void {
         writeSection(document, 'filter_remote', [
           `${address}, tag=${ruleset.group}, force-policy=${ruleset.group}, enabled=true`,
         ]);
-        continue;
-      }
-
-      if (target === 'loon') {
-        writeSection(document, 'Remote Rule', [`${address},${ruleset.group}`]);
         continue;
       }
     }

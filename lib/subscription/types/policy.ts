@@ -1,5 +1,6 @@
 export type PolicyTransformer = 'surge' | 'surfboard' | 'clash' | 'stash' | 'quan' | 'quanx' | 'loon' | 'singbox';
-export type ProxyGroupKind = 'select' | 'url-test' | 'fallback' | 'load-balance' | 'relay' | 'ssid' | 'smart';
+export type ProxyGroupKind =
+  'select' | 'url-test' | 'fallback' | 'load-balance' | 'relay' | 'ssid' | 'smart' | 'remote-filter';
 
 export type MemberSelector =
   | { kind: 'name'; pattern: string }
@@ -11,12 +12,15 @@ export type GroupHealthCheck = { url?: string; interval?: number; timeout?: numb
 
 export type SurgePolicyPath = { url: string; pattern?: string; interval?: number };
 
+export type LoonRemoteFilter = { mode: 'NameKeyword' | 'NameRegex'; filterKey: string };
+
 export type ProxyGroup = {
   name: string;
   kind: ProxyGroupKind;
   selectors: MemberSelector[];
   providerRefs: string[];
   policyPath?: SurgePolicyPath;
+  remoteFilter?: LoonRemoteFilter;
   flags?: Record<string, unknown>;
   healthCheck?: GroupHealthCheck;
   disableUdp?: boolean;

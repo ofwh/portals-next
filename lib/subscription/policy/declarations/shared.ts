@@ -63,7 +63,7 @@ export function readGroupDeclaration(input: unknown, format: ConfigFormat): Grou
     }
 
     // YAML 兼容旧绑定，relay 的探测尾部保留为成员声明。
-    if (kind !== 'select' && kind !== 'ssid') {
+    if (kind !== 'select' && kind !== 'ssid' && kind !== 'remote-filter') {
       rules.push(
         yamlScalar(input.url, 'https://www.gstatic.com/generate_204', 'url'),
         [

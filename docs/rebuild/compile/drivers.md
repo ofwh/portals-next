@@ -52,7 +52,7 @@ sing-box 的通用展开规则按单个资源声明内的目标字段及来源/�
 | ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------ |
 | Clash             | 有输入节点或成功生成节点时替换 `proxies`；输入节点列表为空时保留模板 `proxies`。以生成分组整体替换 `proxy-groups`，同名生成分组仅保留首次结果；覆盖前提取允许继承的健康检查字段 | `false`：原 `rules` 在前、生成规则在后；`true`：仅写入生成规则。不因模板已有 MATCH 而重排追加位置            |
 | Surge / Surfboard | 清空并重建 `[Proxy]`，先写入 `DIRECT = direct`；清空并重建 `[Proxy Group]`                                                                                                      | `false`：保留 `[Rule]` 后追加；`true`：清空该节再写入。Surfboard 使用自身能力限制，不直接套用 Surge 支持范围 |
-| Loon              | 清空并重建 `[Proxy]`、`[Proxy Group]`；保留同名模板分组末尾可继承的 `img-url` 项                                                                                                | `false`：保留 `[Rule]`、`[Remote Rule]` 并分别追加对应规则；`true`：同时清空这两个节后写入                   |
+| Loon              | 清空并重建 `[Proxy]`、`[Remote Filter]`、`[Proxy Group]`；保留同名模板分组末尾可继承的 `img-url` 项                                                                             | `false`：保留 `[Rule]`、`[Remote Rule]` 并分别追加对应规则；`true`：同时清空这两个节后写入                   |
 | Quantumult X      | 清空并重建 `[server_local]`、`[policy]`；保留同名模板分组末尾可继承的 `img-url` 项                                                                                              | `false`：保留 `[filter_local]`、`[filter_remote]` 并分别追加；`true`：同时清空这两个节后写入                 |
 | sing-box          | 用生成的 DIRECT、成功输出节点及显式声明的分组整体替换 `outbounds`，不按 tag 合并模板 outbound                                                                                   | 按下述 `route` 专用流程处理，不对整个 `route` 做替换                                                         |
 | Mixed             | 仅生成节点订阅                                                                                                                                                                  | 不读取模板、分组及策略，不生成配置文件规则                                                                   |
@@ -68,3 +68,13 @@ sing-box 的规则融合顺序如下：
 5. 本次生成终结目标时更新 `route.final`，旧数据的多个终结目标取最后一个；缺省 final 的处理遵循[兼容调整方案](../ruleset/sing-box%20规则与策略兼容调整方案.md#53-出站动作与终结规则)。
 
 上述流程仅在规则生成启用时执行。关闭时，节点和分组仍替换 `outbounds`，但模板 `route`、其规则及辅助配置保持原状。
+
+## Loon 配置转换
+
+配置语法以[官方示例](https://github.com/Loon0x00/LoonExampleConfig/blob/master/example2.lcf)、[节点筛选](https://nsloon.app/docs/Node/nodefilter/)、[策略组](https://nsloon.app/docs/Policy/policygroup/)和[规则手册](https://nsloon.app/docs/category/%E8%A7%84%E5%88%99/)为准。
+
+`remote-filter` 声明按名称收集，生成 `[Remote Filter]`，过滤内容加双引号并保留正则反斜杠，不在编译时求值。普通分组的显式引用直接保留该名称，支持引用后声明的筛选器。其他输出类型忽略 `remote-filter` 声明。普通分组写入 `[Proxy Group]`，测速字段及扩展参数按组类型生成；显式正数 `healthCheck.timeout` 作为 Loon 的毫秒值写入 `max-timeout`，未设置或非正数时省略。
+
+HTTP(S) 的 Loon、Surge 规则资源直接写入 `[Remote Rule]`，使用 `policy` 指定声明策略，并设置 `enabled=true`。其他通用类别通过正文解析展开后写入 `[Rule]`；声明要求 `no-resolve` 时也展开资源，将选项应用到 IP 类规则。不将通用更新周期拼接为未经官方定义的远程规则参数。
+
+内联及展开规则使用同一 Loon 转换器，规则目标取声明的策略，逻辑规则也须追加该目标；`MATCH` 归一化为 `FINAL`。支持范围按官方规则类别进行精确匹配，不支持的类型或 flags 返回警告；IP 类规则保留适用的 `no-resolve`。

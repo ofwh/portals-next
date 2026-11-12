@@ -7,6 +7,7 @@ import type { RuleContentDeclaration } from '../types';
 
 const tomlCategories: Record<string, RuleContentCategory> = {
   'surge-ruleset': 'surge',
+  loon: 'loon',
   quantumultx: 'quanx',
   'clash-domain': 'clash-domain',
   'clash-ipcidr': 'clash-ipcidr',

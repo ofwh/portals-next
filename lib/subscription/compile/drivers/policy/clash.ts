@@ -15,6 +15,10 @@ export function clashGroups(
   const used = new Set<string>();
 
   for (const [index, group] of context.groups.entries()) {
+    if (group.kind === 'remote-filter') {
+      continue;
+    }
+
     if (!['select', 'relay', 'load-balance', 'smart', 'url-test', 'fallback'].includes(group.kind)) {
       warn(context, 'UNSUPPORTED_GROUP', 'groups', index);
       continue;

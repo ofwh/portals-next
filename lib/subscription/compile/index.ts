@@ -118,6 +118,7 @@ export function compile(input: CompileParams, options: CompileOptions = {}): Com
       },
       diagnostics,
     };
+
     const content = transformer.compile(context);
     const contentType =
       transformer.format === 'yaml'

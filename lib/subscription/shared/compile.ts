@@ -48,7 +48,11 @@ export function ruleDelivery(target: CompileTarget, ruleset: RuleSet): 'inline' 
       return ruleset.category === 'surge' ? 'remote' : 'skip';
     }
 
-    if (target === 'loon' || (target === 'quanx' && ruleset.category === 'quanx')) {
+    if (target === 'loon') {
+      return ['loon', 'surge'].includes(ruleset.category) && !ruleset.options.noResolve ? 'remote' : 'expand';
+    }
+
+    if (target === 'quanx' && ruleset.category === 'quanx') {
       return 'remote';
     }
   }

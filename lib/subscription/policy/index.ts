@@ -98,6 +98,13 @@ export { groupCategoryResolvers } from './resolvers';
 export { policyTransformers, policyTransformerOptions, isPolicyTransformer } from './transformers';
 export type { GroupCategoryResolver } from './resolvers/types';
 export type { PolicyTransformerModule } from './transformers/types';
-export type { GroupHealthCheck, MemberSelector, PolicyTransformer, ProxyGroup, ProxyGroupKind } from '../types/policy';
+export type {
+  GroupHealthCheck,
+  LoonRemoteFilter,
+  MemberSelector,
+  PolicyTransformer,
+  ProxyGroup,
+  ProxyGroupKind,
+} from '../types/policy';
 export type { ConfigFormat } from '../types/shared';
 export type { PolicyDiagnostic } from '../types/diagnostic';

@@ -8,6 +8,10 @@ export function singboxGroups(context: CompileContext, nodes: ProxyNode[]): Targ
   const result: TargetObject[] = [];
 
   for (const [index, group] of context.groups.entries()) {
+    if (group.kind === 'remote-filter') {
+      continue;
+    }
+
     if (group.kind !== 'select' && group.kind !== 'url-test') {
       throw new CompileError('UNSUPPORTED_GROUP', 'groups', index);
     }

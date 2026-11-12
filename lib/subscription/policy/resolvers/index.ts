@@ -1,6 +1,7 @@
 import { fallbackResolver } from './fallback';
 import { loadBalanceResolver } from './load-balance';
 import { relayResolver } from './relay';
+import { remoteFilterResolver } from './remote-filter';
 import { selectResolver } from './select';
 import { smartResolver } from './smart';
 import { ssidResolver } from './ssid';
@@ -16,6 +17,7 @@ export const groupCategoryResolvers: Record<ProxyGroupKind, GroupCategoryResolve
   relay: relayResolver,
   ssid: ssidResolver,
   smart: smartResolver,
+  'remote-filter': remoteFilterResolver,
 };
 
 export {
@@ -26,4 +28,5 @@ export {
   relayResolver,
   ssidResolver,
   smartResolver,
+  remoteFilterResolver,
 };
