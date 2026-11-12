@@ -216,7 +216,7 @@ function SubscriptionDrawer({
       swipeDirection="right"
       open={open}
       onOpenChange={(nextOpen) => {
-        if (submitting || (nextOpen && disabled)) {
+        if (submitting || Boolean(error) || (nextOpen && disabled)) {
           return;
         }
 
@@ -264,10 +264,7 @@ function SubscriptionDrawer({
           {triggerLabel ?? (id ? t('shared.edit') : t(`${namespace}.create`))}
         </DrawerTrigger>
       )}
-      <DrawerContent
-        inert={Boolean(error)}
-        className="data-[swipe-axis=x]:w-full data-[swipe-axis=x]:max-w-225 data-[swipe-axis=x]:sm:w-1/2"
-      >
+      <DrawerContent className="data-[swipe-axis=x]:w-full data-[swipe-axis=x]:max-w-225 data-[swipe-axis=x]:sm:w-1/2">
         <DrawerHeader className="relative border-b p-6 pr-16">
           <DrawerTitle className="text-xl">{t(id ? `${namespace}.editTitle` : `${namespace}.newTitle`)}</DrawerTitle>
           <DrawerDescription>
@@ -316,8 +313,8 @@ function SubscriptionDrawer({
             </Button>
           </DrawerFooter>
         </form>
+        <FormErrorDialog error={error} onClose={clearError} />
       </DrawerContent>
-      <FormErrorDialog error={error} onClose={clearError} />
     </Drawer>
   );
 }

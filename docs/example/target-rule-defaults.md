@@ -9,7 +9,6 @@
 | surge           | 默认 true：启用 ruleset 规则生成 | 默认 false：保留模板 [Rule]，再追加生成规则                                     |
 | surfboard       | 默认 true：启用 ruleset 规则生成 | 默认 false：保留模板 [Rule]，再追加生成规则                                     |
 | stash           | 默认 true：启用规则生成          | 默认 false：保留模板规则；从首条 MATCH/FINAL 开始的模板尾部规则移到生成规则之后 |
-| mellow          | 默认 true：启用 ruleset 规则生成 | 默认 false：保留模板 [RoutingRule]，再追加生成规则                              |
 | quan            | 默认 true：启用 ruleset 规则生成 | 默认 false：保留模板 [TCP]，再追加生成规则                                      |
 | quanx           | 默认 true：启用 ruleset 规则生成 | 默认 false：保留模板 [filter_local]，同时保留 [filter_remote]，再追加生成规则   |
 | loon            | 默认 true：启用 ruleset 规则生成 | 默认 false：保留模板 [Rule]，同时保留 [Remote Rule]，再追加生成规则             |
@@ -18,9 +17,6 @@
 | ssd             | 不消费此开关，不生成分流规则     | 不消费此开关，不执行模板分流规则覆盖                                            |
 | ss              | 不消费此开关，不生成分流规则     | 不消费此开关，不执行模板分流规则覆盖                                            |
 | ssr             | 不消费此开关，不生成分流规则     | 不消费此开关，不执行模板分流规则覆盖                                            |
-| v2ray           | 不消费此开关，不生成分流规则     | 不消费此开关，不执行模板分流规则覆盖                                            |
-| v2rayn          | 不消费此开关，不生成分流规则     | 不消费此开关，不执行模板分流规则覆盖                                            |
-| v2rayng         | 不消费此开关，不生成分流规则     | 不消费此开关，不执行模板分流规则覆盖                                            |
 | shadowrocket    | 不消费此开关，不生成分流规则     | 不消费此开关，不执行模板分流规则覆盖                                            |
 | trojan          | 不消费此开关，不生成分流规则     | 不消费此开关，不执行模板分流规则覆盖                                            |
 | vless           | 不消费此开关，不生成分流规则     | 不消费此开关，不执行模板分流规则覆盖                                            |

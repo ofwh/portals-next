@@ -5,7 +5,7 @@ import { languages } from '@codemirror/language-data';
 import type { Extension } from '@codemirror/state';
 import { EditorView } from '@codemirror/view';
 import CodeMirror from '@uiw/react-codemirror';
-import { Copy } from 'lucide-react';
+import { Copy, Minimize, SquareDimensions } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useEffect, useMemo, useState } from 'react';
 import { toast } from 'sonner';
@@ -39,6 +39,7 @@ export function CodeEditor({
   const t = useTranslations();
   const dark = useDarkMode();
   const [languageOpen, setLanguageOpen] = useState(false);
+  const [fullscreen, setFullscreen] = useState(false);
   const [syntax, setSyntax] = useState<{ language: string; extension: Extension }>();
   const extensions = useMemo(
     () => [
@@ -84,8 +85,11 @@ export function CodeEditor({
   }
 
   return (
-    <div className="group/code-editor relative w-full min-w-0 overflow-hidden rounded-md border">
-      <ScrollArea className="h-100 min-w-0">
+    <div
+      data-code-editor-fullscreen={fullscreen ? '' : undefined}
+      className={`group/code-editor bg-background min-w-0 overflow-hidden ${fullscreen ? 'fixed inset-0 z-50' : 'relative w-full rounded-md border'}`}
+    >
+      <ScrollArea className={`min-w-0 ${fullscreen ? 'h-full' : 'h-100'}`}>
         <CodeMirror
           value={value}
           onChange={onChange}
@@ -101,6 +105,17 @@ export function CodeEditor({
       <div
         className={`pointer-events-none absolute top-2 right-2 z-10 flex items-center gap-1 opacity-0 transition-opacity group-focus-within/code-editor:pointer-events-auto group-focus-within/code-editor:opacity-100 group-hover/code-editor:pointer-events-auto group-hover/code-editor:opacity-100 [@media(hover:none)]:pointer-events-auto [@media(hover:none)]:opacity-100 ${languageOpen ? 'pointer-events-auto opacity-100' : ''}`}
       >
+        <Button
+          type="button"
+          variant="outline"
+          size="icon-xs"
+          className="bg-popover"
+          aria-label={t(fullscreen ? 'shared.exitFullscreen' : 'shared.enterFullscreen')}
+          aria-pressed={fullscreen}
+          onClick={() => setFullscreen((value) => !value)}
+        >
+          {fullscreen ? <Minimize /> : <SquareDimensions />}
+        </Button>
         <Select
           value={language}
           items={CODE_LANGUAGES}

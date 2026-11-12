@@ -1,6 +1,13 @@
 import type { MemberSelector, ProxyGroup } from '../../../types/policy';
 import type { ProxyNode } from '../../../types/proxy-node';
 import { CompileError } from '../../diagnostics';
+import type { TargetObject } from '../../types';
+
+export function applyGroupFlags(output: TargetObject, group: ProxyGroup): void {
+  if (group.flags !== undefined) {
+    Object.defineProperties(output, Object.getOwnPropertyDescriptors(group.flags));
+  }
+}
 
 function rangeMatch(expression: string, value: number): boolean {
   let matched = false;
@@ -92,4 +99,58 @@ export function members(group: ProxyGroup, nodes: ProxyNode[], direct = true): s
   }
 
   return result;
+}
+
+export function selectorText(selector: MemberSelector): string {
+  return selector.kind === 'reference'
+    ? `[]${selector.name}`
+    : selector.kind === 'name'
+      ? selector.pattern
+      : selector.kind === 'script'
+        ? `script:${selector.source}`
+        : `!!${selector.kind.toUpperCase()}=${selector.target}`;
+}
+
+export function iniGroupLine(
+  line: string,
+  group: ProxyGroup,
+  parameters: Map<string, string>,
+  separator: string,
+  index: number,
+): string {
+  for (const [key, value] of Object.entries(group.flags ?? {})) {
+    if (
+      !/^[A-Za-z][\w-]*$/.test(key) ||
+      !['string', 'number', 'boolean'].includes(typeof value) ||
+      (typeof value === 'string' && /[\r\n]/.test(value))
+    ) {
+      throw new CompileError('INVALID_INPUT', `groups.flags.${key}`, index);
+    }
+
+    const text = String(value);
+    const encoded = typeof value === 'string' && /[,"\s]/.test(text) ? JSON.stringify(text) : text;
+
+    parameters.set(key, encoded);
+  }
+
+  return line + [...parameters].map(([key, value]) => `${separator}${key}=${value}`).join('');
+}
+
+export function iniSsidLine(group: ProxyGroup, parameters: Map<string, string>): string {
+  const raw = group.selectors.map(selectorText);
+  const members: string[] = [];
+
+  parameters.set('default', raw[0] ?? '');
+
+  for (const member of raw.slice(1)) {
+    const offset = member.indexOf('=');
+
+    if (offset < 0) {
+      members.push(member);
+    } else {
+      parameters.set(member.slice(0, offset), member.slice(offset + 1));
+    }
+  }
+
+  return `${group.name} = ssid${members.length ? `,${members.join(',')}` : ''}`;
 }

@@ -12,6 +12,7 @@ export const defaultConfig: FilterConfig = { protocols: [], namePattern: [], exc
 export const protocolOptions = {
   ss: 'Shadowsocks',
   ssr: 'ShadowsocksR',
+  snell: 'Snell',
   vmess: 'VMess',
   vless: 'VLESS',
   trojan: 'Trojan',

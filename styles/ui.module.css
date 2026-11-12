@@ -1,9 +1,4 @@
 /* body 作用域兼容 Turbopack 校验，使用 :where 避免增加选择器权重。 */
-:where(body) [data-slot='dialog-overlay'],
-:where(body) [data-slot='dialog-content'] {
-  z-index: 60;
-}
-
 :where(body) [data-slot='combobox-chip-remove'] {
   width: calc(var(--spacing) * 5);
   height: calc(var(--spacing) * 5);

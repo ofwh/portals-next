@@ -5,6 +5,7 @@ import { parseHysteria } from './parsers/hysteria';
 import { parseHysteria2 } from './parsers/hysteria2';
 import { parseMieru } from './parsers/mieru';
 import { parseNaive } from './parsers/naive';
+import { parseSnell } from './parsers/snell';
 import { parseSs } from './parsers/ss';
 import { parseSsr } from './parsers/ssr';
 import { parseTrojan } from './parsers/trojan';
@@ -28,6 +29,7 @@ type Parser = {
 const parsers: Parser[] = [
   { protocol: 'ss', schemes: ['ss'], parse: parseSs },
   { protocol: 'ssr', schemes: ['ssr'], parse: parseSsr },
+  { protocol: 'snell', schemes: ['snell'], parse: parseSnell },
   { protocol: 'vmess', schemes: ['vmess', 'vmess1'], parse: parseVmess },
   { protocol: 'vless', schemes: ['vless', 'vless1'], parse: parseVless },
   { protocol: 'trojan', schemes: ['trojan', 'trojan-go'], parse: parseTrojan },

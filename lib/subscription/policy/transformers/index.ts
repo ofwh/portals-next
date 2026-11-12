@@ -1,6 +1,5 @@
 import { clashTransformer } from './clash';
 import { loonTransformer } from './loon';
-import { mellowTransformer } from './mellow';
 import { quanTransformer } from './quan';
 import { quanxTransformer } from './quanx';
 import { singboxTransformer } from './singbox';
@@ -18,7 +17,6 @@ export const policyTransformers: Record<PolicyTransformer, PolicyTransformerModu
   quan: quanTransformer,
   quanx: quanxTransformer,
   loon: loonTransformer,
-  mellow: mellowTransformer,
   singbox: singboxTransformer,
 };
 export const policyTransformerOptions = Object.values(policyTransformers).map(({ type, label }) => ({
@@ -38,6 +36,5 @@ export {
   quanTransformer,
   quanxTransformer,
   loonTransformer,
-  mellowTransformer,
   singboxTransformer,
 };

@@ -1,6 +1,5 @@
 import { commonSafe, safe } from './ini-shared';
 import { loonNode } from './loon';
-import { mellowNode } from './mellow';
 import { quanxNode } from './quanx';
 import { surgeNode } from './surge';
 import type { CompileTarget } from '../../../types/compile';
@@ -8,11 +7,23 @@ import type { ProxyNode } from '../../../types/proxy-node';
 import type { IniDocument } from '../../../types/template';
 
 export const iniProtocols = {
-  surge: ['ss', 'socks5', 'http', 'https'],
+  surge: [
+    'ss',
+    'ssr',
+    'vmess',
+    'trojan',
+    'snell',
+    'socks5',
+    'http',
+    'https',
+    'hysteria2',
+    'tuic',
+    'anytls',
+    'wireguard',
+  ],
   surfboard: ['ss', 'vmess', 'socks5', 'http', 'https', 'trojan', 'wireguard'],
   loon: ['ss', 'ssr', 'vmess', 'vless', 'trojan', 'http', 'https', 'socks5', 'wireguard', 'hysteria2', 'anytls'],
   quanx: ['ss', 'ssr', 'vmess', 'vless', 'trojan', 'http', 'https', 'socks5', 'anytls'],
-  mellow: ['ss', 'vmess', 'socks5', 'http'],
 } as const;
 
 export function iniNode(
@@ -20,6 +31,7 @@ export function iniNode(
   target: CompileTarget,
   document: IniDocument,
   index: number,
+  surgeSsrPath?: string,
 ): string | undefined {
   if (
     !commonSafe(node) ||
@@ -29,7 +41,7 @@ export function iniNode(
   }
 
   if (target === 'surge' || target === 'surfboard') {
-    return surgeNode(node, document, index, target === 'surfboard');
+    return surgeNode(node, document, index, target === 'surfboard', surgeSsrPath);
   }
 
   if (target === 'loon') {
@@ -42,10 +54,6 @@ export function iniNode(
 
   if (target === 'quanx') {
     return quanxNode(node);
-  }
-
-  if (target === 'mellow') {
-    return mellowNode(node);
   }
 
   return;

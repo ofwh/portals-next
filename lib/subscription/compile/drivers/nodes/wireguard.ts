@@ -3,7 +3,7 @@ import type { ProxyNode } from '../../../types/proxy-node';
 import type { IniDocument } from '../../../types/template';
 import { host, writeSection } from '../shared';
 
-export function wireguard(node: ProxyNode, document: IniDocument, index: number, loon: boolean): string {
+export function wireguard(node: ProxyNode, document: IniDocument, index: number, loon: boolean, surge = false): string {
   const addresses = (node.addresses ?? []).map((address) => address.split('/')[0]);
 
   if (loon) {
@@ -46,7 +46,7 @@ export function wireguard(node: ProxyNode, document: IniDocument, index: number,
   }
 
   values.push(
-    `peer = (public-key=${node.publicKey},${node.preSharedKey ? `pre-shared-key=${node.preSharedKey},` : ''}allowed-ips="${node.allowedIPs?.join(',') || '0.0.0.0/0, ::/0'}",endpoint=${host(node.server)}:${node.port}${node.keepAlive ? `,keepalive=${node.keepAlive}` : ''})`,
+    `peer = (public-key=${node.publicKey},${node.preSharedKey ? `${surge ? 'preshared-key' : 'pre-shared-key'}=${node.preSharedKey},` : ''}allowed-ips="${node.allowedIPs?.join(',') || '0.0.0.0/0, ::/0'}",endpoint=${host(node.server)}:${node.port}${surge && node.reserved?.length ? `,client-id=${node.reserved.join('/')}` : ''}${node.keepAlive ? `,keepalive=${node.keepAlive}` : ''})`,
   );
   writeSection(document, `WireGuard ${name}`, values);
 

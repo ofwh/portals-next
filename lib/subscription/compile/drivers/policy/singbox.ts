@@ -1,4 +1,4 @@
-import { members } from './shared';
+import { applyGroupFlags, members } from './shared';
 import type { ProxyNode } from '../../../types/proxy-node';
 import { CompileError } from '../../diagnostics';
 import type { CompileContext, TargetObject } from '../../types';
@@ -37,6 +37,7 @@ export function singboxGroups(context: CompileContext, nodes: ProxyNode[]): Targ
       value.interrupt_exist_connections = group.interruptExistConnections;
     }
 
+    applyGroupFlags(value, group);
     result.push(value);
   }
 

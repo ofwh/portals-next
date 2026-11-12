@@ -121,7 +121,7 @@ export function stripComment(input: string, rawValue = false): string {
   return line;
 }
 
-type RuleParseOptions = { hasPolicy?: boolean };
+type RuleParseOptions = { hasPolicy?: boolean; normalizeFlag?: (value: string) => string | undefined };
 
 function validateConditions(type: string, input: string): void {
   if (!input.startsWith('(') || !input.endsWith(')')) {
@@ -160,9 +160,15 @@ export function parseRule(input: string, options: RuleParseOptions = {}): Rule {
   const ruleFlags: string[] = [];
   const parameterCount = type === 'MATCH' || type === 'FINAL' ? 0 : type === 'SUB-RULE' ? 2 : 1;
 
-  while (tokens.length > parameterCount && flags.has(tokens[tokens.length - 1].toLowerCase())) {
-    const flag = tokens.pop()!.toLowerCase();
+  while (tokens.length > parameterCount) {
+    const value = tokens[tokens.length - 1];
+    const flag = options.normalizeFlag?.(value) ?? (flags.has(value.toLowerCase()) ? value.toLowerCase() : undefined);
 
+    if (flag === undefined) {
+      break;
+    }
+
+    tokens.pop();
     ruleFlags.unshift(flag);
   }
 

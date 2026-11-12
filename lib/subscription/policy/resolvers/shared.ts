@@ -87,7 +87,7 @@ export function booleanOption(declaration: GroupDeclaration, field: string): boo
 export function resolveMembers(declaration: GroupDeclaration, rules = declaration.rules): ProxyGroup {
   const members = parseMembers(rules, declaration.providers);
 
-  if (members.selectors.length === 0 && members.providerRefs.length === 0) {
+  if (members.selectors.length === 0 && members.providerRefs.length === 0 && !declaration.policyPath) {
     throw new EntryError(POLICY_ERROR_CODES.INVALID_POLICY_ENTRY, 'rule');
   }
 
@@ -97,6 +97,8 @@ export function resolveMembers(declaration: GroupDeclaration, rules = declaratio
     name: declaration.name,
     kind: declaration.kind,
     ...members,
+    ...(declaration.policyPath ? { policyPath: declaration.policyPath } : {}),
+    ...(declaration.flags !== undefined ? { flags: declaration.flags } : {}),
     ...(disableUdp !== undefined ? { disableUdp } : {}),
   };
 }
@@ -107,7 +109,7 @@ export function resolveTestGroup(declaration: GroupDeclaration, tolerance: boole
   let healthCheck: GroupHealthCheck;
 
   if (declaration.syntax === 'delimited') {
-    if (rules.length < 3) {
+    if (rules.length < (declaration.policyPath ? 2 : 3)) {
       throw new EntryError(POLICY_ERROR_CODES.INVALID_POLICY_ENTRY, 'rule');
     }
 

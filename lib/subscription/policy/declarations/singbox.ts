@@ -1,3 +1,4 @@
+import { splitGroupDeclaration } from './delimited';
 import { POLICY_ERROR_CODES } from '../../shared/errors';
 import { isRecord } from '../../shared/text';
 import type { ProxyGroupKind } from '../../types/policy';
@@ -14,7 +15,7 @@ export function readSingboxGroupDeclaration(input: unknown, format: ConfigFormat
   forbidImport(input);
 
   if (format === 'ini') {
-    const parts = text(input, 'entry').split('`');
+    const { parts, flags } = splitGroupDeclaration(text(input, 'entry'));
 
     if (parts.length < 3) {
       throw new EntryError(POLICY_ERROR_CODES.INVALID_POLICY_ENTRY);
@@ -28,7 +29,15 @@ export function readSingboxGroupDeclaration(input: unknown, format: ConfigFormat
       fields.interrupt_exist_connections = rules.pop() === 'true';
     }
 
-    return { name: text(parts[0], 'name'), kind: kind(parts[1]), rules, providers: [], syntax: 'delimited', fields };
+    return {
+      name: text(parts[0], 'name'),
+      kind: kind(parts[1]),
+      rules,
+      providers: [],
+      syntax: 'delimited',
+      fields,
+      ...(flags !== undefined ? { flags } : {}),
+    };
   }
 
   if (!isRecord(input)) {

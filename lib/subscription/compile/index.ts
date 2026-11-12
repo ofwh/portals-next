@@ -50,6 +50,15 @@ export function compile(input: CompileParams, options: CompileOptions = {}): Com
       throw new CompileError('INVALID_INPUT');
     }
 
+    if (
+      input.surgeSsrPath !== undefined &&
+      (input.target !== 'surge' ||
+        typeof input.surgeSsrPath !== 'string' ||
+        !/^\/[^"\\\x00-\x1f\x7f]+$/.test(input.surgeSsrPath))
+    ) {
+      throw new CompileError('INVALID_INPUT', 'surgeSsrPath');
+    }
+
     input.nodes.forEach((node) => proxyNodeType.parse(node));
     if (transformer.format !== 'uri') {
       input.groups.forEach((group) => proxyGroupType.parse(group));
@@ -76,6 +85,10 @@ export function compile(input: CompileParams, options: CompileOptions = {}): Com
         if (index !== -1) {
           throw new CompileError('UNSUPPORTED_RULE', 'rulesets', index);
         }
+      }
+
+      if (input.target !== 'surge' && input.groups.some((group) => group.policyPath)) {
+        throw new CompileError('INVALID_INPUT', 'groups.policyPath');
       }
 
       if (input.groups.some((group) => group.providerRefs.length)) {

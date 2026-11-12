@@ -1,13 +1,24 @@
-import { rulesFor, textRule } from './shared';
+import { loonTextRule } from './loon';
+import { quanxTextRule } from './quanx';
+import { rulesFor } from './shared';
+import { surfboardTextRule } from './surfboard';
+import { surgeTextRule } from './surge';
 import { ruleDelivery } from '../../../shared/compile';
 import type { IniDocument } from '../../../types/template';
 import { warn } from '../../diagnostics';
 import type { CompileContext } from '../../types';
 import { writeSection } from '../shared';
 
+const textRules: Partial<Record<CompileContext['target'], typeof loonTextRule>> = {
+  loon: loonTextRule,
+  quanx: quanxTextRule,
+  surfboard: surfboardTextRule,
+  surge: surgeTextRule,
+};
+
 export function iniRules(context: CompileContext, document: IniDocument): void {
   const target = context.target;
-  const section = target === 'quanx' ? 'filter_local' : target === 'mellow' ? 'RoutingRule' : 'Rule';
+  const section = target === 'quanx' ? 'filter_local' : 'Rule';
 
   if (context.options.overwriteOriginalRules) {
     writeSection(document, section, [], true);
@@ -20,6 +31,7 @@ export function iniRules(context: CompileContext, document: IniDocument): void {
     }
   }
 
+  const textRule = textRules[target] ?? loonTextRule;
   const output: string[] = [];
 
   for (const [index, ruleset] of context.rulesets.entries()) {
@@ -33,15 +45,10 @@ export function iniRules(context: CompileContext, document: IniDocument): void {
     if (delivery === 'remote' && ruleset.source.kind === 'resource') {
       const address = ruleset.source.address;
 
-      if (target === 'surge') {
-        if (ruleset.category === 'surge') {
-          output.push(
-            `RULE-SET,${address},${ruleset.group}${ruleset.interval ? `,update-interval=${ruleset.interval}` : ''}`,
-          );
-        } else {
-          warn(context, 'UNSUPPORTED_RULE', 'rulesets', index);
-        }
-
+      if (target === 'surge' || target === 'surfboard') {
+        output.push(
+          `RULE-SET,${address},${ruleset.group}${ruleset.interval ? `,update-interval=${ruleset.interval}` : ''}`,
+        );
         continue;
       }
 

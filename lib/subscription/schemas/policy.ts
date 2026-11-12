@@ -1,6 +1,7 @@
 import { appError } from '@/lib/api';
 import { assertJson, isRecord, nonempty } from '@/lib/shared/data';
 import type { NamedType, TypeDescriptor } from '@/lib/types/workflow';
+import { isSurgePolicyPath } from '../policy/declarations/surge';
 import { isProxyGroupKind } from '../shared/policy';
 import type { GroupHealthCheck, MemberSelector, ProxyGroup } from '../types/policy';
 
@@ -48,13 +49,20 @@ function isHealthCheck(value: unknown): value is GroupHealthCheck {
 }
 
 function isProxyGroup(value: unknown): value is ProxyGroup {
+  if (!isRecord(value)) {
+    return false;
+  }
+
+  const flags = value.flags;
+
   return (
-    isRecord(value) &&
     onlyKeys(value, [
       'name',
       'kind',
       'selectors',
       'providerRefs',
+      'policyPath',
+      'flags',
       'healthCheck',
       'disableUdp',
       'interruptExistConnections',
@@ -69,6 +77,12 @@ function isProxyGroup(value: unknown): value is ProxyGroup {
     value.selectors.every(isSelector) &&
     Array.isArray(value.providerRefs) &&
     value.providerRefs.every(nonempty) &&
+    (value.policyPath === undefined ||
+      (value.kind !== 'ssid' &&
+        isSurgePolicyPath(value.policyPath) &&
+        (!isRecord(flags) ||
+          !['policy-path', 'policy-regex-filter', 'update-interval'].some((key) => Object.hasOwn(flags, key))))) &&
+    (value.flags === undefined || isRecord(value.flags)) &&
     (value.healthCheck === undefined || isHealthCheck(value.healthCheck)) &&
     (value.interruptExistConnections === undefined ||
       (value.kind === 'select' && typeof value.interruptExistConnections === 'boolean')) &&
@@ -97,6 +111,7 @@ export const proxyGroupType: NamedType<ProxyGroup> = {
         { kind: 'array', items: { kind: 'string' } },
         { kind: 'array', items: selectorStructure },
         healthCheckStructure,
+        { kind: 'record', values: { kind: 'any' } },
       ],
     },
   },

@@ -1,3 +1,4 @@
+import { splitGroupDeclaration } from './delimited';
 import { POLICY_ERROR_CODES } from '../../shared/errors';
 import { isRecord } from '../../shared/text';
 import type { ConfigFormat } from '../../types/shared';
@@ -5,10 +6,13 @@ import { EntryError } from '../diagnostics';
 import { forbidImport, groupKind, stringList, text } from '../resolvers/shared';
 import type { GroupDeclaration } from '../resolvers/types';
 
-function delimitedDeclaration(input: unknown): GroupDeclaration {
-  const fields = text(input, 'entry').split('`');
+function delimitedDeclaration(input: unknown, jsonTail = false): GroupDeclaration {
+  const entry = text(input, 'entry');
+  const { parts: fields, flags } = jsonTail
+    ? splitGroupDeclaration(entry)
+    : { parts: entry.split('`'), flags: undefined };
 
-  if (fields.length < 3) {
+  if (fields.length < 2 || (fields.length < 3 && !Object.hasOwn(flags ?? {}, 'policy-path'))) {
     throw new EntryError(POLICY_ERROR_CODES.INVALID_POLICY_ENTRY);
   }
 
@@ -19,6 +23,7 @@ function delimitedDeclaration(input: unknown): GroupDeclaration {
     providers: [],
     syntax: 'delimited',
     fields: {},
+    ...(flags !== undefined ? { flags } : {}),
   };
 }
 
@@ -41,7 +46,7 @@ function yamlScalar(value: unknown, fallback: string, field: string): string {
 export function readGroupDeclaration(input: unknown, format: ConfigFormat): GroupDeclaration {
   forbidImport(input);
   if (format === 'ini') {
-    return delimitedDeclaration(input);
+    return delimitedDeclaration(input, true);
   }
 
   if (!isRecord(input)) {

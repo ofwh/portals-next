@@ -1,5 +1,5 @@
 import { inheritClashHealth } from './clash-health';
-import { members } from './shared';
+import { applyGroupFlags, members } from './shared';
 import type { ProxyNode } from '../../../types/proxy-node';
 import type { TemplateValue } from '../../../types/template';
 import { warn } from '../../diagnostics';
@@ -49,6 +49,7 @@ export function clashGroups(
 
     put(output, 'disable-udp', group.disableUdp);
     inheritClashHealth(output, original);
+    applyGroupFlags(output, group);
 
     if (!used.has(group.name)) {
       result.push(output);

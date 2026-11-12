@@ -78,6 +78,23 @@ export type ShadowsocksRNode = CommonNode &
     ssr: { protocol: string; protocolParam?: string; obfs: string; obfsParam?: string };
   };
 
+export type SnellNode = CommonNode &
+  Password & {
+    protocol: 'snell';
+    snell: {
+      snellVersion?: number;
+      snellReuse?: boolean;
+      snellUdpPort?: number;
+      snellMode?: 'default' | 'unshaped' | 'unsafe-raw';
+      shadowTlsPassword?: string;
+      shadowTlsSni?: string;
+      shadowTlsVersion?: number;
+      obfs?: string;
+      host?: string;
+      path?: string;
+    };
+  };
+
 export type VMessNode = CommonNode &
   Xray & {
     protocol: 'vmess';
@@ -185,6 +202,7 @@ export type MieruNode = CommonNode &
 export type ProviderNode =
   | ShadowsocksNode
   | ShadowsocksRNode
+  | SnellNode
   | VMessNode
   | VlessNode
   | TrojanNode

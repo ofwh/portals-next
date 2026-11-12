@@ -3,8 +3,7 @@ import type { ProxyNode } from './proxy-node';
 import type { RuleSet } from './ruleset';
 import type { ParsedTemplate } from './template';
 
-export type CompileTarget =
-  'mixed' | 'clash' | 'loon' | 'singbox' | 'quanx' | 'surge' | 'surfboard' | 'mellow' | 'v2rayn' | 'v2rayng';
+export type CompileTarget = 'mixed' | 'clash' | 'loon' | 'singbox' | 'quanx' | 'surge' | 'surfboard';
 export type CompileOptions = { enableRuleGenerator?: boolean; overwriteOriginalRules?: boolean };
 export type CompileParams = {
   target: CompileTarget;
@@ -12,6 +11,7 @@ export type CompileParams = {
   groups: ProxyGroup[];
   rulesets: RuleSet[];
   template?: ParsedTemplate;
+  surgeSsrPath?: string;
   resources?: Readonly<Record<string, string>>;
 };
 export type CompileErrorCode =

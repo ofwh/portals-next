@@ -67,11 +67,7 @@ export async function resolve(
 ): Promise<Record<string, string>> {
   const resources: Record<string, string> = {};
 
-  if (
-    target !== 'singbox' &&
-    !['mixed', 'v2rayn', 'v2rayng'].includes(target) &&
-    rulesets.some((ruleset) => ruleset.category === 'singbox')
-  ) {
+  if (target !== 'singbox' && target !== 'mixed' && rulesets.some((ruleset) => ruleset.category === 'singbox')) {
     throw appError('workflow.COMPILE_FAILED');
   }
 

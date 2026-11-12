@@ -93,6 +93,9 @@ export function transform(node: ProviderNode): ProxyNode {
       result.obfs = node.ssr.obfs;
       result.obfsParam = node.ssr.obfsParam;
       break;
+    case 'snell':
+      Object.assign(result, node.snell);
+      break;
     case 'vmess':
       result.alterId = node.alterId;
       break;

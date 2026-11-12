@@ -8,8 +8,6 @@ import {
   DialogDescription,
   DialogFooter,
   DialogHeader,
-  DialogOverlay,
-  DialogPortal,
   DialogTitle,
 } from '@/components/ui/dialog';
 
@@ -27,9 +25,6 @@ export function FormErrorDialog({ error, onClose }: { error: string; onClose: ()
         }
       }}
     >
-      <DialogPortal>
-        <DialogOverlay forceRender />
-      </DialogPortal>
       <DialogContent showCloseButton={false}>
         <DialogHeader>
           <DialogTitle>{t('shared.formErrorTitle')}</DialogTitle>

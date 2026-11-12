@@ -1,6 +1,7 @@
 export type ProxyProtocol =
   | 'ss'
   | 'ssr'
+  | 'snell'
   | 'vmess'
   | 'vless'
   | 'trojan'
@@ -57,6 +58,13 @@ export interface ProxyNode {
   testUrl?: string;
   plugin?: string;
   pluginOptions?: string[];
+  snellVersion?: number;
+  snellReuse?: boolean;
+  snellUdpPort?: number;
+  snellMode?: 'default' | 'unshaped' | 'unsafe-raw';
+  shadowTlsPassword?: string;
+  shadowTlsSni?: string;
+  shadowTlsVersion?: number;
   ssrProtocol?: string;
   ssrProtocolParam?: string;
   obfs?: string;

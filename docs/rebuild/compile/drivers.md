@@ -6,18 +6,15 @@
 
 支持以下目标，名称不参与格式推断；驱动由 `target` 显式选择。
 
-| target    | 显示名称     | 输出形式                         | 参考转换入口                             |
-| --------- | ------------ | -------------------------------- | ---------------------------------------- |
-| mixed     | Mixed        | Base64 编码的混合 URI 列表       | `proxyToSingle`，使用 Mixed 协议集合     |
-| clash     | Clash        | YAML 配置                        | `proxyToClash`                           |
-| loon      | Loon         | INI 配置                         | `proxyToLoon`                            |
-| singbox   | sing-box     | JSON 配置                        | `proxyToSingBox`                         |
-| quanx     | Quantumult X | INI 配置                         | `proxyToQuanX`                           |
-| surge     | Surge        | INI 配置                         | `proxyToSurge`，采用默认版本 3           |
-| surfboard | Surfboard    | INI 配置                         | `proxyToSurge`，采用 Surfboard 分支 `-3` |
-| mellow    | Mellow       | INI 配置                         | `proxyToMellow`                          |
-| v2rayn    | v2rayN       | Base64 编码的客户端配置 URI 列表 | `proxyToV2RayClient`，V2RayN 分支        |
-| v2rayng   | v2rayNG      | Base64 编码的客户端配置 URI 列表 | `proxyToV2RayClient`，V2RayNG 分支       |
+| target    | 显示名称     | 输出形式                   | 参考转换入口                             |
+| --------- | ------------ | -------------------------- | ---------------------------------------- |
+| mixed     | Mixed        | Base64 编码的混合 URI 列表 | `proxyToSingle`，使用 Mixed 协议集合     |
+| clash     | Clash        | YAML 配置                  | `proxyToClash`                           |
+| loon      | Loon         | INI 配置                   | `proxyToLoon`                            |
+| singbox   | sing-box     | JSON 配置                  | `proxyToSingBox`                         |
+| quanx     | Quantumult X | INI 配置                   | `proxyToQuanX`                           |
+| surge     | Surge        | INI 配置                   | `proxyToSurge`，采用版本 4               |
+| surfboard | Surfboard    | INI 配置                   | `proxyToSurge`，采用 Surfboard 分支 `-3` |
 
 ## 节点转换
 
@@ -25,13 +22,13 @@
 
 节点类型、字段别名、可选字段省略、默认字段、TLS 与传输层嵌套、插件限制、IPv6 地址、名称转义及冲突处理均依照对应 `proxyTo*` 分支。成功输出后的名称用于分组正则匹配及成员写入，不能继续使用转换前的名称或被过滤节点。sing-box 的 uTLS 输出遵循[兼容调整方案](../ruleset/sing-box%20规则与策略兼容调整方案.md#55-utls-输出边界)。
 
-Mixed 使用参考 Mixed 集合中的协议与分享链接生成方式，每条 URI 后追加换行，再对完整内容进行 Base64 编码。v2rayN/v2rayNG 使用各自的客户端配置载荷生成分支，形成 `v2rayn://<scheme>/<URL-safe Base64 载荷>` 行，再对完整列表进行 Base64 编码；不能退化为普通 Mixed URI 集合。WireGuard 等一节点多配置输出及失败回滚按参考客户端生成器处理。
+Mixed 使用参考 Mixed 集合中的协议与分享链接生成方式，每条 URI 后追加换行，再对完整内容进行 Base64 编码。
 
 ## 分组转换
 
-成员求值遵循 `groupGenerate` 及其匹配器：普通选择表达式匹配实际输出节点，保持节点遍历顺序并避免重复加入已匹配名称；`[]` 显式成员在目标允许时直接写入，供内置策略和其他分组引用使用。显式成员不套用普通匹配成员的统一去重规则；Mellow 沿用不启用显式成员插入的调用方式。不引入脚本选择分支。
+成员求值遵循 `groupGenerate` 及其匹配器：普通选择表达式匹配实际输出节点，保持节点遍历顺序并避免重复加入已匹配名称；`[]` 显式成员在目标允许时直接写入，供内置策略和其他分组引用使用。显式成员不套用普通匹配成员的统一去重规则。不引入脚本选择分支。
 
-各目标的支持类型、类型降级、单成员处理、健康检查参数和空成员回退由驱动决定。sing-box 的分组支持范围、参数缺省和空成员处理遵循[兼容调整方案](../ruleset/sing-box%20规则与策略兼容调整方案.md#4-策略模块)；Mellow 在无匹配成员时回退全部已输出节点，节点也为空时才回退 DIRECT。不能统一转换为 select 或统一删除空分组。
+各目标的支持类型、类型降级、单成员处理、健康检查参数和空成员回退由驱动决定。sing-box 的分组支持范围、参数缺省和空成员处理遵循[兼容调整方案](../ruleset/sing-box%20规则与策略兼容调整方案.md#4-策略模块)。不能统一转换为 select 或统一删除空分组。
 
 节点重命名、分组直接引用和规则策略目标分别按照参考逻辑处理，不新增跨目标的全局重命名传播、引用删除或强制引用闭合流程。sing-box 的生成引用校验及内置直连别名处理遵循[兼容调整方案](../ruleset/sing-box%20规则与策略兼容调整方案.md#53-出站动作与终结规则)；模板保留规则不执行全局引用修复。
 
@@ -43,7 +40,7 @@ Mixed 使用参考 Mixed 集合中的协议与分享链接生成方式，每条 
 
 Clash 资源固定使用远程引用：HTTP/HTTPS 的 clash-domain、clash-ipcidr、clash-classic 分别生成 domain、ipcidr、classical 类型的 `rule-providers`，并按声明顺序写入 `RULE-SET`。provider key 按参考应用从原始来源地址提取去扩展名的文件名并进行 URL 解码；仅在本次生成项间追加空格和递增编号处理重名，不避让模板已有 key。同名模板 provider 在原对象上更新生成字段，其他字段保留；缓存路径仍避开已有路径。按来源扩展名生成 format，保留更新周期及适用的 no-resolve。编译节点不获取 Clash 规则资源正文；不能直接消费的类别或来源以诊断跳过，不执行下载、转换或展开。
 
-其他目标的远程资源是否展开由参考目标分支决定：Quantumult X 可将原生远程规则写入 `filter_remote`，Loon 可写入 `Remote Rule`，Surge/Surfboard 按其版本和来源类型选择原生规则引用或正文展开。保留引用所需的地址、目标与更新信息，不能一律下载展开。依赖未纳入范围的托管转换地址的分支不启用；需要正文的分支使用调用层提供的资源内容，空正文及无效条目按参考行为处理。
+其他目标的远程资源是否展开由参考目标分支决定：Quantumult X 可将原生远程规则写入 `filter_remote`，Loon 可写入 `Remote Rule`，Surge 直接引用原生远程规则，Surfboard 将 HTTP(S) 规则集 URL 直接写入 `[Rule]` 的 `RULE-SET`，由客户端加载正文。保留引用所需的地址、目标与更新信息，不能一律下载展开。依赖未纳入范围的托管转换地址的分支不启用；需要正文的分支使用调用层提供的资源内容，空正文及无效条目按参考行为处理。
 
 sing-box 的通用展开规则按单个资源声明内的目标字段及来源/目的属性分桶，桶内值去重，按参考有序映射的键顺序输出；不同声明之间不合桶。原生 remote、显式规则集引用、PRIVATE、拒绝动作及终结规则遵循[兼容调整方案](../ruleset/sing-box%20规则与策略兼容调整方案.md#5-编译与资源交付)。
 
@@ -51,15 +48,14 @@ sing-box 的通用展开规则按单个资源声明内的目标字段及来源/�
 
 模板融合由驱动完成，模板模块只负责解析和保存数据。以下为普通配置分支的融合规则，参数行为见[服务参数与分支](README.md#参数与分支)。
 
-| 目标                     | 节点与分组融合                                                                                                                                                                  | 启用规则生成后的融合                                                                                         |
-| ------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------ |
-| Clash                    | 有输入节点或成功生成节点时替换 `proxies`；输入节点列表为空时保留模板 `proxies`。以生成分组整体替换 `proxy-groups`，同名生成分组仅保留首次结果；覆盖前提取允许继承的健康检查字段 | `false`：原 `rules` 在前、生成规则在后；`true`：仅写入生成规则。不因模板已有 MATCH 而重排追加位置            |
-| Surge / Surfboard        | 清空并重建 `[Proxy]`，先写入 `DIRECT = direct`；清空并重建 `[Proxy Group]`                                                                                                      | `false`：保留 `[Rule]` 后追加；`true`：清空该节再写入。Surfboard 使用自身能力限制，不直接套用 Surge 支持范围 |
-| Loon                     | 清空并重建 `[Proxy]`、`[Proxy Group]`；保留同名模板分组末尾可继承的 `img-url` 项                                                                                                | `false`：保留 `[Rule]`、`[Remote Rule]` 并分别追加对应规则；`true`：同时清空这两个节后写入                   |
-| Quantumult X             | 清空并重建 `[server_local]`、`[policy]`；保留同名模板分组末尾可继承的 `img-url` 项                                                                                              | `false`：保留 `[filter_local]`、`[filter_remote]` 并分别追加；`true`：同时清空这两个节后写入                 |
-| Mellow                   | 在模板 `[Endpoint]`、`[EndpointGroup]` 后追加生成项，不整体清空原节                                                                                                             | `false`：保留 `[RoutingRule]` 后追加；`true`：清空该节再写入                                                 |
-| sing-box                 | 用生成的 DIRECT、成功输出节点及显式声明的分组整体替换 `outbounds`，不按 tag 合并模板 outbound                                                                                   | 按下述 `route` 专用流程处理，不对整个 `route` 做替换                                                         |
-| Mixed / v2rayN / v2rayNG | 仅生成节点订阅                                                                                                                                                                  | 不读取模板、分组及策略，不生成配置文件规则                                                                   |
+| 目标              | 节点与分组融合                                                                                                                                                                  | 启用规则生成后的融合                                                                                         |
+| ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------ |
+| Clash             | 有输入节点或成功生成节点时替换 `proxies`；输入节点列表为空时保留模板 `proxies`。以生成分组整体替换 `proxy-groups`，同名生成分组仅保留首次结果；覆盖前提取允许继承的健康检查字段 | `false`：原 `rules` 在前、生成规则在后；`true`：仅写入生成规则。不因模板已有 MATCH 而重排追加位置            |
+| Surge / Surfboard | 清空并重建 `[Proxy]`，先写入 `DIRECT = direct`；清空并重建 `[Proxy Group]`                                                                                                      | `false`：保留 `[Rule]` 后追加；`true`：清空该节再写入。Surfboard 使用自身能力限制，不直接套用 Surge 支持范围 |
+| Loon              | 清空并重建 `[Proxy]`、`[Proxy Group]`；保留同名模板分组末尾可继承的 `img-url` 项                                                                                                | `false`：保留 `[Rule]`、`[Remote Rule]` 并分别追加对应规则；`true`：同时清空这两个节后写入                   |
+| Quantumult X      | 清空并重建 `[server_local]`、`[policy]`；保留同名模板分组末尾可继承的 `img-url` 项                                                                                              | `false`：保留 `[filter_local]`、`[filter_remote]` 并分别追加；`true`：同时清空这两个节后写入                 |
+| sing-box          | 用生成的 DIRECT、成功输出节点及显式声明的分组整体替换 `outbounds`，不按 tag 合并模板 outbound                                                                                   | 按下述 `route` 专用流程处理，不对整个 `route` 做替换                                                         |
+| Mixed             | 仅生成节点订阅                                                                                                                                                                  | 不读取模板、分组及策略，不生成配置文件规则                                                                   |
 
 Clash 的健康检查字段继承遵循参考实现：仅在同名、转换后类型一致且模板信息无歧义时，补入生成分组未提供的 `expected-status`、`timeout`、`lazy`。值是否合法、重复定义、显式空值及 YAML 合并键的优先级按参考辅助函数处理，不复制整个模板分组。配置文件中未被目标生成器修改的字段或节继续保留。
 

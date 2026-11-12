@@ -7,6 +7,8 @@ export type GroupDeclaration = {
   providers: string[];
   syntax: 'delimited' | 'object';
   fields: Record<string, unknown>;
+  flags?: ProxyGroup['flags'];
+  policyPath?: ProxyGroup['policyPath'];
 };
 
 export type GroupCategoryResolver = {

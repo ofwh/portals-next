@@ -1,10 +1,47 @@
 import { Buffer } from 'node:buffer';
-import { textRule } from './shared';
+import { supportsRule } from './shared';
 import { ruleDelivery } from '../../../shared/compile';
-import type { RuleCategory } from '../../../types/ruleset';
+import type { Rule, RuleCategory, RuleSet } from '../../../types/ruleset';
 import { CompileError, warn } from '../../diagnostics';
 import type { CompileContext, TargetObject } from '../../types';
 import { object } from '../shared';
+
+const clashRuleTypes = [
+  'DOMAIN',
+  'DOMAIN-SUFFIX',
+  'DOMAIN-KEYWORD',
+  'IP-CIDR',
+  'SRC-IP-CIDR',
+  'GEOIP',
+  'MATCH',
+  'FINAL',
+  'IP-CIDR6',
+  'SRC-PORT',
+  'DST-PORT',
+  'PROCESS-NAME',
+  'DOMAIN-REGEX',
+  'GEOSITE',
+  'IP-SUFFIX',
+  'IP-ASN',
+  'SRC-GEOIP',
+  'SRC-IP-ASN',
+  'SRC-IP-SUFFIX',
+  'IN-PORT',
+  'IN-TYPE',
+  'IN-USER',
+  'IN-NAME',
+  'PROCESS-PATH-REGEX',
+  'PROCESS-PATH',
+  'PROCESS-NAME-REGEX',
+  'UID',
+  'NETWORK',
+  'DSCP',
+  'SUB-RULE',
+  'RULE-SET',
+  'AND',
+  'OR',
+  'NOT',
+];
 
 const behaviors: Partial<Record<RuleCategory, string>> = {
   'clash-domain': 'domain',
@@ -95,7 +132,7 @@ export function clashRules(context: CompileContext, document: TargetObject): str
 
   for (const [index, ruleset] of context.rulesets.entries()) {
     if (ruleset.source.kind === 'inline') {
-      const rule = textRule(context, ruleset.source.rule, ruleset, true, index);
+      const rule = clashTextRule(context, ruleset.source.rule, ruleset, true, index);
 
       if (rule !== undefined) {
         output.push(rule);
@@ -160,4 +197,40 @@ export function clashRules(context: CompileContext, document: TargetObject): str
   }
 
   return output;
+}
+
+export function clashTextRule(
+  context: CompileContext,
+  rule: Rule,
+  ruleset: RuleSet,
+  inline: boolean,
+  index: number,
+): string | undefined {
+  if (!supportsRule(context, rule, clashRuleTypes, inline, index)) {
+    return;
+  }
+
+  if (rule.type === 'MATCH' || rule.type === 'FINAL') {
+    return `MATCH,${ruleset.group}`;
+  }
+
+  if (
+    ['AND', 'OR', 'NOT', 'SUB-RULE', 'DOMAIN-REGEX', 'PROCESS-NAME-REGEX', 'PROCESS-PATH-REGEX'].includes(rule.type)
+  ) {
+    return [rule.type, ...rule.parameters, ...rule.flags, ruleset.group].join(',');
+  }
+
+  const flags = rule.flags.slice(0, 1);
+
+  if (
+    !inline &&
+    ruleset.options.noResolve &&
+    ruleset.category === 'clash-ipcidr' &&
+    ['IP-CIDR', 'IP-CIDR6'].includes(rule.type) &&
+    !flags.includes('no-resolve')
+  ) {
+    flags.push('no-resolve');
+  }
+
+  return [rule.type, ...rule.parameters, ruleset.group, ...flags].join(',');
 }

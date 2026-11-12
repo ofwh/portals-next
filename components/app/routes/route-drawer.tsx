@@ -70,7 +70,7 @@ export function RouteDrawer({
       swipeDirection="right"
       open={open}
       onOpenChange={(nextOpen) => {
-        if (submitting || (nextOpen && disabled)) {
+        if (submitting || Boolean(error) || (nextOpen && disabled)) {
           return;
         }
 
@@ -118,10 +118,7 @@ export function RouteDrawer({
           {triggerLabel ?? (id ? t('shared.edit') : t(`admin.routes.${mode}.create`))}
         </DrawerTrigger>
       )}
-      <DrawerContent
-        inert={Boolean(error)}
-        className="data-[swipe-axis=x]:w-full data-[swipe-axis=x]:max-w-225 data-[swipe-axis=x]:sm:w-1/2"
-      >
+      <DrawerContent className="has-[[data-code-editor-fullscreen]]:transform-none has-[[data-code-editor-fullscreen]]:transition-none has-[[data-code-editor-fullscreen]]:will-change-auto data-[swipe-axis=x]:w-full data-[swipe-axis=x]:max-w-225 data-[swipe-axis=x]:sm:w-1/2">
         <DrawerHeader className="relative border-b p-6 pr-16">
           <DrawerTitle className="text-xl">
             {t(id ? `admin.routes.${mode}.editTitle` : `admin.routes.${mode}.newTitle`)}
@@ -172,8 +169,8 @@ export function RouteDrawer({
             </Button>
           </DrawerFooter>
         </form>
+        <FormErrorDialog error={error} onClose={clearError} />
       </DrawerContent>
-      <FormErrorDialog error={error} onClose={clearError} />
     </Drawer>
   );
 }

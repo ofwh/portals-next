@@ -82,18 +82,20 @@ export function compileSingbox(context: CompileContext): string {
 
 export function compileIni(context: CompileContext): string {
   const document = templateIni(context);
-  const section = context.target === 'quanx' ? 'server_local' : context.target === 'mellow' ? 'Endpoint' : 'Proxy';
+  const section = context.target === 'quanx' ? 'server_local' : 'Proxy';
 
-  if (context.target !== 'mellow') {
-    writeSection(
-      document,
-      section,
-      context.target === 'surge' || context.target === 'surfboard' ? ['DIRECT = direct'] : [],
-      true,
-    );
-  }
+  writeSection(
+    document,
+    section,
+    context.target === 'surge' || context.target === 'surfboard' ? ['DIRECT = direct'] : [],
+    true,
+  );
 
-  const nodes = encodeNodes(context, (node, index) => iniNode(node, context.target, document, index), true);
+  const nodes = encodeNodes(
+    context,
+    (node, index) => iniNode(node, context.target, document, index, context.surgeSsrPath),
+    true,
+  );
 
   writeSection(
     document,

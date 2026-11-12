@@ -1,8 +1,8 @@
 'use client';
 
-import { Copy, FileInput, ListOrdered, WrapText } from 'lucide-react';
+import { Check, Copy, FileInput, ListOrdered, TextAlignJustify, WrapText } from 'lucide-react';
 import { useTranslations } from 'next-intl';
-import { Fragment, useState } from 'react';
+import { Fragment, useEffect, useRef, useState } from 'react';
 import { toast } from 'sonner';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -102,6 +102,17 @@ function RunDataPanel({ label, value, emptyLabel }: { label: string; value: unkn
   const t = useTranslations();
   const [wrapLines, setWrapLines] = useState(true);
   const [showLineNumbers, setShowLineNumbers] = useState(false);
+  const [copied, setCopied] = useState(false);
+  const copyTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (copyTimeoutRef.current !== null) {
+        clearTimeout(copyTimeoutRef.current);
+      }
+    };
+  }, []);
+
   const content =
     value === undefined
       ? emptyLabel
@@ -115,6 +126,15 @@ function RunDataPanel({ label, value, emptyLabel }: { label: string; value: unkn
   async function copyContent() {
     try {
       await navigator.clipboard.writeText(content);
+      setCopied(true);
+      if (copyTimeoutRef.current !== null) {
+        clearTimeout(copyTimeoutRef.current);
+      }
+
+      copyTimeoutRef.current = setTimeout(() => {
+        setCopied(false);
+        copyTimeoutRef.current = null;
+      }, 1000);
       toast.success(t('shared.copySuccess'));
     } catch {
       toast.error(t('shared.copyError'));
@@ -163,7 +183,7 @@ function RunDataPanel({ label, value, emptyLabel }: { label: string; value: unkn
             className="bg-popover"
             onClick={() => setWrapLines((current) => !current)}
           >
-            <WrapText className="size-4" />
+            {wrapLines ? <WrapText className="size-4" /> : <TextAlignJustify className="size-4" />}
           </Button>
           <Button
             type="button"
@@ -174,7 +194,7 @@ function RunDataPanel({ label, value, emptyLabel }: { label: string; value: unkn
             onClick={copyContent}
             className="bg-popover"
           >
-            <Copy className="size-4" />
+            {copied ? <Check className="size-4" /> : <Copy className="size-4" />}
           </Button>
         </div>
       </div>

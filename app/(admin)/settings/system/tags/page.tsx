@@ -225,7 +225,7 @@ function TagDrawer({
       swipeDirection="right"
       open={open}
       onOpenChange={(nextOpen) => {
-        if (submitting || (nextOpen && disabled)) {
+        if (submitting || Boolean(error) || (nextOpen && disabled)) {
           return;
         }
 
@@ -266,10 +266,7 @@ function TagDrawer({
           {triggerLabel ?? (tagId ? t('shared.edit') : t('admin.settings.system.tags.create'))}
         </DrawerTrigger>
       )}
-      <DrawerContent
-        inert={Boolean(error)}
-        className="data-[swipe-axis=x]:w-full data-[swipe-axis=x]:max-w-160 data-[swipe-axis=x]:sm:w-1/2"
-      >
+      <DrawerContent className="data-[swipe-axis=x]:w-full data-[swipe-axis=x]:max-w-160 data-[swipe-axis=x]:sm:w-1/2">
         <DrawerHeader className="relative border-b p-6 pr-16">
           <DrawerTitle className="text-xl">
             {t(tagId ? 'admin.settings.system.tags.editTitle' : 'admin.settings.system.tags.newTitle')}
@@ -324,8 +321,8 @@ function TagDrawer({
             </Button>
           </DrawerFooter>
         </form>
+        <FormErrorDialog error={error} onClose={clearError} />
       </DrawerContent>
-      <FormErrorDialog error={error} onClose={clearError} />
     </Drawer>
   );
 }
