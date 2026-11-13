@@ -20,6 +20,7 @@
   "dependencies": {
     "@base-ui/react": "^1.9.0",
     "@better-auth/drizzle-adapter": "^1.7.12",
+    "@chainsafe/is-ip": "^2.1.0",
     "@codemirror/language": "^6.13.1",
     "@codemirror/language-data": "^6.5.2",
     "@codemirror/state": "^6.7.6",
