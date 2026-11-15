@@ -1,7 +1,7 @@
 import { appError, AppError, errorMessage } from '@/lib/api';
 import { isRecord } from '@/lib/shared/data';
 import { compilePattern } from '@/lib/shared/regex';
-import { proxyNodeType } from '@/lib/subscription/schemas/proxy-node';
+import { proxyNodeType } from '@/lib/sub/node/schema';
 import type { Parser } from '@/lib/types/workflow';
 import { arrayOf } from '@/lib/workflow/node/core/schemas';
 import type { ConfigIssue, NodeConfigValidationContext } from '@/lib/workflow/node/types';

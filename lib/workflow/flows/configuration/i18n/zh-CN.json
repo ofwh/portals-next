@@ -1,27 +1,19 @@
 {
-  "ruleset": {
-    "name": "规则集解析",
-    "description": "解析配置并输出规则集列表",
-    "transformerHelp": "订阅类型解析器"
-  },
-  "policy": {
-    "name": "策略集解析",
-    "description": "解析配置并输出策略分组列表",
-    "transformerHelp": "订阅类型解析方式"
+  "config": {
+    "name": "配置解析",
+    "description": "解析配置文本并输出配置声明列表"
   },
   "shared": {
     "format": "配置格式",
     "formatHelp": "输入文本格式",
-    "formatPlaceholder": "请选择配置格式",
-    "resolver": "解析方式",
-    "resolverPlaceholder": "请选择解析类别"
+    "formatPlaceholder": "请选择配置格式"
   },
   "template": {
     "name": "模板解析",
     "description": "将已渲染的模板文本解析为带格式标记的文档"
   },
   "compile": {
-    "name": "编译生成",
+    "name": "订阅生成",
     "description": "将节点、分组、规则集及模板编译为订阅内容",
     "target": "输出类型",
     "targetHelp": "目标订阅格式",

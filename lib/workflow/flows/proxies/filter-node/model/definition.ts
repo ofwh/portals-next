@@ -1,4 +1,4 @@
-import type { ProxyProtocol } from '@/lib/subscription/types/proxy-node';
+import type { ProxyProtocol } from '@/lib/sub/types';
 import { nodeLabel } from '@/lib/workflow/node/utils';
 import type { FilterConfig } from './types';
 

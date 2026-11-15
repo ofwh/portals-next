@@ -1,9 +1,9 @@
-import { appendCollection, defineTemplate, parseObject, TemplateError } from '../../shared/template';
+import { appendCollection, defineTemplate, parseJson, TemplateError } from '../../shared/template';
 
 export const template = defineTemplate({
   type: 'singbox',
   parse(input) {
-    const value = parseObject(input, 'json');
+    const value = parseJson(input);
 
     appendCollection(value, 'outbounds', []);
     appendCollection(value, 'endpoints', []);

@@ -1,3 +1,3 @@
-import type { TemplateFormat } from '@/lib/subscription/types/template';
+import type { TemplateFormat } from '@/lib/sub/types';
 
 export type TemplateResolveConfig = { format: TemplateFormat | '' };

@@ -1,10 +1,9 @@
 import { appError, errorMessage } from '@/lib/api';
 import { isRecord } from '@/lib/shared/data';
-import { proxyGroupType } from '@/lib/subscription/schemas/policy';
-import { proxyNodeType } from '@/lib/subscription/schemas/proxy-node';
-import { ruleSetType } from '@/lib/subscription/schemas/ruleset';
-import { templateType } from '@/lib/subscription/schemas/template';
-import { isCompileTarget } from '@/lib/subscription/shared/compile';
+import { configDeclarationType } from '@/lib/sub/config/schema';
+import { proxyNodeType } from '@/lib/sub/node/schema';
+import { isCompileTarget } from '@/lib/sub/shared';
+import { templateType } from '@/lib/sub/template/schema';
 import type { Parser, ValueSchema } from '@/lib/types/workflow';
 import { arrayOf, stringValue, unionOf } from '@/lib/workflow/node/core/schemas';
 import type { ConfigIssue, NodeConfigValidationContext } from '@/lib/workflow/node/types';
@@ -30,7 +29,7 @@ export const configSchema: Parser<CompileNodeConfig> = {
   },
 };
 export const inputSchema: ValueSchema<CompileNodeValue> = unionOf(
-  unionOf(arrayOf(proxyNodeType), arrayOf(proxyGroupType)),
-  unionOf(arrayOf(ruleSetType), templateType),
+  unionOf(arrayOf(proxyNodeType), arrayOf(configDeclarationType)),
+  templateType,
 );
 export const outputSchema = stringValue;

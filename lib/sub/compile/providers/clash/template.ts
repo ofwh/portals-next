@@ -1,10 +1,10 @@
 import { stringify } from 'yaml';
-import { appendCollection, defineTemplate, parseObject, TemplateError } from '../../shared/template';
+import { appendCollection, defineTemplate, parseYaml, TemplateError } from '../../shared/template';
 
 export const template = defineTemplate({
   type: 'clash',
   parse(input) {
-    const value = parseObject(input, 'yaml');
+    const value = parseYaml(input);
 
     appendCollection(value, 'proxies', []);
 

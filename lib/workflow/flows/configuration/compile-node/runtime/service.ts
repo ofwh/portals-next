@@ -1,16 +1,10 @@
 import 'server-only';
 import { appError } from '@/lib/api';
 import logger from '@/lib/api/logger';
-import compileService from '@/lib/subscription/compile';
-import { compileTargets, isCompileTarget } from '@/lib/subscription/shared/compile';
-import type { ParsedTemplate } from '@/lib/subscription/types/template';
+import { compile as compileSubscription, ConfigCompileError, TemplateError } from '@/lib/sub/compile';
+import { COMPILE_TARGETS, isCompileTarget } from '@/lib/sub/shared';
 import type { ExecutionContext } from '@/lib/workflow/node/types';
-import { resolve } from './resources';
 import type { CompileNodeConfig, CompileNodeData } from '../model/types';
-
-function emptyTemplate(format: 'yaml' | 'json' | 'ini'): ParsedTemplate {
-  return format === 'ini' ? { format, value: { sections: [] } } : { format, value: {} };
-}
 
 export async function compile(
   data: CompileNodeData,
@@ -18,39 +12,49 @@ export async function compile(
   context: ExecutionContext,
 ): Promise<string> {
   context.signal.throwIfAborted();
+
   if (!isCompileTarget(config.target)) {
     throw appError('common.INVALID_PARAMS');
   }
 
   const target = config.target;
-  const format = compileTargets[target].format;
+  const format = COMPILE_TARGETS[target].format;
 
   if (format !== 'uri' && data.template && data.template.format !== format) {
     throw appError('workflow.COMPILE_TEMPLATE_MISMATCH');
   }
 
-  const resources = await resolve(target, data.rulesets, context);
+  try {
+    const result = compileSubscription({
+      target,
+      nodes: data.nodes,
+      config: data.config,
+      ...(target !== 'mixed' && data.template ? { template: { ...data.template, target } } : {}),
+    });
 
-  context.signal.throwIfAborted();
-  const result = compileService.compile({
-    ...data,
-    target,
-    ...(format !== 'uri' ? { template: data.template ?? emptyTemplate(format) } : {}),
-    resources,
-  });
+    context.signal.throwIfAborted();
 
-  for (const diagnostic of result.diagnostics) {
-    logger.warn('Compilation entry filtered', { runId: context.runId, nodeId: context.nodeId, ...diagnostic });
+    return result.content;
+  } catch (error) {
+    context.signal.throwIfAborted();
+
+    if (!(error instanceof ConfigCompileError) && !(error instanceof TemplateError)) {
+      throw error;
+    }
+
+    logger.warn('Subscription compilation failed', {
+      runId: context.runId,
+      nodeId: context.nodeId,
+      target,
+      ...(error instanceof ConfigCompileError ? { index: error.index } : { code: error.code }),
+    });
+
+    throw appError(
+      error instanceof TemplateError && error.code === 'TEMPLATE_MISMATCH'
+        ? 'workflow.COMPILE_TEMPLATE_MISMATCH'
+        : 'workflow.COMPILE_FAILED',
+    );
   }
-  if (!result.ok) {
-    logger.warn('Subscription compilation failed', { runId: context.runId, nodeId: context.nodeId, ...result.error });
-
-    throw appError('workflow.COMPILE_FAILED');
-  }
-
-  context.signal.throwIfAborted();
-
-  return result.content;
 }
 
 const service = { compile };

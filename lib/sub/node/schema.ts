@@ -1,7 +1,7 @@
 import { appError } from '@/lib/api';
 import { assertJson, isRecord } from '@/lib/shared/data';
 import type { NamedType } from '@/lib/types/workflow';
-import type { ProxyNode, ProxyProtocol } from '../shared/types';
+import type { ProxyNode, ProxyProtocol } from '../types';
 
 type Check = (value: unknown) => boolean;
 const text: Check = (value) => typeof value === 'string';

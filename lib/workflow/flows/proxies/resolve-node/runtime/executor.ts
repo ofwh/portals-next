@@ -1,4 +1,4 @@
-import type { ProxyNode } from '@/lib/subscription/types/proxy-node';
+import type { ProxyNode } from '@/lib/sub/types';
 import type { ExecutionContext } from '@/lib/workflow/node/types';
 import providerService from './service';
 import type { ProxyListConfig } from '../model/types';

@@ -1,10 +1,10 @@
 import 'server-only';
 import { appError } from '@/lib/api';
-import { parseProviders, proxyProtocols } from '@/lib/subscription/providers';
-import type { ProxyNode } from '@/lib/subscription/types/proxy-node';
+import { parseProviders, PROXY_PROTOCOLS } from '@/lib/sub/node';
+import type { ProxyNode } from '@/lib/sub/types';
 import type { ExecutionContext } from '@/lib/workflow/node/types';
 
-const protocols = new Set(proxyProtocols);
+const protocols = new Set(PROXY_PROTOCOLS);
 
 export function parse(inputs: readonly string[], context: ExecutionContext): ProxyNode[] {
   const nodes: ProxyNode[] = [];

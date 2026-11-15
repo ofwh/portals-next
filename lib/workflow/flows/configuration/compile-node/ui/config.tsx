@@ -4,7 +4,7 @@ import { useTranslations } from 'next-intl';
 import { useId } from 'react';
 import { Field, FieldContent, FieldDescription, FieldGroup, FieldLabel } from '@/components/ui/field';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { compileTargetOptions, isCompileTarget } from '@/lib/subscription/shared/compile';
+import { COMPILE_TARGET_OPTIONS, isCompileTarget } from '@/lib/sub/shared';
 import type { NodeFormProps } from '@/lib/workflow/node/types';
 import type { CompileNodeConfig } from '../model/types';
 
@@ -39,11 +39,11 @@ function ConfigForm({ value, onChange, disabled, issues }: NodeFormProps<Compile
                 className="w-full"
               >
                 <SelectValue placeholder={t('targetPlaceholder')}>
-                  {compileTargetOptions.find((option) => option.value === value.target)?.label}
+                  {COMPILE_TARGET_OPTIONS.find((option) => option.value === value.target)?.label}
                 </SelectValue>
               </SelectTrigger>
               <SelectContent side="bottom" alignItemWithTrigger={false}>
-                {compileTargetOptions.map(({ value: target, label }) => (
+                {COMPILE_TARGET_OPTIONS.map(({ value: target, label }) => (
                   <SelectItem key={target} value={target}>
                     {label}
                   </SelectItem>

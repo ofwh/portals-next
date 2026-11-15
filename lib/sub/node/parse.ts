@@ -21,7 +21,7 @@ import type { ProviderNode } from './types';
 import { decodeBase64 } from '../shared/base64';
 import { PROVIDER_ERROR_CODES } from '../shared/errors';
 import type { ProviderEntryErrorCode, ProviderInputErrorCode } from '../shared/errors';
-import type { ProxyNode, ProxyProtocol } from '../shared/types';
+import type { ProxyNode, ProxyProtocol } from '../types';
 
 type Parser = {
   protocol: ProxyProtocol;
@@ -52,7 +52,7 @@ const parsers: Parser[] = [
   { protocol: 'mieru', schemes: ['mierus', 'mieru'], parse: parseMieru },
 ];
 
-export const proxyProtocols: readonly ProxyProtocol[] = parsers.map(({ protocol }) => protocol);
+export const PROXY_PROTOCOLS: readonly ProxyProtocol[] = parsers.map(({ protocol }) => protocol);
 const byScheme = new Map(parsers.flatMap((parser) => parser.schemes.map((scheme) => [scheme, parser] as const)));
 
 type LineDiagnostic = {

@@ -1,6 +1,6 @@
 import { proxyNodeType } from './schema';
 import type { PortRange, ProviderNode } from './types';
-import type { ProxyNode } from '../shared/types';
+import type { ProxyNode } from '../types';
 
 function portRange({ start, end }: PortRange): string {
   return start === end ? String(start) : `${start}-${end}`;

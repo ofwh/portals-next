@@ -1,9 +1,11 @@
 import { isRecord } from '@/lib/shared/data';
-import type { ProxyNode } from '../../shared/types';
+import type { ProxyNode } from '../../types';
 import { assemble } from '../producers';
+import { ConfigCompileError } from '../shared/config';
 import type {
   CompiledNode,
   CompileOptions,
+  ConfigModule,
   NodeDefinition,
   NodeModule,
   NodeProvider,
@@ -328,9 +330,9 @@ export function defineNodes(definition: NodeModuleDefinition): NodeModule {
   };
 }
 
-export function defineProvider<T extends NodeModule & Partial<TemplateModule> & Partial<Pick<NodeProvider, 'compile'>>>(
-  definition: T,
-): T & Pick<NodeProvider, 'compile'> {
+export function defineProvider<
+  T extends NodeModule & Partial<TemplateModule & ConfigModule> & Partial<Pick<NodeProvider, 'compile'>>,
+>(definition: T): T & Pick<NodeProvider, 'compile'> {
   const provider: T & Pick<NodeProvider, 'compile'> = {
     ...definition,
     compile(input) {
@@ -339,14 +341,22 @@ export function defineProvider<T extends NodeModule & Partial<TemplateModule> & 
       }
 
       const nodes = definition.compileNodes(input.nodes, input.options);
+      const hasConfig = !!input.config?.length;
+
+      if (hasConfig && (!definition.compileConfig || !definition.compileTemplate)) {
+        throw new ConfigCompileError(provider.type, 'Configuration output is not supported');
+      }
+
+      const config = hasConfig ? definition.compileConfig?.(input.config, nodes) : undefined;
+      const emptyTemplate = provider.type === 'clash' || provider.type === 'singbox' ? '{}' : '';
 
       return {
         target: provider.type,
         nodes,
         content:
-          input.template === undefined || !definition.compileTemplate
+          (input.template === undefined && !hasConfig) || !definition.compileTemplate
             ? assemble(provider.type, nodes)
-            : definition.compileTemplate(input.template, nodes),
+            : definition.compileTemplate(input.template ?? emptyTemplate, nodes, config),
       };
     },
   };

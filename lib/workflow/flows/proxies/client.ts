@@ -1,4 +1,4 @@
-import { proxyNodeType } from '@/lib/subscription/schemas/proxy-node';
+import { proxyNodeType } from '@/lib/sub/node/schema';
 import type { TypeRegistry } from '@/lib/workflow/node/core/type-registry';
 import type { NodeViewRegistry } from '@/lib/workflow/node/core/views';
 import { filterNodeView } from './filter-node/client';

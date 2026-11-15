@@ -1,18 +1,11 @@
-import { parseDocument, stringify, visit } from 'yaml';
-import { isRecord } from '@/lib/shared/data';
-import type {
-  CompiledNode,
-  IniDocument,
-  ParsedTemplate,
-  Source,
-  SubscriptionType,
-  TemplateModule,
-  TemplateTarget,
-} from '../types';
+import { stringify } from 'yaml';
+import { mergeConfig } from './config';
+import { parseIni, serializeIni, TEMPLATE_LIMITS } from '../../template';
+import type { CompiledNode, ParsedTemplate, Source, SubscriptionType, TemplateModule, TemplateTarget } from '../types';
 
-const maxLength = 8 * 1024 * 1024;
-const maxEntries = 100_000;
-const maxDepth = 64;
+export { parseIni, parseJson, parseYaml, serializeIni } from '../../template';
+
+const { length: maxLength, entries: maxEntries } = TEMPLATE_LIMITS;
 
 type TemplateDefinition = {
   type: TemplateTarget;
@@ -28,31 +21,6 @@ export class TemplateError extends Error {
     super(`Invalid ${target} template: ${code}`);
     this.name = 'TemplateError';
   }
-}
-
-function validateValue(value: unknown, depth = 0, budget = { count: 0 }, ancestors = new Set<object>()): void {
-  if (++budget.count > maxEntries || depth > maxDepth) {
-    throw new Error('Template structure exceeds the limit');
-  }
-
-  if (
-    value === null ||
-    typeof value === 'string' ||
-    typeof value === 'boolean' ||
-    (typeof value === 'number' && Number.isFinite(value))
-  ) {
-    return;
-  }
-
-  if ((!Array.isArray(value) && !isRecord(value)) || ancestors.has(value)) {
-    throw new Error('Invalid template value');
-  }
-
-  ancestors.add(value);
-  for (const child of Object.values(value)) {
-    validateValue(child, depth + 1, budget, ancestors);
-  }
-  ancestors.delete(value);
 }
 
 function serializeTemplate(template: ParsedTemplate): string {
@@ -82,10 +50,11 @@ export function defineTemplate(definition: TemplateDefinition): TemplateModule {
 
   return {
     parseTemplate,
-    compileTemplate(input, nodes = []) {
+    compileTemplate(input, nodes = [], config) {
       if (
         (typeof input !== 'string' && input.target !== definition.type) ||
-        nodes.some((node) => node.target !== definition.type)
+        nodes.some((node) => node.target !== definition.type) ||
+        (config !== undefined && config.target !== definition.type)
       ) {
         throw new TemplateError(definition.type, 'TEMPLATE_MISMATCH');
       }
@@ -95,6 +64,10 @@ export function defineTemplate(definition: TemplateDefinition): TemplateModule {
 
         if (typeof input !== 'string' && input.format !== template.format) {
           throw new TemplateError(definition.type, 'TEMPLATE_MISMATCH');
+        }
+
+        if (config) {
+          mergeConfig(template, config);
         }
 
         return definition.render(template, nodes);
@@ -107,39 +80,6 @@ export function defineTemplate(definition: TemplateDefinition): TemplateModule {
       }
     },
   };
-}
-
-export function parseObject(input: string, format: 'yaml' | 'json'): Source {
-  let value: unknown;
-
-  if (format === 'yaml') {
-    const document = parseDocument(input, { uniqueKeys: true, strict: true });
-
-    if (document.errors.length || document.warnings.length) {
-      throw new Error('Invalid YAML template');
-    }
-
-    let count = 0;
-
-    visit(document, {
-      Node(_key, _node, path) {
-        if (++count > maxEntries || path.length > maxDepth) {
-          throw new Error('Template structure exceeds the limit');
-        }
-      },
-    });
-    value = document.toJS({ maxAliasCount: 100 });
-  } else {
-    value = JSON.parse(input);
-  }
-
-  if (!isRecord(value)) {
-    throw new Error('Template root must be an object');
-  }
-
-  validateValue(value);
-
-  return value;
 }
 
 export function appendCollection(document: Source, key: string, values: readonly Source[]): void {
@@ -157,41 +97,6 @@ export function appendCollection(document: Source, key: string, values: readonly
       writable: true,
     });
   }
-}
-
-export function parseIni(input: string): IniDocument {
-  const document: IniDocument = { sections: [] };
-  let current: IniDocument['sections'][number] | undefined;
-
-  for (const raw of input.split(/\r\n|\n|\r/)) {
-    const line = raw.trim();
-
-    if (line.startsWith('[')) {
-      const match = /^\[([^\]]+)\]\s*(?:[;#].*)?$/.exec(line);
-
-      if (!match || !match[1].trim()) {
-        throw new Error('Invalid template section');
-      }
-
-      current = { name: match[1].trim(), header: raw, lines: [] };
-      document.sections.push(current);
-    } else {
-      if (!current) {
-        current = { name: null, lines: [] };
-        document.sections.push(current);
-      }
-
-      current.lines.push(raw);
-    }
-  }
-
-  return document;
-}
-
-export function serializeIni(document: IniDocument): string {
-  return document.sections
-    .flatMap((section) => [...(section.name === null ? [] : [section.header ?? `[${section.name}]`]), ...section.lines])
-    .join('\n');
 }
 
 export function iniTemplate(type: TemplateTarget, sectionName = 'Proxy'): TemplateModule {

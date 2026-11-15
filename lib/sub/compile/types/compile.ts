@@ -1,13 +1,15 @@
+import type { ConfigModule } from './config';
 import type { Schema, Source } from './schema';
 import type { TemplateModule, TemplateSource } from './template';
-import type { ProxyNode, ProxyProtocol } from '../../shared/types';
+import type { ConfigDeclaration, ProxyNode, ProxyProtocol, SubscriptionType } from '../../types';
 
-export type SubscriptionType = 'clash' | 'singbox' | 'surge' | 'surfboard' | 'loon' | 'quanx' | 'mixed';
+export type { SubscriptionType } from '../../types';
 export type CompileOptions = { index?: number; sectionName?: string; options?: Record<string, unknown> };
 export type CompileParams = {
   target?: SubscriptionType;
   template?: TemplateSource;
   nodes?: ProxyNode[];
+  config?: readonly ConfigDeclaration[];
   options?: Record<string, unknown>;
 };
 export type CompileResult = {
@@ -33,7 +35,7 @@ export type NodeModule = {
   compileNodes: (nodes?: ProxyNode[], options?: Record<string, unknown>) => CompiledNode[];
 };
 export type NodeProvider = NodeModule &
-  Partial<TemplateModule> & {
+  Partial<TemplateModule & ConfigModule> & {
     compile: (input: CompileParams) => CompileResult;
   };
 export type CompiledNode = NodeSerialization & {

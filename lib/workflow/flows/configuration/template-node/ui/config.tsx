@@ -4,7 +4,7 @@ import { useTranslations } from 'next-intl';
 import { useId } from 'react';
 import { Field, FieldContent, FieldDescription, FieldGroup, FieldLabel } from '@/components/ui/field';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { isTemplateFormat } from '@/lib/subscription/shared/template';
+import { isTemplateFormat } from '@/lib/sub/shared';
 import type { NodeFormProps } from '@/lib/workflow/node/types';
 import { formatOptions } from '../model/definition';
 import type { TemplateResolveConfig } from '../model/types';

@@ -1,11 +1,14 @@
 import { appError } from '@/lib/api';
+import type { ConfigDeclaration, ProxyNode } from '@/lib/sub/types';
 import { configSchema } from '../model/schema';
 import type { CompileNodeData, CompileNodeValue } from '../model/types';
 
 export const parseConfig = (raw: unknown) => configSchema.parse(raw);
 
 export function parseInput(values: readonly CompileNodeValue[]): CompileNodeData {
-  const result: CompileNodeData = { nodes: [], groups: [], rulesets: [] };
+  const nodes: ProxyNode[] = [];
+  const config: ConfigDeclaration[] = [];
+  const result: CompileNodeData = { nodes, config };
 
   for (const value of values) {
     if (!Array.isArray(value)) {
@@ -19,11 +22,9 @@ export function parseInput(values: readonly CompileNodeValue[]): CompileNodeData
 
     for (const item of value) {
       if ('protocol' in item) {
-        result.nodes.push(item);
-      } else if ('selectors' in item) {
-        result.groups.push(item);
+        nodes.push(item);
       } else {
-        result.rulesets.push(item);
+        config.push(item);
       }
     }
   }

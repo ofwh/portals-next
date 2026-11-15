@@ -1,5 +1,6 @@
+import { config } from './config';
 import { nodes } from './node';
 import { template } from './template';
 import { defineProvider } from '../shared';
 
-export const surge = defineProvider({ ...nodes, ...template });
+export const surge = defineProvider({ ...nodes, ...template, ...config });

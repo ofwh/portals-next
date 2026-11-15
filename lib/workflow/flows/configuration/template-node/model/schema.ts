@@ -1,7 +1,7 @@
 import { appError, errorMessage } from '@/lib/api';
 import { isRecord } from '@/lib/shared/data';
-import { templateType } from '@/lib/subscription/schemas/template';
-import { isTemplateFormat } from '@/lib/subscription/shared/template';
+import { isTemplateFormat } from '@/lib/sub/shared';
+import { templateType } from '@/lib/sub/template/schema';
 import type { Parser } from '@/lib/types/workflow';
 import { stringValue } from '@/lib/workflow/node/core/schemas';
 import type { ConfigIssue, NodeConfigValidationContext } from '@/lib/workflow/node/types';

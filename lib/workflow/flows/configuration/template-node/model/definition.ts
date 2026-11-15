@@ -1,4 +1,4 @@
-import { templateFormatOptions } from '@/lib/subscription/shared/template';
+import { TEMPLATE_FORMAT_OPTIONS } from '@/lib/sub/shared';
 import { nodeLabel } from '@/lib/workflow/node/utils';
 import type { TemplateResolveConfig } from './types';
 
@@ -8,4 +8,4 @@ export const definition = {
   version: 1,
 };
 export const defaultConfig: TemplateResolveConfig = { format: '' };
-export const formatOptions = templateFormatOptions;
+export const formatOptions = TEMPLATE_FORMAT_OPTIONS;

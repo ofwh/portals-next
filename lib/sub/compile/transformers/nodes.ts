@@ -1,5 +1,5 @@
-import { logger } from 'better-auth';
-import type { ProxyNode } from '../../shared/types';
+import logger from '@/lib/api/logger';
+import type { ProxyNode } from '../../types';
 import { providers } from '../providers';
 import type { CompiledNode, SubscriptionType } from '../types';
 
