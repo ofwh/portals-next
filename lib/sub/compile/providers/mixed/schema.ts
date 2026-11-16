@@ -9,8 +9,8 @@ import type { NodeModule, NodeSchema, NodeSource } from '../../types';
 // https://v2.hysteria.network/docs/developers/URI-Scheme/
 const base: NodeSchema = { scheme: 'protocol', server: 'server', port: 'port', name: 'name' };
 const xray: NodeSchema = {
-  encryption: computed((node) => node.encryption || 'none'),
   security: computed((node) => (node.realityPublicKey ? 'reality' : node.tls ? 'tls' : 'none')),
+  insecure: field('allowInsecure', { transform: (value) => (value ? '1' : '0') }),
   flow: text('flow'),
   pbk: text('realityPublicKey'),
   sid: text('realityShortId'),
@@ -78,10 +78,17 @@ const hysteria: NodeSchema = {
 
 function vlessDefinition() {
   return {
-    schema: { ...base, credential: 'uuid', query: object(xray) } satisfies NodeSchema,
+    schema: {
+      ...base,
+      credential: 'uuid',
+      query: object({
+        ...xray,
+        encryption: computed((node) => node.encryption || 'none'),
+        'packet-encoding': text('packetEncoding'),
+      }),
+    } satisfies NodeSchema,
     when: (node: Readonly<NodeSource>) =>
       !!node.uuid &&
-      !node.allowInsecure &&
       ['tcp', 'kcp', 'ws', 'http', 'h2', 'grpc', 'httpupgrade', 'xhttp'].includes(node.transport ?? 'tcp'),
   };
 }
@@ -142,17 +149,11 @@ export const schema: NodeModule['nodes'] = {
   vless: vlessDefinition(),
   // https://github.com/trojan-gfw/trojan-url#url-scheme
   trojan: {
-    schema: { ...base, credential: 'password' },
+    schema: { ...base, credential: 'password', query: object(xray) },
     when: (node) =>
       !!node.password &&
-      (node.transport ?? 'tcp') === 'tcp' &&
       node.tls !== false &&
-      !node.realityPublicKey &&
-      !node.allowInsecure &&
-      !node.certificatePin &&
-      !node.alpn?.length &&
-      !node.ech &&
-      (!node.serverName || node.serverName.toLowerCase() === node.server.toLowerCase()),
+      ['tcp', 'kcp', 'ws', 'http', 'h2', 'grpc', 'httpupgrade', 'xhttp'].includes(node.transport ?? 'tcp'),
   },
   hysteria2: {
     when: (node) => !node.realmUrl || !!realm(node),

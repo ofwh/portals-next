@@ -1,11 +1,6 @@
-import { ROUTE_TYPE } from './routes';
+import { ROUTE_MODE_OPTIONS } from './routes';
 
-export const ROUTE_TAG_GROUPS = [
-  { label: 'admin.sidebar.proxies', value: ROUTE_TYPE.PROXY },
-  { label: 'admin.sidebar.redirects', value: ROUTE_TYPE.REDIRECT },
-  { label: 'admin.sidebar.caches', value: ROUTE_TYPE.CACHE },
-  { label: 'admin.sidebar.originals', value: ROUTE_TYPE.ORIGINAL },
-] as const;
+export const ROUTE_TAG_GROUPS = ROUTE_MODE_OPTIONS;
 
 export const SUBSCRIPTION_TAG_GROUP = 'subscriptions';
 

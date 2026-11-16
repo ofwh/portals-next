@@ -5,12 +5,13 @@ import { filterNode } from './filter-node';
 import { mergeNode } from './merge-node';
 import { renameNode } from './rename-node';
 import { proxyListNode } from './resolve-node';
+import { routeNode } from './route-node';
 
 const groups = [
   {
     id: 'proxy',
     ...nodeLabel('workflowNodes.groups.proxy'),
-    nodes: [proxyListNode, mergeNode, renameNode, filterNode],
+    nodes: [routeNode, proxyListNode, mergeNode, renameNode, filterNode],
     types: [proxyNodeType],
   },
 ] as const satisfies readonly NodeModuleGroup[];

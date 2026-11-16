@@ -1,0 +1,17 @@
+{
+  "name": "节点路由",
+  "description": "调用已启用的路由并输出响应文本",
+  "mode": "路由模式",
+  "modeHelp": "选择路由配置模式",
+  "pathname": "Pathname",
+  "pathnameHelp": "搜索已启用的路由或直接输入地址",
+  "method": "请求模式",
+  "methodHelp": "选择 GET 或 POST",
+  "body": "Body",
+  "bodyHelp": "填写原始请求体内容",
+  "token": "鉴权",
+  "tokenHelp": "作为路由 token 参数传入",
+  "loading": "正在搜索路由…",
+  "empty": "没有匹配的路由",
+  "loadError": "路由搜索失败"
+}

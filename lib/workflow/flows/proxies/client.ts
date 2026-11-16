@@ -9,9 +9,12 @@ import { renameNodeView } from './rename-node/client';
 import { isConfig as isRenameConfig } from './rename-node/model/schema';
 import { proxyListNodeView } from './resolve-node/client';
 import { isConfig } from './resolve-node/model/schema';
+import { routeNodeView } from './route-node/client';
+import { isConfig as isRouteConfig } from './route-node/model/schema';
 
 export function registerProxyViews(views: NodeViewRegistry, types: TypeRegistry): void {
   types.registerType(proxyNodeType);
+  views.registerNodeView(routeNodeView, isRouteConfig);
   views.registerNodeView(proxyListNodeView, isConfig);
   views.registerNodeView(mergeNodeView, isMergeConfig);
   views.registerNodeView(renameNodeView, isRenameConfig);

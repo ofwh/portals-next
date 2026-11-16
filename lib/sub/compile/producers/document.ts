@@ -1,3 +1,4 @@
+import { Buffer } from 'node:buffer';
 import { stringify } from 'yaml';
 import type { CompiledNode, Source, SubscriptionType } from '../types';
 
@@ -23,7 +24,7 @@ export function assemble(target: SubscriptionType, nodes: readonly CompiledNode[
   const content = nodes.map((node) => node.content).join('\n');
 
   if (target === 'mixed') {
-    return content;
+    return Buffer.from(`${content}\n`, 'utf8').toString('base64');
   }
 
   const sections = nodes
