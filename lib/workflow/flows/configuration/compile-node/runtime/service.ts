@@ -1,8 +1,8 @@
 import 'server-only';
 import { appError } from '@/lib/api';
 import logger from '@/lib/api/logger';
-import { compile as compileSubscription, ConfigCompileError, TemplateError } from '@/lib/sub/compile';
-import { COMPILE_TARGETS, isCompileTarget } from '@/lib/sub/shared';
+import { compile as compileSubscription, ConfigCompileError, TemplateError } from '@/lib/subscription/compile';
+import { COMPILE_TARGETS, isCompileTarget } from '@/lib/subscription/shared';
 import type { ExecutionContext } from '@/lib/workflow/node/types';
 import type { CompileNodeConfig, CompileNodeData } from '../model/types';
 

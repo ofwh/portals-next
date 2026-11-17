@@ -4,7 +4,7 @@ import { useTranslations } from 'next-intl';
 import { useId } from 'react';
 import { Field, FieldContent, FieldDescription, FieldGroup, FieldLabel } from '@/components/ui/field';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { COMPILE_TARGET_OPTIONS, isCompileTarget } from '@/lib/sub/shared';
+import { COMPILE_TARGET_OPTIONS, isCompileTarget } from '@/lib/subscription/shared';
 import type { NodeFormProps } from '@/lib/workflow/node/types';
 import type { CompileNodeConfig } from '../model/types';
 

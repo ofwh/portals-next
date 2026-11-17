@@ -1,6 +1,6 @@
 import { appError } from '@/lib/api';
 import { isRecord } from '@/lib/shared/data';
-import { proxyNodeType } from '@/lib/sub/node/schema';
+import { proxyNodeType } from '@/lib/subscription/node/schema';
 import type { Parser } from '@/lib/types/workflow';
 import { arrayOf, stringValue } from '@/lib/workflow/node/core/schemas';
 import type { ProxyListConfig } from './types';

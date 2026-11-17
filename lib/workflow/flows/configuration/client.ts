@@ -1,5 +1,5 @@
-import { configDeclarationType } from '@/lib/sub/config/schema';
-import { templateType } from '@/lib/sub/template/schema';
+import { configDeclarationType } from '@/lib/subscription/config/schema';
+import { templateType } from '@/lib/subscription/template/schema';
 import type { TypeRegistry } from '@/lib/workflow/node/core/type-registry';
 import type { NodeViewRegistry } from '@/lib/workflow/node/core/views';
 import { compileNodeView } from './compile-node/client';

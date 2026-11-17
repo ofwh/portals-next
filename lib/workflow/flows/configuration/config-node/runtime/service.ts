@@ -1,8 +1,8 @@
 import 'server-only';
 import { appError } from '@/lib/api';
 import logger from '@/lib/api/logger';
-import { ConfigParseError, parseConfig } from '@/lib/sub/config';
-import type { ConfigDeclaration } from '@/lib/sub/types';
+import { ConfigParseError, parseConfig } from '@/lib/subscription/config';
+import type { ConfigDeclaration } from '@/lib/subscription/types';
 import type { ExecutionContext } from '@/lib/workflow/node/types';
 
 export function parse(input: string, context: ExecutionContext): ConfigDeclaration[] {

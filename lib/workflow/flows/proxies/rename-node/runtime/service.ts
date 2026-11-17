@@ -1,5 +1,5 @@
 import 'server-only';
-import { rename as renameNodes } from '@/lib/sub/node';
+import { rename as renameNodes } from '@/lib/subscription/node';
 import type { ExecutionContext } from '@/lib/workflow/node/types';
 import { compileRules } from '../model/rules';
 import type { RenameConfig, RenameOutput, RenameRunInput } from '../model/types';

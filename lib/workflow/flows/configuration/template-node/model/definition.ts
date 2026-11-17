@@ -1,4 +1,4 @@
-import { TEMPLATE_FORMAT_OPTIONS } from '@/lib/sub/shared';
+import { TEMPLATE_FORMAT_OPTIONS } from '@/lib/subscription/shared';
 import { nodeLabel } from '@/lib/workflow/node/utils';
 import type { TemplateResolveConfig } from './types';
 

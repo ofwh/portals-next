@@ -1,4 +1,4 @@
-import { proxyNodeType } from '@/lib/sub/node/schema';
+import { proxyNodeType } from '@/lib/subscription/node/schema';
 import type { NodeModuleGroup } from '@/lib/workflow/node/types';
 import { nodeLabel } from '@/lib/workflow/node/utils';
 import { filterNode } from './filter-node';

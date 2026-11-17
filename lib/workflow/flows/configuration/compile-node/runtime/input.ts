@@ -1,5 +1,5 @@
 import { appError } from '@/lib/api';
-import type { ConfigDeclaration, ProxyNode } from '@/lib/sub/types';
+import type { ConfigDeclaration, ProxyNode } from '@/lib/subscription/types';
 import { configSchema } from '../model/schema';
 import type { CompileNodeData, CompileNodeValue } from '../model/types';
 

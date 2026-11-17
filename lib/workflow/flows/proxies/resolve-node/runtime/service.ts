@@ -1,7 +1,7 @@
 import 'server-only';
 import { appError } from '@/lib/api';
-import { parseProviders, PROXY_PROTOCOLS } from '@/lib/sub/node';
-import type { ProxyNode } from '@/lib/sub/types';
+import { parseSubscriptionNodes, PROXY_PROTOCOLS } from '@/lib/subscription/node';
+import type { ProxyNode } from '@/lib/subscription/types';
 import type { ExecutionContext } from '@/lib/workflow/node/types';
 
 const protocols = new Set(PROXY_PROTOCOLS);
@@ -11,7 +11,7 @@ export function parse(inputs: readonly string[], context: ExecutionContext): Pro
 
   for (const input of inputs) {
     context.signal.throwIfAborted();
-    const result = parseProviders(input, protocols);
+    const result = parseSubscriptionNodes(input, protocols);
 
     if (!result.ok) {
       throw appError('common.INVALID_PARAMS');

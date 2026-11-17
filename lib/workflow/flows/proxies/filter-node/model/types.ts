@@ -1,4 +1,4 @@
-import type { ProxyNode, ProxyProtocol } from '@/lib/sub/types';
+import type { ProxyNode, ProxyProtocol } from '@/lib/subscription/types';
 import type { WorkflowArray } from '@/lib/types/workflow';
 
 export interface FilterRule {

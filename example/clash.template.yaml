@@ -51,3 +51,7 @@ sniffer:
   skip-domain:
     - Mijia Cloud
     - +.push.apple.com
+proxies:
+proxy-groups:
+rule-providers:
+rules:

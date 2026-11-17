@@ -1,6 +1,6 @@
 import { appError } from '@/lib/api';
 import { isRecord } from '@/lib/shared/data';
-import { configDeclarationType } from '@/lib/sub/config/schema';
+import { configDeclarationType } from '@/lib/subscription/config/schema';
 import type { Parser } from '@/lib/types/workflow';
 import { arrayOf, stringValue } from '@/lib/workflow/node/core/schemas';
 import type { ConfigResolveConfig } from './types';

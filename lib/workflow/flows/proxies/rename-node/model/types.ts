@@ -1,4 +1,4 @@
-import type { ProxyNode } from '@/lib/sub/types';
+import type { ProxyNode } from '@/lib/subscription/types';
 import type { WorkflowArray } from '@/lib/types/workflow';
 
 export interface RenameRule {

@@ -1,9 +1,9 @@
 import { appError, errorMessage } from '@/lib/api';
 import { isRecord } from '@/lib/shared/data';
-import { configDeclarationType } from '@/lib/sub/config/schema';
-import { proxyNodeType } from '@/lib/sub/node/schema';
-import { isCompileTarget } from '@/lib/sub/shared';
-import { templateType } from '@/lib/sub/template/schema';
+import { configDeclarationType } from '@/lib/subscription/config/schema';
+import { proxyNodeType } from '@/lib/subscription/node/schema';
+import { isCompileTarget } from '@/lib/subscription/shared';
+import { templateType } from '@/lib/subscription/template/schema';
 import type { Parser, ValueSchema } from '@/lib/types/workflow';
 import { arrayOf, stringValue, unionOf } from '@/lib/workflow/node/core/schemas';
 import type { ConfigIssue, NodeConfigValidationContext } from '@/lib/workflow/node/types';

@@ -21,7 +21,7 @@ import { Field, FieldContent, FieldDescription, FieldGroup, FieldLabel } from '@
 import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
-import type { ProxyProtocol } from '@/lib/sub/types';
+import type { ProxyProtocol } from '@/lib/subscription/types';
 import type { NodeFormProps } from '@/lib/workflow/node/types';
 import { protocolOptions } from '../model/definition';
 import { getNameRules, isProtocol } from '../model/schema';

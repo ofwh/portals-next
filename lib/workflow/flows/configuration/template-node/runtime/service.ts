@@ -1,9 +1,9 @@
 import 'server-only';
 import { appError } from '@/lib/api';
 import logger from '@/lib/api/logger';
-import { isTemplateFormat } from '@/lib/sub/shared';
-import { parseTemplate, TemplateParseError } from '@/lib/sub/template';
-import type { TemplateDocument } from '@/lib/sub/types';
+import { isTemplateFormat } from '@/lib/subscription/shared';
+import { parseTemplate, TemplateParseError } from '@/lib/subscription/template';
+import type { TemplateDocument } from '@/lib/subscription/types';
 import type { ExecutionContext } from '@/lib/workflow/node/types';
 import type { TemplateResolveConfig } from '../model/types';
 

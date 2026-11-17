@@ -1,4 +1,4 @@
-import type { TemplateDocument } from '@/lib/sub/types';
+import type { TemplateDocument } from '@/lib/subscription/types';
 import type { ExecutionContext } from '@/lib/workflow/node/types';
 import service from './service';
 import type { TemplateResolveConfig } from '../model/types';

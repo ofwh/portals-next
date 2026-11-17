@@ -1,4 +1,4 @@
-import type { ConfigDeclaration } from '@/lib/sub/types';
+import type { ConfigDeclaration } from '@/lib/subscription/types';
 import type { ExecutionContext } from '@/lib/workflow/node/types';
 import configService from './service';
 import type { ConfigResolveConfig } from '../model/types';
