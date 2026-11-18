@@ -1,11 +1,11 @@
 'use client';
 
-import { PanelsTopLeft } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import type { ReactNode } from 'react';
 import { LanguageControl, ThemeControl } from '@/components/app/settings/system/preferences-controls';
+import { Logo } from '@/components/business/logo';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { TooltipProvider } from '@/components/ui/tooltip';
 
@@ -22,7 +22,7 @@ export function AuthShell({ children }: { children: ReactNode }) {
             href="/"
             className="focus-visible:ring-ring flex items-center gap-2 rounded-sm text-base font-semibold tracking-tight outline-none focus-visible:ring-2"
           >
-            <PanelsTopLeft className="size-5" />
+            <Logo size={20} />
             Portals
           </Link>
           <div className="flex items-center gap-1">

@@ -1,19 +1,10 @@
 'use client';
 
-import {
-  ArrowRightLeft,
-  DatabaseZap,
-  FileCodeCorner,
-  Gauge,
-  Navigation,
-  Orbit,
-  Rss,
-  Settings,
-  UserRound,
-} from 'lucide-react';
+import { ArrowRightLeft, DatabaseZap, FileCodeCorner, Gauge, Navigation, Rss, Settings, UserRound } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { Logo } from '@/components/business/logo';
 import {
   Sidebar,
   SidebarContent,
@@ -84,9 +75,10 @@ export function AppSidebar() {
             <SidebarMenuButton
               size="lg"
               tooltip={{ children: 'Portals', side: 'top' }}
+              aria-label="Portals"
               render={<Link href="/dashboard" onClick={closeMobile} />}
             >
-              <Orbit className="size-6!" />
+              <Logo />
               <span className="text-base font-semibold">Portals</span>
             </SidebarMenuButton>
           </SidebarMenuItem>
