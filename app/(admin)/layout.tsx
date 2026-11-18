@@ -1,15 +1,21 @@
 import { NextIntlClientProvider } from 'next-intl';
 import { getLocale, getMessages } from 'next-intl/server';
 import { cookies } from 'next/headers';
+import { redirect } from 'next/navigation';
 import type { ReactNode } from 'react';
 import { Suspense } from 'react';
 import { PreferencesProvider } from '@/components/app/settings/system/preferences-provider';
 import { ShortcutsProvider } from '@/components/app/settings/system/shortcuts-provider';
 import { AdminShell } from '@/components/app/shell/admin-shell';
+import { getRequestSession } from '@/lib/auth/session';
 import { getAppContext } from '@/lib/context';
 import { getRequestPreferences } from '@/lib/services/preferences/server';
 
 async function AdminLayoutContent({ children }: { children: ReactNode }) {
+  if (!(await getRequestSession())) {
+    redirect('/sign-in');
+  }
+
   const [cookieStore, locale, messages, preferences] = await Promise.all([
     cookies(),
     getLocale(),

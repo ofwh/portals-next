@@ -1,7 +1,7 @@
-import { cookies, headers } from 'next/headers';
+import { cookies } from 'next/headers';
 import { cache } from 'react';
 import 'server-only';
-import { auth } from '@/lib/auth';
+import { getRequestSession } from '@/lib/auth/session';
 import service from '@/lib/services/preferences';
 import { preferenceCookieOptions, preferenceKeys, resolvePreferences } from '@/lib/services/preferences/shared';
 import type { Preferences, PreferenceValues } from '@/lib/types/preferences';
@@ -18,7 +18,7 @@ export const getPreferenceCookies = cache(async (): Promise<PreferenceValues> =>
 
 export const getRequestPreferences = cache(async (): Promise<Preferences> => {
   const fallback = await getPreferenceCookies();
-  const session = await auth.api.getSession({ headers: await headers(), query: { disableCookieCache: true } });
+  const session = await getRequestSession();
 
   return session ? service.get({}, fallback) : resolvePreferences({}, fallback);
 });
