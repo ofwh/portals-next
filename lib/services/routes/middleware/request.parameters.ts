@@ -16,6 +16,7 @@ import type {
   QueryData,
   RouteParams,
 } from '@/lib/types/route';
+import { RouteError } from '../response';
 
 const BODY_LIMIT = 8 * 1024 * 1024;
 const QUERY_OPTIONS = {
@@ -60,7 +61,7 @@ async function multipart(body: Buffer, contentType: string): Promise<Record<stri
   const files: Promise<void>[] = [];
 
   await new Promise<void>((resolve, reject) => {
-    const fail = () => reject(Object.assign(new Error(), { status: 413 }));
+    const fail = () => reject(new RouteError(413, 'routes.PAYLOAD_TOO_LARGE'));
 
     parser.on('field', (name, value, info) => {
       if (info.valueTruncated || info.nameTruncated) {
@@ -77,7 +78,7 @@ async function multipart(body: Buffer, contentType: string): Promise<Record<stri
           const bytes = await getRawBody(stream, { limit: BODY_LIMIT });
 
           if (stream.truncated) {
-            throw Object.assign(new Error(), { status: 413 });
+            throw new RouteError(413, 'routes.PAYLOAD_TOO_LARGE');
           }
 
           (result[name] ??= []).push(new File([new Uint8Array(bytes)], info.filename ?? '', { type: info.mimeType }));
@@ -169,7 +170,7 @@ export function parameters<K extends RouteType>(): Middleware<K> {
     } catch (error) {
       const status = error && typeof error === 'object' && 'status' in error && error.status === 413 ? 413 : 400;
 
-      throw Object.assign(new Error(), { status });
+      throw new RouteError(status, status === 413 ? 'routes.PAYLOAD_TOO_LARGE' : 'routes.INVALID_REQUEST');
     }
     await next();
   };

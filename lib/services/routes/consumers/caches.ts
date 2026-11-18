@@ -28,6 +28,7 @@ import {
   responseCors,
 } from '../middleware';
 import { create } from '../middleware/response.proxy';
+import { failure, RouteError, withErrorCode } from '../response';
 
 class CacheConsumer implements CacheRouteConsumer {
   readonly mode = 'caches' as const;
@@ -54,16 +55,23 @@ class CacheConsumer implements CacheRouteConsumer {
 
     try {
       if (!['GET', 'POST'].includes(input.req.method)) {
-        return new Response(null, { status: 405, headers: { allow: 'GET, POST' } });
+        return withErrorCode(
+          new Response(null, { status: 405, headers: { allow: 'GET, POST' } }),
+          'routes.METHOD_NOT_ALLOWED',
+        );
       }
 
       if (!validPathname(input.pathname)) {
-        return new Response(null, { status: 404 });
+        return withErrorCode(new Response(null, { status: 404 }), 'routes.INVALID_PATHNAME');
       }
 
       config = repository.findByPath(input.pathname);
-      if (!config || !config.status) {
-        return new Response(null, { status: 404 });
+      if (!config) {
+        return withErrorCode(new Response(null, { status: 404 }), 'routes.CACHE_NOT_FOUND');
+      }
+
+      if (!config.status) {
+        return withErrorCode(new Response(null, { status: 404 }), 'routes.ROUTE_DISABLED');
       }
 
       if (!this.configured) {
@@ -81,15 +89,7 @@ class CacheConsumer implements CacheRouteConsumer {
         response: null,
       });
     } catch (error) {
-      const status =
-        error &&
-        typeof error === 'object' &&
-        'status' in error &&
-        typeof error.status === 'number' &&
-        [400, 401, 410, 413, 502, 504].includes(error.status)
-          ? error.status
-          : 500;
-      const response = new Response(null, { status });
+      const response = failure(error);
 
       return config ? applyCors(input.req, response, config.cors) : response;
     }
@@ -139,7 +139,9 @@ class CacheConsumer implements CacheRouteConsumer {
     try {
       body = new Uint8Array(await normalized.arrayBuffer());
     } catch (error) {
-      throw Object.assign(new Error(), { status: error instanceof Error && error.name === 'TimeoutError' ? 504 : 502 });
+      const timeout = error instanceof Error && error.name === 'TimeoutError';
+
+      throw new RouteError(timeout ? 504 : 502, timeout ? 'routes.UPSTREAM_TIMEOUT' : 'routes.UPSTREAM_UNAVAILABLE');
     }
 
     return {

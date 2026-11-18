@@ -1,6 +1,7 @@
 import { timingSafeEqual } from 'node:crypto';
 import type { RouteType } from '@/lib/constants/routes';
 import type { Middleware } from '@/lib/types/route';
+import { RouteError } from '../response';
 
 export function authorize<K extends RouteType>(): Middleware<K> {
   return async (context, next) => {
@@ -16,7 +17,7 @@ export function authorize<K extends RouteType>(): Middleware<K> {
       const target = Buffer.from(expected);
 
       if (!actual || actual.length !== target.length || !timingSafeEqual(actual, target)) {
-        throw Object.assign(new Error(), { status: 401 });
+        throw new RouteError(401, 'routes.TOKEN_INVALID');
       }
     }
 

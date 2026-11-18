@@ -1,6 +1,10 @@
 import { notFound } from 'next/navigation';
-import { withRequestContext } from '@/lib/api/request-context';
+import { after } from 'next/server';
+import { AppError, businessCode } from '@/lib/api';
+import logger from '@/lib/api/logger';
+import { getRequestId, withRequestContext } from '@/lib/api/request-context';
 import { ROUTE_TYPE } from '@/lib/constants';
+import { getErrorCode } from '@/lib/services/routes/response';
 import shortcuts from '@/lib/services/shortcuts';
 import type { RouteHandlerContext } from '@/lib/types/route';
 
@@ -13,6 +17,11 @@ const services = {
 };
 
 async function handle(req: Request, context: RouteHandlerContext): Promise<Response> {
+  const visitAt = new Date();
+  const startedAt = performance.now();
+  const url = req.url;
+  const headers = new Headers(req.headers);
+
   return withRequestContext(req, async () => {
     const params = await context.params;
     const match = shortcuts.resolve('/' + [params.type, ...params.slug].join('/'));
@@ -21,9 +30,50 @@ async function handle(req: Request, context: RouteHandlerContext): Promise<Respo
       notFound();
     }
 
-    const { default: service } = await services[match.type]();
+    const requestId = getRequestId();
+    let statusCode: number | null = null;
+    let errorCode: number | null = null;
 
-    return service.handle({ req, params, pathname: match.pathname });
+    try {
+      const { default: service } = await services[match.type]();
+
+      const response = await service.handle({ req, params, pathname: match.pathname });
+
+      statusCode = response.status;
+      errorCode = getErrorCode(response);
+
+      return response;
+    } catch (error) {
+      errorCode = error instanceof AppError ? businessCode(error.code) : null;
+
+      throw error;
+    } finally {
+      const duration = Math.floor(performance.now() - startedAt);
+
+      after(async () => {
+        try {
+          const { default: analytics } = await import('@/lib/services/analytics');
+          const { resolveIp } = await import('@/lib/services/analytics/client-info');
+
+          analytics.record({
+            requestId,
+            visitAt,
+            routeType: match.type,
+            url,
+            pathname: match.pathname,
+            ua: headers.get('user-agent'),
+            ip: resolveIp(headers),
+            duration,
+            statusCode,
+            errorCode,
+          });
+        } catch (error) {
+          logger.error('Failed to record route analytics', {
+            error: error instanceof Error ? error.message : 'Unknown error',
+          });
+        }
+      });
+    }
   });
 }
 

@@ -1,4 +1,7 @@
 import dayjs from 'dayjs';
+import utc from 'dayjs/plugin/utc';
+
+dayjs.extend(utc);
 
 export const DEFAULT_TIME_FORMAT = 'yyyy/MM/dd HH:mm:ss';
 export const TIME_FORMATS = [
@@ -15,12 +18,13 @@ export const TIME_FORMATS = [
 export function formatDateTime(
   value: string | number | Date | null | undefined,
   pattern = DEFAULT_TIME_FORMAT,
+  options: { utc?: boolean } = {},
 ): string {
   if (value === null || value === undefined || value === '') {
     return '—';
   }
 
-  const date = dayjs(value);
+  const date = options.utc ? dayjs.utc(value) : dayjs(value);
   const tokens: Record<string, string> = { yyyy: 'YYYY', yy: 'YY', dd: 'DD', d: 'D' };
   const format = pattern.replace(/\[[^\]]*\]|'[^']*'|yyyy|yy|d{1,4}/g, (token) => {
     if (token.startsWith("'")) {

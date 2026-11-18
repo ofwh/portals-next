@@ -3,6 +3,7 @@ import 'server-only';
 import { resolveLocale } from '@/i18n/config';
 import { appError, errorResponse } from '@/lib/api';
 import type { Locale } from '@/lib/api';
+import { withErrorCode } from '@/lib/services/routes/response';
 
 const errors = {
   notFound: { code: 'subscriptions.ROUTE_NOT_FOUND', status: 404 },
@@ -22,5 +23,5 @@ export async function routeError(type: keyof typeof errors): Promise<Response> {
   const { code, status } = errors[type];
   const response = errorResponse(appError(code), locale);
 
-  return new Response(response.body, { status, headers: response.headers });
+  return withErrorCode(new Response(response.body, { status, headers: response.headers }), code);
 }

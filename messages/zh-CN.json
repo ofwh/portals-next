@@ -547,6 +547,40 @@
           "noRunData": "无数据"
         }
       }
+    },
+    "dashboard": {
+      "title": "仪表盘",
+      "description": "查看路由配置数量、访问趋势与热门访问地址",
+      "overviewTitle": "路由概览",
+      "overviewError": "无法加载路由概览",
+      "entryEnabled": "启用",
+      "entryDisabled": "禁用",
+      "counts": "启用 {enabled} / 停用 {disabled}",
+      "trendTitle": "路由访问趋势",
+      "trendDescription": "按路由类型统计请求次数 · 本地时间",
+      "trendError": "无法加载访问趋势",
+      "ranges": {
+        "24h": "最近 24 小时",
+        "7d": "最近 7 天",
+        "30d": "最近 30 天",
+        "90d": "最近 90 天"
+      },
+      "timeRange": "时间范围",
+      "legend": "显示或隐藏路由类型",
+      "allHidden": "所有路由类型均已隐藏，点击图例可恢复显示",
+      "rankingTitle": "URL 访问排行",
+      "rankingError": "无法加载 URL 排行",
+      "rankingLimit": "排行展示数量",
+      "rankingCategory": "路由分类",
+      "topN": "前 {count} 条",
+      "all": "全部",
+      "rank": "排名",
+      "type": "类型",
+      "url": "URL",
+      "visits": "访问次数",
+      "noVisits": "当前时间范围内暂无访问记录",
+      "loading": "正在加载…",
+      "previousResults": "当前展示为上次结果，可能与所选筛选条件不一致"
     }
   },
   "auth": {

@@ -1,4 +1,5 @@
 import type { ConfigMap, ForwardMode, Middleware } from '@/lib/types/route';
+import { copyErrorCode } from '../response';
 
 export function apply(_req: Request, response: Response, cors: ConfigMap['proxies']['cors']): Response {
   if (cors === -1) {
@@ -16,7 +17,10 @@ export function apply(_req: Request, response: Response, cors: ConfigMap['proxie
     headers.set('access-control-allow-origin', '*');
   }
 
-  return new Response(response.body, { status: response.status, statusText: response.statusText, headers });
+  return copyErrorCode(
+    response,
+    new Response(response.body, { status: response.status, statusText: response.statusText, headers }),
+  );
 }
 
 export function cors<K extends ForwardMode>(): Middleware<K> {

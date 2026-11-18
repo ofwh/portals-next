@@ -11,6 +11,7 @@ import type {
   RouteContext,
 } from '@/lib/types/route';
 import { requestAuthorize, requestExpired, requestParameters, responseOriginal } from '../middleware';
+import { failure, withErrorCode } from '../response';
 
 class OriginalConsumer implements RouteConsumer<'originals'> {
   readonly mode = 'originals' as const;
@@ -36,16 +37,23 @@ class OriginalConsumer implements RouteConsumer<'originals'> {
 
     try {
       if (!['GET', 'POST'].includes(input.req.method)) {
-        return new Response(null, { status: 405, headers: { allow: 'GET, POST' } });
+        return withErrorCode(
+          new Response(null, { status: 405, headers: { allow: 'GET, POST' } }),
+          'routes.METHOD_NOT_ALLOWED',
+        );
       }
 
       if (!validPathname(input.pathname)) {
-        return new Response(null, { status: 404 });
+        return withErrorCode(new Response(null, { status: 404 }), 'routes.INVALID_PATHNAME');
       }
 
       config = repository.findByPath(input.pathname);
-      if (!config || !config.status) {
-        return new Response(null, { status: 404 });
+      if (!config) {
+        return withErrorCode(new Response(null, { status: 404 }), 'routes.ORIGINAL_NOT_FOUND');
+      }
+
+      if (!config.status) {
+        return withErrorCode(new Response(null, { status: 404 }), 'routes.ROUTE_DISABLED');
       }
 
       if (!this.configured) {
@@ -63,15 +71,7 @@ class OriginalConsumer implements RouteConsumer<'originals'> {
         response: null,
       });
     } catch (error) {
-      const status =
-        error &&
-        typeof error === 'object' &&
-        'status' in error &&
-        typeof error.status === 'number' &&
-        [400, 401, 410, 413, 502, 504].includes(error.status)
-          ? error.status
-          : 500;
-      const response = new Response(null, { status });
+      const response = failure(error);
 
       return response;
     }

@@ -547,6 +547,40 @@
           "noRunData": "No data"
         }
       }
+    },
+    "dashboard": {
+      "title": "Dashboard",
+      "description": "Route configuration, request trends, and most visited URLs",
+      "overviewTitle": "Route overview",
+      "overviewError": "Unable to load route overview",
+      "entryEnabled": "Enabled",
+      "entryDisabled": "Disabled",
+      "counts": "{enabled} enabled / {disabled} disabled",
+      "trendTitle": "Route access trends",
+      "trendDescription": "Requests by route type · Local time",
+      "trendError": "Unable to load access trends",
+      "ranges": {
+        "24h": "Last 24 hours",
+        "7d": "Last 7 days",
+        "30d": "Last 30 days",
+        "90d": "Last 90 days"
+      },
+      "timeRange": "Time range",
+      "legend": "Show or hide route types",
+      "allHidden": "All route types are hidden. Select a legend item to show its curve",
+      "rankingTitle": "URL access ranking",
+      "rankingError": "Unable to load URL ranking",
+      "rankingLimit": "Number of ranked URLs",
+      "rankingCategory": "Route category",
+      "topN": "Top {count}",
+      "all": "All",
+      "rank": "#",
+      "type": "Type",
+      "url": "URL",
+      "visits": "Visits",
+      "noVisits": "No visits recorded in this time range",
+      "loading": "Loading…",
+      "previousResults": "Showing previous results; they may not match the current filters"
     }
   },
   "auth": {
