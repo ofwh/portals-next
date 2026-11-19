@@ -29,6 +29,10 @@ const PORTAL_PARTICLES = [
 
 export function Logo({ size = 24, variant = 'default' }: { size?: number; variant?: keyof typeof LOGO_PALETTES }) {
   const gradientId = useId();
+  const fadeId = `${gradientId}-fade`;
+  const maskId = `${gradientId}-mask`;
+  const particleFadeId = `${gradientId}-particle-fade`;
+  const particleMaskId = `${gradientId}-particle-mask`;
 
   return (
     <div
@@ -42,10 +46,6 @@ export function Logo({ size = 24, variant = 'default' }: { size?: number; varian
         style={{ width: '100%', height: '100%', animationDuration: variant === 'portal' ? '3s' : undefined }}
         viewBox="0 0 24 24"
         fill="none"
-        stroke={`url(#${gradientId})`}
-        strokeWidth={2}
-        strokeLinecap="round"
-        strokeLinejoin="round"
       >
         <defs>
           <linearGradient id={gradientId} x1="0%" y1="0%" x2="100%" y2="0%">
@@ -53,8 +53,22 @@ export function Logo({ size = 24, variant = 'default' }: { size?: number; varian
               <stop key={color} offset={index / (colors.length - 1)} stopColor={color} />
             ))}
           </linearGradient>
+          <radialGradient id={fadeId} gradientUnits="userSpaceOnUse" cx={12} cy={12} r={11.5}>
+            <stop offset="73.91%" stopColor="white" />
+            <stop offset="100%" stopColor="white" stopOpacity={0} />
+          </radialGradient>
+          <mask id={maskId} maskUnits="userSpaceOnUse" x={0} y={0} width={24} height={24}>
+            <circle cx={12} cy={12} r={12} fill={`url(#${fadeId})`} />
+          </mask>
+          <radialGradient id={particleFadeId}>
+            <stop offset="50%" stopColor="white" />
+            <stop offset="100%" stopColor="white" stopOpacity={0} />
+          </radialGradient>
+          <mask id={particleMaskId} maskContentUnits="objectBoundingBox" x={0} y={0} width={1} height={1}>
+            <rect width={1} height={1} fill={`url(#${particleFadeId})`} />
+          </mask>
         </defs>
-        <circle cx={12} cy={12} r={10} />
+        <circle cx={12} cy={12} r={10} stroke={`url(#${gradientId})`} strokeWidth={3} mask={`url(#${maskId})`} />
         {variant === 'portal' &&
           PORTAL_PARTICLES.map(([angle, distance, radius, opacity]) => {
             const radians = (angle * Math.PI) / 180;
@@ -67,7 +81,7 @@ export function Logo({ size = 24, variant = 'default' }: { size?: number; varian
                 r={radius}
                 fill={opacity > 0.65 ? LOGO_PALETTES.portal[3] : LOGO_PALETTES.portal[1]}
                 opacity={opacity}
-                stroke="none"
+                mask={`url(#${particleMaskId})`}
               />
             );
           })}

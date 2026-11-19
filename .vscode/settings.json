@@ -9,5 +9,13 @@
   "[javascript][javascriptreact][typescript][typescriptreact]": {
     "editor.defaultFormatter": "dbaeumer.vscode-eslint"
   },
-  "eslint.format.enable": true
+  "eslint.format.enable": true,
+  "explorer.fileNesting.enabled": true,
+  "explorer.fileNesting.expand": false,
+  "explorer.fileNesting.patterns": {
+    "package.json": "pnpm-lock.yaml, pnpm-workspace.yaml",
+    "tsconfig.json": "tsconfig.*.json, *.tsbuildinfo, next-env.d.ts",
+    ".env.example": ".env, .env.local, .env.development, .env.development.local, .env.production, .env.production.local, .env.test, .env.test.local",
+    ".prettierrc.json": ".prettierignore"
+  }
 }
