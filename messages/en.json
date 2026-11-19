@@ -1,4 +1,27 @@
 {
+  "home": {
+    "title": "Manage routes.\nBuild subscriptions.",
+    "description": "Publish routes, configure subscription workflows, and track traffic from one console.",
+    "features": {
+      "title": "What you can do",
+      "routes": {
+        "title": "Route management",
+        "description": "Forward requests, redirect visitors, cache upstream responses, or serve content directly. Configure access tokens and expiration for each route."
+      },
+      "subscriptions": {
+        "title": "Subscriptions and workflows",
+        "description": "Manage subscription endpoints and access. Configure, run, and inspect workflows in a visual editor."
+      },
+      "analytics": {
+        "title": "Traffic analytics",
+        "description": "See which routes are active, track request trends by route type, and find the most visited URLs."
+      },
+      "settings": {
+        "title": "Settings and organization",
+        "description": "Organize routes and subscriptions with tags, configure shortcut paths, and manage your account and display preferences."
+      }
+    }
+  },
   "shared": {
     "actions": "Actions",
     "allStatuses": "All statuses",

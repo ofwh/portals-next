@@ -1,4 +1,27 @@
 {
+  "home": {
+    "title": "管理路由\n构建订阅",
+    "description": "在同一个控制台发布路由、配置订阅工作流，并查看访问趋势",
+    "features": {
+      "title": "核心功能",
+      "routes": {
+        "title": "路由管理",
+        "description": "转发请求、重定向访问、缓存上游响应或直接发布内容。为每条路由配置访问令牌与过期时间"
+      },
+      "subscriptions": {
+        "title": "订阅与工作流",
+        "description": "管理订阅地址和访问权限，在可视化编辑器中配置、运行工作流并查看节点执行数据"
+      },
+      "analytics": {
+        "title": "访问分析",
+        "description": "查看路由启用状态、各类路由的请求趋势和热门访问地址"
+      },
+      "settings": {
+        "title": "设置与归类",
+        "description": "使用标签归类路由和订阅，配置快捷路径，管理账户和显示偏好"
+      }
+    }
+  },
   "shared": {
     "actions": "操作",
     "allStatuses": "全部状态",

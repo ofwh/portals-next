@@ -74,12 +74,13 @@ export function AppSidebar() {
           <SidebarMenuItem>
             <SidebarMenuButton
               size="lg"
+              className="group-data-[collapsible=icon]:justify-center"
               tooltip={{ children: 'Portals', side: 'top' }}
               aria-label="Portals"
               render={<Link href="/dashboard" onClick={closeMobile} />}
             >
-              <Logo />
-              <span className="text-base font-semibold">Portals</span>
+              <Logo variant="portal" />
+              <span className="text-base font-semibold group-data-[collapsible=icon]:hidden">Portals</span>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
