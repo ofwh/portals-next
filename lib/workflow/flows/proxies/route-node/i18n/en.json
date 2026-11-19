@@ -1,0 +1,17 @@
+{
+  "name": "Route request",
+  "description": "Request an enabled route and output its response text",
+  "mode": "Route mode",
+  "modeHelp": "Select a route mode",
+  "pathname": "Pathname",
+  "pathnameHelp": "Search enabled routes or enter a pathname directly",
+  "method": "Request method",
+  "methodHelp": "Select GET or POST",
+  "body": "Body",
+  "bodyHelp": "Enter the raw request body",
+  "token": "Authorization",
+  "tokenHelp": "Sent as the route token parameter",
+  "loading": "Loading routes…",
+  "empty": "No matching routes",
+  "loadError": "Unable to search routes"
+}

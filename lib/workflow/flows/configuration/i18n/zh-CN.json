@@ -1,0 +1,22 @@
+{
+  "config": {
+    "name": "配置解析",
+    "description": "解析配置文本并输出配置声明列表"
+  },
+  "shared": {
+    "format": "配置格式",
+    "formatHelp": "输入文本格式",
+    "formatPlaceholder": "请选择配置格式"
+  },
+  "template": {
+    "name": "模板解析",
+    "description": "将已渲染的模板文本解析为带格式标记的文档"
+  },
+  "compile": {
+    "name": "订阅生成",
+    "description": "将节点、分组、规则集及模板编译为订阅内容",
+    "target": "输出类型",
+    "targetHelp": "目标订阅格式",
+    "targetPlaceholder": "请选择输出类型"
+  }
+}

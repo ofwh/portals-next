@@ -1,0 +1,29 @@
+'use client';
+
+import { useCallback, useSyncExternalStore } from 'react';
+import { DEFAULT_SHORTCUTS } from '@/lib/constants/shortcuts';
+import type { ShortcutType } from '@/lib/types/shortcuts';
+import { useShortcuts } from './use-shortcuts';
+
+function subscribeOrigin() {
+  return () => undefined;
+}
+
+function getOrigin() {
+  return window.location.origin;
+}
+
+function getServerOrigin() {
+  return '';
+}
+
+export function useRouteUrl(type?: ShortcutType) {
+  const { prefixes } = useShortcuts();
+  const origin = useSyncExternalStore(subscribeOrigin, getOrigin, getServerOrigin);
+  const prefix = type ? (prefixes[type]?.pathname ?? DEFAULT_SHORTCUTS[type].pathname) : '';
+
+  return useCallback(
+    (pathname: string) => `${origin}${prefix.replace(/\/+$/, '')}/${pathname.replace(/^\/+/, '')}`,
+    [origin, prefix],
+  );
+}

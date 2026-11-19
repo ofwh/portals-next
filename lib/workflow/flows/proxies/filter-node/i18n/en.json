@@ -1,0 +1,17 @@
+{
+  "name": "Filter nodes",
+  "protocols": "Protocols",
+  "namePattern": "Filter rules",
+  "exclude": "Exclude",
+  "excludeHelp": "Exclude nodes matching the conditions when enabled",
+  "help": "Configure rules for filtering nodes",
+  "excludeSummary": "Exclude matches · {count} protocols",
+  "keepSummary": "Keep matches · {count} protocols",
+  "protocolsPlaceholder": "Select protocols, or leave empty for all",
+  "noProtocols": "No matching protocols",
+  "pattern": "Name or pattern to filter, e.g. `/(HK|US)/`",
+  "add": "Add rule",
+  "remove": "Remove rule",
+  "protocolsHelp": "Select node protocols",
+  "description": "Configure node filtering rules"
+}

@@ -1,0 +1,1 @@
+export { configResolveNodeView } from './ui';

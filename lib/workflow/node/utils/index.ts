@@ -1,0 +1,1 @@
+export { nodeLabel } from './labels';
