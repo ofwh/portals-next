@@ -2,7 +2,10 @@ import type { NextConfig } from 'next';
 import createNextIntlPlugin from 'next-intl/plugin';
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  output: 'standalone',
+  outputFileTracingIncludes: {
+    '/*': ['./node_modules/better-sqlite3/prebuilds/*.node'],
+  },
   experimental: {
     agentFeedback: false,
   },

@@ -1,24 +1,32 @@
 'use client';
 
-import { Copy } from 'lucide-react';
+import { Copy, Search } from 'lucide-react';
 import { useFormatter, useTranslations } from 'next-intl';
+import { useState } from 'react';
 import { toast } from 'sonner';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { InputGroup, InputGroupAddon, InputGroupInput } from '@/components/ui/input-group';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { ANALYTICS_LIMITS, ANALYTICS_ROUTE_TYPES } from '@/lib/constants/analytics';
+import { ROUTE_ICONS } from '@/lib/constants/route-icons';
 import type { AnalyticsLimit, AnalyticsRanking, AnalyticsRankingItem } from '@/lib/types/analytics';
 import type { DashboardCategory, DashboardQuery } from '@/lib/types/dashboard';
 import { QueryFeedback } from './query-feedback';
 
-function RankingList({ items, showCategory }: { items: AnalyticsRankingItem[]; showCategory: boolean }) {
+const RANKING_CATEGORIES = ['all', ...ANALYTICS_ROUTE_TYPES] as const;
+
+function RankingList({ items, search }: { items: AnalyticsRankingItem[]; search: string }) {
   const t = useTranslations();
   const format = useFormatter();
+  const term = search.trim().toLowerCase();
+  const matches = items
+    .map((item, index) => ({ item, rank: index + 1 }))
+    .filter(({ item }) => item.url.toLowerCase().includes(term));
 
   async function copy(url: string) {
     try {
@@ -29,78 +37,80 @@ function RankingList({ items, showCategory }: { items: AnalyticsRankingItem[]; s
     }
   }
 
+  if (!matches.length) {
+    return (
+      <p role="status" className="text-muted-foreground py-8 text-center text-sm">
+        {t(items.length ? 'admin.dashboard.rankingNoMatches' : 'admin.dashboard.noVisits')}
+      </p>
+    );
+  }
+
   return (
-    <div className="overflow-hidden rounded-md border">
-      <Table className={showCategory ? 'min-w-140 table-fixed' : 'table-fixed'}>
-        <TableHeader>
-          <TableRow>
-            <TableHead className="w-12">{t('admin.dashboard.rank')}</TableHead>
-            {showCategory && <TableHead className="w-32">{t('admin.dashboard.type')}</TableHead>}
-            <TableHead>{t('admin.dashboard.url')}</TableHead>
-            <TableHead className="w-24 text-right">{t('admin.dashboard.visits')}</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {items.map((item, index) => (
-            <TableRow
-              key={`${item.routeType}:${item.url}`}
-              className="group cursor-pointer"
-              onClick={(event) => {
-                if (event.target instanceof Element && !event.target.closest('a,button')) {
-                  window.open(item.url, '_blank', 'noopener,noreferrer');
-                }
-              }}
+    <ol role="list" className="space-y-4">
+      {matches.map(({ item, rank }) => {
+        const Icon = ROUTE_ICONS[item.routeType];
+
+        return (
+          <li
+            key={`${item.routeType}:${item.url}`}
+            className="group bg-muted/55 hover:bg-muted grid min-h-17.5 cursor-default grid-cols-[auto_minmax(0,1fr)_auto_auto] grid-rows-[auto_auto] items-center gap-x-2.5 rounded-lg p-3 transition-colors @lg/ranking:gap-x-4"
+          >
+            <div className="border-border col-start-1 row-span-2 row-start-1 grid size-10 place-items-center rounded-lg border @lg/ranking:size-12">
+              <Icon aria-hidden="true" className="size-5" />
+            </div>
+            <div className="col-span-2 col-start-2 row-start-1 flex min-w-0 items-center gap-1.5 self-end @lg/ranking:col-span-1">
+              <Tooltip>
+                <TooltipTrigger
+                  render={
+                    <a
+                      href={item.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="focus-visible:ring-ring min-w-0 cursor-pointer truncate rounded-sm font-medium no-underline focus-visible:ring-2 focus-visible:outline-none"
+                    />
+                  }
+                >
+                  {item.url}
+                </TooltipTrigger>
+                <TooltipContent side="top" className="max-w-xs break-all sm:max-w-md">
+                  {item.url}
+                </TooltipContent>
+              </Tooltip>
+              <Tooltip>
+                <TooltipTrigger
+                  render={
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon-xs"
+                      className="opacity-100 focus-visible:opacity-100 sm:opacity-0 sm:group-focus-within:opacity-100 sm:group-hover:opacity-100 [@media(hover:none)]:opacity-100"
+                      aria-label={t('shared.copyPath')}
+                      onClick={() => void copy(item.url)}
+                    />
+                  }
+                >
+                  <Copy aria-hidden="true" />
+                </TooltipTrigger>
+                <TooltipContent side="top">{t('shared.copyPath')}</TooltipContent>
+              </Tooltip>
+            </div>
+            <p className="text-muted-foreground col-start-2 row-start-2 self-start text-xs tabular-nums">
+              {t('admin.dashboard.rankingPosition', { rank: format.number(rank) })}
+            </p>
+            <Badge
+              variant="outline"
+              className="col-start-3 row-start-2 self-start @lg/ranking:row-span-2 @lg/ranking:row-start-1 @lg/ranking:self-center"
             >
-              <TableCell className="text-muted-foreground tabular-nums">{format.number(index + 1)}</TableCell>
-              {showCategory && (
-                <TableCell>
-                  <Badge variant="secondary">{t(`admin.sidebar.${item.routeType}`)}</Badge>
-                </TableCell>
-              )}
-              <TableCell className="min-w-0">
-                <div className="flex min-w-0 items-center gap-1.5">
-                  <Tooltip>
-                    <TooltipTrigger
-                      render={
-                        <a
-                          href={item.url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="focus-visible:ring-ring min-w-0 truncate rounded-sm hover:underline focus-visible:ring-2 focus-visible:outline-none"
-                        />
-                      }
-                    >
-                      {item.url}
-                    </TooltipTrigger>
-                    <TooltipContent side="top" className="max-w-md break-all">
-                      {item.url}
-                    </TooltipContent>
-                  </Tooltip>
-                  <Tooltip>
-                    <TooltipTrigger
-                      render={
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="icon-xs"
-                          className="opacity-100 focus-visible:opacity-100 sm:opacity-0 sm:group-focus-within:opacity-100 sm:group-hover:opacity-100 [@media(hover:none)]:opacity-100"
-                          aria-label={t('shared.copyPath')}
-                          onClick={() => void copy(item.url)}
-                        />
-                      }
-                    >
-                      <Copy aria-hidden="true" />
-                    </TooltipTrigger>
-                    <TooltipContent side="top">{t('shared.copyPath')}</TooltipContent>
-                  </Tooltip>
-                </div>
-              </TableCell>
-              <TableCell className="text-right tabular-nums">{format.number(item.count)}</TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-    </div>
+              {t(`admin.sidebar.${item.routeType}`)}
+            </Badge>
+            <div className="col-start-4 row-span-2 row-start-1 min-w-12 text-right @lg/ranking:min-w-20">
+              <div className="text-muted-foreground text-xs tracking-wide uppercase">{t('admin.dashboard.visits')}</div>
+              <div className="font-medium tabular-nums">{format.number(item.count)}</div>
+            </div>
+          </li>
+        );
+      })}
+    </ol>
   );
 }
 
@@ -118,26 +128,31 @@ export function Ranking({
   onLimitChange: (value: AnalyticsLimit) => void;
 }) {
   const t = useTranslations();
+  const [search, setSearch] = useState('');
+  const searchLabel = t('admin.dashboard.rankingSearch');
   const items = ANALYTICS_LIMITS.map((value) => ({ value, label: t('admin.dashboard.topN', { count: value }) }));
 
   return (
-    <Card className="relative" aria-busy={query.loading}>
+    <Card size="sm" className="@container/ranking relative" aria-busy={query.loading}>
+      {query.loading && query.data && (
+        <div aria-hidden="true" className="absolute inset-x-0 top-0 h-0.5 overflow-hidden">
+          <div className="bg-primary animate-loading-progress h-full w-[35%] motion-reduce:w-full motion-reduce:animate-none" />
+        </div>
+      )}
       <Tabs
         value={category}
         onValueChange={(value) => {
-          const type = ANALYTICS_ROUTE_TYPES.find((type) => type === value);
+          const next = RANKING_CATEGORIES.find((category) => category === value);
 
-          if (value === 'all') {
-            onCategoryChange('all');
-          } else if (type) {
-            onCategoryChange(type);
+          if (next) {
+            onCategoryChange(next);
           }
         }}
-        className="gap-6"
+        className="gap-4"
       >
-        <CardHeader className="gap-4">
+        <CardHeader className="gap-3">
           <div className="flex flex-wrap items-center justify-between gap-3">
-            <CardTitle>
+            <CardTitle className="text-base">
               <h2>{t('admin.dashboard.rankingTitle')}</h2>
             </CardTitle>
             <Select
@@ -163,35 +178,42 @@ export function Ranking({
               </SelectContent>
             </Select>
           </div>
-          <div className="min-w-0 overflow-x-auto pb-1">
-            <TabsList aria-label={t('admin.dashboard.rankingCategory')}>
-              <TabsTrigger value="all">{t('admin.dashboard.all')}</TabsTrigger>
-              {ANALYTICS_ROUTE_TYPES.map((type) => (
-                <TabsTrigger key={type} value={type}>
-                  {t(`admin.sidebar.${type}`)}
-                </TabsTrigger>
-              ))}
-            </TabsList>
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <InputGroup className="h-8 grow basis-56 @lg/ranking:max-w-sm">
+              <InputGroupInput
+                type="search"
+                aria-label={searchLabel}
+                placeholder={searchLabel}
+                value={search}
+                onChange={(event) => setSearch(event.target.value)}
+                className="h-full"
+              />
+              <InputGroupAddon>
+                <Search aria-hidden="true" />
+              </InputGroupAddon>
+            </InputGroup>
+            <div className="-my-1 max-w-full min-w-0 overflow-x-auto py-1">
+              <TabsList aria-label={t('admin.dashboard.rankingCategory')}>
+                {RANKING_CATEGORIES.map((value) => (
+                  <TabsTrigger key={value} value={value}>
+                    {value === 'all' ? t('admin.dashboard.all') : t(`admin.sidebar.${value}`)}
+                  </TabsTrigger>
+                ))}
+              </TabsList>
+            </div>
           </div>
         </CardHeader>
         <CardContent>
-          <TabsContent value={category} className="space-y-3">
+          <TabsContent value={category} className="space-y-4">
             <QueryFeedback query={query} title={t('admin.dashboard.rankingError')} />
             {!query.data && query.loading && (
-              <div className="space-y-2" aria-hidden="true">
+              <div className="space-y-4" aria-hidden="true">
                 {Array.from({ length: limit }, (_, index) => (
-                  <Skeleton key={`row-${index}`} className="h-10 w-full" />
+                  <Skeleton key={index} className="h-17.5 w-full rounded-lg" />
                 ))}
               </div>
             )}
-            {query.data &&
-              (query.data.ranking.length ? (
-                <RankingList items={query.data.ranking} showCategory={category === 'all'} />
-              ) : (
-                <p role="status" className="text-muted-foreground py-8 text-center text-sm">
-                  {t('admin.dashboard.noVisits')}
-                </p>
-              ))}
+            {query.data && <RankingList items={query.data.ranking} search={search} />}
           </TabsContent>
         </CardContent>
       </Tabs>
