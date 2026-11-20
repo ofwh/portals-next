@@ -1,0 +1,17 @@
+{
+  "name": "节点过滤",
+  "protocols": "节点协议",
+  "namePattern": "过滤规则",
+  "exclude": "排除",
+  "excludeHelp": "开启后排除符合条件的节点",
+  "help": "配置需过滤处理的节点规则",
+  "excludeSummary": "排除匹配 · {count} 种协议",
+  "keepSummary": "保留匹配 · {count} 种协议",
+  "protocolsPlaceholder": "选择协议，留空不限",
+  "noProtocols": "没有匹配的协议",
+  "pattern": "需过滤的名称或正则,例如 `/(HK|US)/`",
+  "add": "添加规则",
+  "remove": "删除规则",
+  "protocolsHelp": "选择节点协议",
+  "description": "配置过滤节点规则"
+}

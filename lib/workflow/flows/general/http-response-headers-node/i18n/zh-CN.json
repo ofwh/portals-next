@@ -1,0 +1,20 @@
+{
+  "name": "HTTP响应头",
+  "method": "请求模式",
+  "url": "资源地址",
+  "urlPlaceholder": "设置请求 URL",
+  "headers": "请求头",
+  "headerName": "请求头名称",
+  "headerValue": "请求头值",
+  "addHeader": "添加请求头",
+  "removeHeader": "删除请求头",
+  "body": "请求体",
+  "bodyHelp": "填写原始请求体内容",
+  "methodHelp": "选择请求模式",
+  "urlHelp": "资源链接地址",
+  "headersHelp": "设置自定义请求头",
+  "formats": {
+    "json": "对象（JSON）"
+  },
+  "description": "获取并输出响应头信息"
+}

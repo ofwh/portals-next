@@ -1,0 +1,13 @@
+{
+  "name": "Rename nodes",
+  "help": "Process node names in rule order",
+  "pattern": "Text or regular expression to match",
+  "replacement": "Replacement; leave empty to remove matches",
+  "add": "Add rule",
+  "remove": "Remove",
+  "moveUp": "Move up",
+  "moveDown": "Move down",
+  "summary": "{count} rename rules",
+  "rules": "Rename rules",
+  "description": "Configure node renaming rules"
+}

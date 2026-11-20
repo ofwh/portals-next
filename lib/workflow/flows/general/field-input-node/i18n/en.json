@@ -1,0 +1,13 @@
+{
+  "name": "Text Content",
+  "outputFormat": "Type",
+  "text": "Content",
+  "help": "Enter text or a JSON object",
+  "summary": "{count} characters",
+  "outputFormatHelp": "Select the output content type",
+  "formats": {
+    "text": "Text",
+    "json": "Object (JSON)"
+  },
+  "description": "Enter text or a JSON object and output the selected type"
+}

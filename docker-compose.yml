@@ -1,0 +1,30 @@
+services:
+  portals:
+    image: ghcr.io/larify/portals-next:latest
+    container_name: portals
+    restart: 'no'
+    env_file:
+      - .env
+    depends_on:
+      redis:
+        condition: service_healthy
+    volumes:
+      - '${PORTALS_DATA_DIR:-./data}:/app/data'
+    networks:
+      portals-next:
+        ipv4_address: ${PORTALS_IP_ADDR}
+
+  redis:
+    image: redis:7-alpine
+    networks:
+      - portals-next
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+networks:
+  portals-next:
+    external: true
+    name: ${PORTALS_BRIDGE_NETWORK}

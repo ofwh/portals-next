@@ -1,0 +1,18 @@
+export const CODE_LANGUAGES = [
+  { value: 'plaintext', label: 'Plain Text', contentType: 'text/plain' },
+  { value: 'json', label: 'JSON', contentType: 'application/json' },
+  { value: 'javascript', label: 'JavaScript', contentType: 'text/javascript' },
+  { value: 'typescript', label: 'TypeScript', contentType: 'text/plain' },
+  { value: 'yaml', label: 'YAML', contentType: 'application/yaml' },
+  { value: 'toml', label: 'TOML', contentType: 'application/toml' },
+  { value: 'xml', label: 'XML', contentType: 'application/xml' },
+  { value: 'html', label: 'HTML', contentType: 'text/html' },
+  { value: 'css', label: 'CSS', contentType: 'text/css' },
+  { value: 'markdown', label: 'Markdown', contentType: 'text/markdown' },
+  { value: 'python', label: 'Python', contentType: 'text/plain' },
+  { value: 'java', label: 'Java', contentType: 'text/plain' },
+  { value: 'go', label: 'Go', contentType: 'text/plain' },
+  { value: 'rust', label: 'Rust', contentType: 'text/plain' },
+  { value: 'sql', label: 'SQL', contentType: 'application/sql' },
+  { value: 'shell', label: 'Shell', contentType: 'text/plain' },
+];

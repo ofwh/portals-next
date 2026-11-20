@@ -1,0 +1,35 @@
+import { appError, errorMessage } from '@/lib/api';
+import { isRecord } from '@/lib/shared/data';
+import { configDeclarationType } from '@/lib/subscription/config/schema';
+import { proxyNodeType } from '@/lib/subscription/node/schema';
+import { isCompileTarget } from '@/lib/subscription/shared';
+import { templateType } from '@/lib/subscription/template/schema';
+import type { Parser, ValueSchema } from '@/lib/types/workflow';
+import { arrayOf, stringValue, unionOf } from '@/lib/workflow/node/core/schemas';
+import type { ConfigIssue, NodeConfigValidationContext } from '@/lib/workflow/node/types';
+import type { CompileNodeConfig, CompileNodeValue } from './types';
+
+export function isConfig(value: unknown): value is CompileNodeConfig {
+  return isRecord(value) && Object.keys(value).length === 1 && (value.target === '' || isCompileTarget(value.target));
+}
+
+export function validateConfig(value: CompileNodeConfig, context?: NodeConfigValidationContext): ConfigIssue[] {
+  return isCompileTarget(value.target)
+    ? []
+    : [{ path: ['target'], message: errorMessage(appError('common.INVALID_PARAMS'), context?.locale) }];
+}
+
+export const configSchema: Parser<CompileNodeConfig> = {
+  parse(value) {
+    if (!isConfig(value) || !isCompileTarget(value.target)) {
+      throw appError('common.INVALID_PARAMS');
+    }
+
+    return value;
+  },
+};
+export const inputSchema: ValueSchema<CompileNodeValue> = unionOf(
+  unionOf(arrayOf(proxyNodeType), arrayOf(configDeclarationType)),
+  templateType,
+);
+export const outputSchema = stringValue;
