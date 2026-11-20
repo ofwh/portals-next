@@ -1,0 +1,20 @@
+import 'server-only';
+import { cloneJson, freezeDeep } from '@/lib/shared/data';
+import type { ExecutionPlan, WorkflowDefinition } from '../model';
+import { validateArrangement } from '../model/arrangement';
+import type { NodeRegistry } from '../node/core/registry';
+import { nodeRegistry } from '../node/core/registry';
+
+export function buildExecutionPlan(raw: WorkflowDefinition, registry: NodeRegistry = nodeRegistry): ExecutionPlan {
+  const plan = validateArrangement(raw, (type) => registry.getNode(type).manifest, registry.types);
+  const nodes = plan.nodes.map((node) => ({
+    ...node,
+    config: registry.getNode(node.type).parseConfig(node.config, { nodeId: node.id }),
+  }));
+
+  return freezeDeep(cloneJson({ ...plan, nodes }));
+}
+
+export function validateWorkflow(flow: WorkflowDefinition, registry: NodeRegistry = nodeRegistry): void {
+  buildExecutionPlan(flow, registry);
+}

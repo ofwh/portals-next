@@ -1,0 +1,1 @@
+export { templateResolveNodeView } from './ui';

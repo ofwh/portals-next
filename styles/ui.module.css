@@ -1,0 +1,94 @@
+/* body 作用域兼容 Turbopack 校验，使用 :where 避免增加选择器权重。 */
+:where(body) [data-slot='combobox-chip-remove'] {
+  width: calc(var(--spacing) * 5);
+  height: calc(var(--spacing) * 5);
+  margin-left: 0;
+  border-radius: inherit;
+  color: inherit;
+  opacity: 0.6;
+}
+
+:where(body) [data-slot='combobox-chip-remove']:is(:hover, :focus-visible) {
+  background-color: color-mix(in oklab, currentColor 15%, transparent);
+  color: inherit;
+  opacity: 1;
+}
+
+:where(body) [data-slot='combobox-chip-remove']:focus-visible {
+  --tw-ring-color: color-mix(in oklab, currentColor 30%, transparent);
+  border-color: color-mix(in oklab, currentColor 30%, transparent);
+}
+
+:where(body) [data-slot='combobox-item'][data-highlighted] [data-slot='badge'] :where(*) {
+  color: inherit;
+}
+
+:where(body) [data-slot='field'][data-orientation='horizontal'] > [data-slot='field-content'] {
+  width: var(--field-label-width, 35%);
+  min-width: 0;
+  max-width: var(--field-label-width, 35%);
+  flex: 0 0 var(--field-label-width, 35%);
+}
+
+:where(body) [data-slot='field'][data-orientation='responsive'] > [data-slot='field-content'] {
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+  flex: none;
+}
+
+:where(body) [data-slot='field-content'] > :is([data-slot='field-label'], [data-slot='field-description']) {
+  min-width: 0;
+  max-width: 100%;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+:where(body)
+  [data-slot='field']:is([data-orientation='horizontal'], [data-orientation='responsive'])
+  > [data-slot='field-control'] {
+  display: flex;
+  min-width: 0;
+  flex: 1;
+  align-self: stretch;
+  align-items: center;
+  justify-content: flex-end;
+  gap: calc(var(--spacing) * 2);
+}
+
+:where(body) [data-slot='field'][data-orientation='responsive'] > [data-slot='field-control'] {
+  justify-content: flex-start;
+}
+
+:where(body) [data-slot='field-control'] > :is([data-slot='input'], [data-slot='textarea'], [data-slot='input-group']) {
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+}
+
+:where(body) [data-slot='field-control'] > [data-slot='textarea'] {
+  resize: vertical;
+}
+
+@container (width >= 28rem) {
+  :where(body) [data-slot='field'][data-orientation='responsive'] > [data-slot='field-content'] {
+    width: var(--field-label-width, 35%);
+    max-width: var(--field-label-width, 35%);
+    flex: 0 0 var(--field-label-width, 35%);
+  }
+
+  :where(body) [data-slot='field'][data-orientation='responsive'] > [data-slot='field-control'] {
+    justify-content: flex-end;
+  }
+}
+
+/* 公共表单高亮样式，保留在此模块，不迁移或移除。 */
+.highlight :where([data-slot='field']) {
+  padding: calc(var(--spacing) * 3);
+  border-radius: var(--radius-md);
+  transition: background-color 120ms ease;
+}
+
+.highlight :where([data-slot='field']:hover) {
+  background-color: color-mix(in oklab, var(--muted) 50%, transparent);
+}

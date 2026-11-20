@@ -1,20 +1,27 @@
 import type { NextConfig } from 'next';
+import createNextIntlPlugin from 'next-intl/plugin';
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  output: 'standalone',
+  outputFileTracingIncludes: {
+    '/*': ['./node_modules/better-sqlite3/prebuilds/*.node'],
+  },
   experimental: {
-    agentFeedback: true,
+    agentFeedback: false,
   },
   cacheComponents: true,
   partialPrefetching: true,
   turbopack: {
     rules: {
       '*.css': {
-        loaders: ['@tailwindcss/turbopack'],
+        condition: { not: { path: '*.module.css' } },
+        loaders: [require.resolve('@tailwindcss/turbopack')],
         as: '*.css',
       },
     },
   },
 };
 
-export default nextConfig;
+const withNextIntl = createNextIntlPlugin();
+
+export default withNextIntl(nextConfig);

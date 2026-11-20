@@ -1,0 +1,17 @@
+services:
+  portals:
+    image: ghcr.io/larify/portals-next:latest
+    container_name: portals
+    restart: 'no'
+    env_file:
+      - .env
+    volumes:
+      - '${PORTALS_DATA_DIR:-./data}:/app/data'
+    networks:
+      localhost:
+        ipv4_address: ${PORTALS_IP_ADDR}
+
+networks:
+  localhost:
+    external: true
+    name: ${PORTALS_BRIDGE_NETWORK}
