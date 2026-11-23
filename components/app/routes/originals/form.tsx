@@ -25,7 +25,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
 import { ROUTE_TYPE } from '@/lib/constants';
-import { CODE_LANGUAGES } from '@/lib/constants/code-editor';
+import { CODE_LANGUAGES, DEFAULT_CODE_LANGUAGE } from '@/lib/constants/code-editor';
 import type { OriginalFormChange, OriginalFormState } from '@/lib/types/routes';
 
 interface FormItem {
@@ -201,7 +201,7 @@ export function OriginalForm({
               required
               value={form.contentType}
               onChange={(event) => onChange('contentType', event.target.value)}
-              placeholder="application/json"
+              placeholder={DEFAULT_CODE_LANGUAGE.contentType}
               aria-describedby={`${id}-content-type-help`}
               autoCapitalize="none"
               spellCheck={false}

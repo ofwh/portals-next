@@ -5,10 +5,10 @@ import { useTranslations } from 'next-intl';
 import type { FormEvent, ReactElement, ReactNode } from 'react';
 import { FormErrorDialog } from '@/components/business/form-error-dialog';
 import { ListActionTrigger } from '@/components/business/list-actions';
+import { ResizableDrawerContent } from '@/components/business/resizable-drawer-content';
 import { Button } from '@/components/ui/button';
 import {
   Drawer,
-  DrawerContent,
   DrawerDescription,
   DrawerFooter,
   DrawerHeader,
@@ -118,7 +118,10 @@ export function RouteDrawer({
           {triggerLabel ?? (id ? t('shared.edit') : t(`admin.routes.${mode}.create`))}
         </DrawerTrigger>
       )}
-      <DrawerContent className="has-[[data-code-editor-fullscreen]]:transform-none has-[[data-code-editor-fullscreen]]:transition-none has-[[data-code-editor-fullscreen]]:will-change-auto data-[swipe-axis=x]:w-full data-[swipe-axis=x]:max-w-225 data-[swipe-axis=x]:sm:w-1/2">
+      <ResizableDrawerContent
+        open={open}
+        className="has-[[data-code-editor-fullscreen]]:transform-none has-[[data-code-editor-fullscreen]]:transition-none has-[[data-code-editor-fullscreen]]:will-change-auto data-[swipe-axis=x]:w-full data-[swipe-axis=x]:max-w-225 data-[swipe-axis=x]:sm:w-1/2"
+      >
         <DrawerHeader className="relative border-b p-6 pr-16">
           <DrawerTitle className="text-xl">
             {t(id ? `admin.routes.${mode}.editTitle` : `admin.routes.${mode}.newTitle`)}
@@ -170,7 +173,7 @@ export function RouteDrawer({
           </DrawerFooter>
         </form>
         <FormErrorDialog error={error} onClose={clearError} />
-      </DrawerContent>
+      </ResizableDrawerContent>
     </Drawer>
   );
 }

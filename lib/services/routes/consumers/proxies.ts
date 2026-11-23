@@ -21,6 +21,7 @@ import {
   requestOutbound,
   requestParameters,
   requestProxy,
+  responseCharset,
   responseCors,
   responseProxy,
 } from '../middleware';
@@ -167,7 +168,7 @@ export const proxies: ProxyRouteConsumer = new ProxyConsumer().use({
     requestHeaders(),
     requestProxy(),
   ],
-  response: [responseProxy(), responseCors()],
+  response: [responseProxy(), responseCharset('proxies'), responseCors()],
 });
 
 export default proxies;

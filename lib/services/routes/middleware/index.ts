@@ -3,6 +3,7 @@ export { headers as requestHeaders } from './request.headers';
 export { proxy as requestProxy } from './request.proxy';
 export { authorize as requestAuthorize } from './request.authorize';
 export { expired as requestExpired } from './request.expired';
+export { charset as responseCharset } from './response.charset';
 export { cors as responseCors, apply as applyCors } from './response.cors';
 export { proxy as responseProxy } from './response.proxy';
 export { redirect as responseRedirect } from './response.redirect';

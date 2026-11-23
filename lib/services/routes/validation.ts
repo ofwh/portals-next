@@ -1,4 +1,5 @@
 import { appError } from '@/lib/api';
+import { CODE_LANGUAGES, DEFAULT_CODE_LANGUAGE } from '@/lib/constants/code-editor';
 import { parseHeaders } from '@/lib/shared/headers';
 import { validJson } from '@/lib/shared/validation';
 import type { RouteListParams } from '@/lib/types/routes';
@@ -70,11 +71,14 @@ export function validateRedirect(params: Record<string, unknown>) {
 }
 
 export function validateOriginal(params: Record<string, unknown>) {
+  const language = v.string(params.language === undefined ? DEFAULT_CODE_LANGUAGE.value : params.language);
+  const preset = CODE_LANGUAGES.find((item) => item.value === language) ?? DEFAULT_CODE_LANGUAGE;
+
   return {
     ...validateBase(params),
     content: v.string(params.content, true),
-    contentType: v.string(params.contentType === undefined ? 'application/json' : params.contentType),
-    language: v.string(params.language === undefined ? 'plaintext' : params.language),
+    contentType: v.string(params.contentType === undefined ? preset.contentType : params.contentType),
+    language,
   };
 }
 

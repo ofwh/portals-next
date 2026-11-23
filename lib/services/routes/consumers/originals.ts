@@ -10,7 +10,7 @@ import type {
   RouteConsumer,
   RouteContext,
 } from '@/lib/types/route';
-import { requestAuthorize, requestExpired, requestParameters, responseOriginal } from '../middleware';
+import { requestAuthorize, requestExpired, requestParameters, responseCharset, responseOriginal } from '../middleware';
 import { failure, withErrorCode } from '../response';
 
 class OriginalConsumer implements RouteConsumer<'originals'> {
@@ -109,7 +109,7 @@ class OriginalConsumer implements RouteConsumer<'originals'> {
 
 export const originals: RouteConsumer<'originals'> = new OriginalConsumer().use({
   request: [requestParameters(), requestAuthorize(), requestExpired()],
-  response: [responseOriginal()],
+  response: [responseOriginal(), responseCharset('originals')],
 });
 
 export default originals;

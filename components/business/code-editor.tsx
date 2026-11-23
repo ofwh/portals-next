@@ -7,7 +7,7 @@ import { EditorView } from '@codemirror/view';
 import CodeMirror from '@uiw/react-codemirror';
 import { Copy, Minimize, SquareDimensions } from 'lucide-react';
 import { useTranslations } from 'next-intl';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -41,6 +41,7 @@ export function CodeEditor({
   const [languageOpen, setLanguageOpen] = useState(false);
   const [fullscreen, setFullscreen] = useState(false);
   const [syntax, setSyntax] = useState<{ language: string; extension: Extension }>();
+  const editorRef = useRef<HTMLDivElement>(null);
   const extensions = useMemo(
     () => [
       EditorView.lineWrapping,
@@ -50,6 +51,25 @@ export function CodeEditor({
     ],
     [id, labelId, descriptionId, language, syntax],
   );
+
+  useEffect(() => {
+    const editor = editorRef.current;
+    const scope = editor?.closest<HTMLElement>('[data-slot="drawer-popup"]') ?? editor;
+
+    function handleEscape(event: KeyboardEvent) {
+      if (event.key !== 'Escape' || event.isComposing || languageOpen || (!fullscreen && !event.repeat)) {
+        return;
+      }
+
+      event.preventDefault();
+      event.stopPropagation();
+      setFullscreen(false);
+    }
+
+    scope?.addEventListener('keydown', handleEscape, true);
+
+    return () => scope?.removeEventListener('keydown', handleEscape, true);
+  }, [fullscreen, languageOpen]);
 
   useEffect(() => {
     let active = true;
@@ -86,6 +106,7 @@ export function CodeEditor({
 
   return (
     <div
+      ref={editorRef}
       data-code-editor-fullscreen={fullscreen ? '' : undefined}
       className={`group/code-editor bg-background min-w-0 overflow-hidden ${fullscreen ? 'fixed inset-0 z-50' : 'relative w-full rounded-md border'}`}
     >

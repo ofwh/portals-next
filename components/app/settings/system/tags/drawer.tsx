@@ -7,10 +7,10 @@ import { useState } from 'react';
 import { TagForm } from '@/components/app/settings/system/tag-form';
 import { FormErrorDialog } from '@/components/business/form-error-dialog';
 import { ListActionTrigger } from '@/components/business/list-actions';
+import { ResizableDrawerContent } from '@/components/business/resizable-drawer-content';
 import { Button } from '@/components/ui/button';
 import {
   Drawer,
-  DrawerContent,
   DrawerDescription,
   DrawerFooter,
   DrawerHeader,
@@ -111,7 +111,10 @@ export function TagDrawer({
           {triggerLabel ?? (tagId ? t('shared.edit') : t('admin.settings.system.tags.create'))}
         </DrawerTrigger>
       )}
-      <DrawerContent className="data-[swipe-axis=x]:w-full data-[swipe-axis=x]:max-w-160 data-[swipe-axis=x]:sm:w-1/2">
+      <ResizableDrawerContent
+        open={open}
+        className="data-[swipe-axis=x]:w-full data-[swipe-axis=x]:max-w-160 data-[swipe-axis=x]:sm:w-1/2"
+      >
         <DrawerHeader className="relative border-b p-6 pr-16">
           <DrawerTitle className="text-xl">
             {t(tagId ? 'admin.settings.system.tags.editTitle' : 'admin.settings.system.tags.newTitle')}
@@ -167,7 +170,7 @@ export function TagDrawer({
           </DrawerFooter>
         </form>
         <FormErrorDialog error={error} onClose={clearError} />
-      </DrawerContent>
+      </ResizableDrawerContent>
     </Drawer>
   );
 }

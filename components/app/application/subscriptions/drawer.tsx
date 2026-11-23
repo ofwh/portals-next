@@ -6,10 +6,10 @@ import type { FormEvent, ReactNode } from 'react';
 import type { SubscriptionDrawerProps } from '@/components/app/application/subscriptions/table';
 import { FormErrorDialog } from '@/components/business/form-error-dialog';
 import { ListActionTrigger } from '@/components/business/list-actions';
+import { ResizableDrawerContent } from '@/components/business/resizable-drawer-content';
 import { Button } from '@/components/ui/button';
 import {
   Drawer,
-  DrawerContent,
   DrawerDescription,
   DrawerFooter,
   DrawerHeader,
@@ -108,7 +108,10 @@ export function SubscriptionDrawer({
           {triggerLabel ?? (id ? t('shared.edit') : t(`${namespace}.create`))}
         </DrawerTrigger>
       )}
-      <DrawerContent className="data-[swipe-axis=x]:w-full data-[swipe-axis=x]:max-w-225 data-[swipe-axis=x]:sm:w-1/2">
+      <ResizableDrawerContent
+        open={open}
+        className="data-[swipe-axis=x]:w-full data-[swipe-axis=x]:max-w-225 data-[swipe-axis=x]:sm:w-1/2"
+      >
         <DrawerHeader className="relative border-b p-6 pr-16">
           <DrawerTitle className="text-xl">{t(id ? `${namespace}.editTitle` : `${namespace}.newTitle`)}</DrawerTitle>
           <DrawerDescription>
@@ -158,7 +161,7 @@ export function SubscriptionDrawer({
           </DrawerFooter>
         </form>
         <FormErrorDialog error={error} onClose={clearError} />
-      </DrawerContent>
+      </ResizableDrawerContent>
     </Drawer>
   );
 }

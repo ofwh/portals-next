@@ -1,10 +1,16 @@
 import { getOriginal, updateOriginal } from '@/lib/client/routes';
+import { DEFAULT_CODE_LANGUAGE } from '@/lib/constants/code-editor';
 import type { OriginalFormState } from '@/lib/types/routes';
 import { initialRouteForm, routeDetailForm, routeInput } from './form';
 import type { FormStrategy } from './strategy';
 
 const strategy: FormStrategy<OriginalFormState> = {
-  initialForm: () => ({ ...initialRouteForm(), content: '', contentType: 'application/json', language: 'plaintext' }),
+  initialForm: () => ({
+    ...initialRouteForm(),
+    content: '',
+    contentType: DEFAULT_CODE_LANGUAGE.contentType,
+    language: DEFAULT_CODE_LANGUAGE.value,
+  }),
   async load(id, signal) {
     const detail = await getOriginal(id, signal);
 

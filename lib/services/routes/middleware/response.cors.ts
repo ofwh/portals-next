@@ -1,12 +1,10 @@
 import type { ConfigMap, ForwardMode, Middleware } from '@/lib/types/route';
 import { copyErrorCode } from '../response';
 
-export function apply(_req: Request, response: Response, cors: ConfigMap['proxies']['cors']): Response {
+export function applyCorsHeaders(headers: Headers, cors: ConfigMap['proxies']['cors']): void {
   if (cors === -1) {
-    return response;
+    return;
   }
-
-  const headers = new Headers(response.headers);
 
   for (const name of [...headers.keys()]) {
     if (name.toLowerCase().startsWith('access-control-')) {
@@ -16,6 +14,16 @@ export function apply(_req: Request, response: Response, cors: ConfigMap['proxie
   if (cors === 1) {
     headers.set('access-control-allow-origin', '*');
   }
+}
+
+export function apply(_req: Request, response: Response, cors: ConfigMap['proxies']['cors']): Response {
+  if (cors === -1) {
+    return response;
+  }
+
+  const headers = new Headers(response.headers);
+
+  applyCorsHeaders(headers, cors);
 
   return copyErrorCode(
     response,

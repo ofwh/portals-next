@@ -104,6 +104,7 @@ export interface RedisSetOptions {
 }
 
 export interface CacheRecord {
+  metaVersion: number;
   status: number;
   statusText: string;
   headers: [string, string][];

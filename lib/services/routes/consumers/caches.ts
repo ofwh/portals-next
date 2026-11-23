@@ -25,10 +25,12 @@ import {
   requestParameters,
   requestProxy,
   responseCache,
-  responseCors,
 } from '../middleware';
+import { cleanupMeta } from '../middleware/response.cache';
 import { create } from '../middleware/response.proxy';
 import { failure, RouteError, withErrorCode } from '../response';
+
+const CACHE_META_VERSION = 1;
 
 class CacheConsumer implements CacheRouteConsumer {
   readonly mode = 'caches' as const;
@@ -132,7 +134,7 @@ class CacheConsumer implements CacheRouteConsumer {
     return ttl === 0 ? undefined : seconds;
   }
 
-  private async snapshot(response: Response): Promise<CacheSnapshot> {
+  private async snapshot(response: Response, cors: ConfigMap['caches']['cors']): Promise<CacheSnapshot> {
     const normalized = create(response);
     let body: Uint8Array;
 
@@ -147,7 +149,7 @@ class CacheConsumer implements CacheRouteConsumer {
     return {
       status: normalized.status,
       statusText: normalized.statusText,
-      headers: [...normalized.headers],
+      headers: [...cleanupMeta(normalized.headers, normalized.body ? body : null, cors)],
       body,
       cachedAt: new Date(),
     };
@@ -156,6 +158,7 @@ class CacheConsumer implements CacheRouteConsumer {
   private encode(snapshot: CacheSnapshot): Uint8Array {
     const { body, cachedAt, ...metadata } = snapshot;
     const record: CacheRecord = {
+      metaVersion: CACHE_META_VERSION,
       ...metadata,
       bodyBase64: Buffer.from(body).toString('base64'),
       cachedAt: cachedAt.toISOString(),
@@ -171,6 +174,8 @@ class CacheConsumer implements CacheRouteConsumer {
       if (
         !record ||
         typeof record !== 'object' ||
+        !('metaVersion' in record) ||
+        record.metaVersion !== CACHE_META_VERSION ||
         !('status' in record) ||
         typeof record.status !== 'number' ||
         !Number.isInteger(record.status) ||
@@ -232,7 +237,7 @@ class CacheConsumer implements CacheRouteConsumer {
       !headers.has('set-cookie') &&
       !/(?:^|,)\s*(?:private|no-store)(?:\s|=|,|$)/i.test(headers.get('cache-control') ?? '') &&
       !(headers.get('vary') ?? '').split(',').some((name) => name.trim() === '*');
-    const snapshot = await this.snapshot(response);
+    const snapshot = await this.snapshot(response, context.config.cors);
     const current = repository.findById(context.config.id);
 
     if (cacheable && current && this.createKey(current).revision === key.revision) {
@@ -324,7 +329,7 @@ export const caches: CacheRouteConsumer = new CacheConsumer().use({
     requestHeaders(),
     requestProxy(),
   ],
-  response: [responseCache(), responseCors()],
+  response: [responseCache()],
 });
 
 export default caches;
